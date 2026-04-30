@@ -3,144 +3,144 @@
 Project: Smart Warehouse Bio Hazard and Pest Detection
 Group: 5
 
-Backlog ini disusun berdasarkan kebutuhan utama dari studi kasus hackathon PT. Kawan Lama, yaitu membangun sistem deteksi hewan liar di gudang secara otomatis menggunakan AI. Setiap item sudah diurutkan berdasarkan prioritas, dari yang paling krusial untuk sistem bisa berjalan, sampai fitur tambahan yang sifatnya nice to have.
+This backlog is based on the core requirements from the PT. Kawan Lama hackathon case study. The goal is to build an automated AI system that detects wild animals inside warehouse environments. Each item is ordered by priority, starting from the most critical system components down to additional features.
 
 
-## PB 01: Setup dan Training Model Object Detection (YOLO)
+## PB 01: Setup and Training of Object Detection Model (YOLO)
 
-Priority: Tinggi
+Priority: High
 Type: AI/ML
 Status: Done
 Assigned to: Fathir
 
-Goal: Kita perlu model AI yang bisa mengenali tiga jenis hewan (ular, kucing, dan cicak) di lingkungan gudang. Tanpa model ini, seluruh sistem tidak bisa berjalan karena ini jantung utama dari deteksi.
+Goal: We need an AI model that can recognize three types of animals (snakes, cats, and geckos) inside a warehouse setting. Without this model, the entire system cannot function because this is the core engine of the detection pipeline.
 
-Detail: Fathir mengumpulkan dataset gambar dari berbagai sumber, melakukan anotasi manual, dan melatih model YOLOv11 Nano supaya ringan tapi tetap akurat. Dataset juga di augmentasi dengan perubahan brightness dan kontras supaya mirip kondisi pencahayaan gudang yang remang.
+Detail: Fathir collected image datasets from various sources, manually annotated them, and trained a YOLOv11 Nano model to keep it lightweight but still accurate. The dataset was also augmented with brightness and contrast adjustments to simulate the dim lighting conditions typical of warehouses.
 
-Acceptance Criteria: Model bisa mendeteksi ular, kucing, dan cicak dengan confidence di atas 60 persen pada video test.
+Acceptance Criteria: The model can detect snakes, cats, and geckos with confidence above 60 percent on test video footage.
 
 
-## PB 02: Layout Dashboard Monitoring
+## PB 02: Monitoring Dashboard UI Layout
 
-Priority: Tinggi
+Priority: High
 Type: Frontend
 Status: Done
 Assigned to: Misha
 
-Goal: Warehouse Manager butuh tampilan monitoring yang jelas dan intuitif supaya bisa langsung lihat kondisi gudang tanpa harus paham teknis AI.
+Goal: The Warehouse Manager needs a clear and intuitive monitoring interface so they can immediately see what is happening in the warehouse without needing to understand the technical details of the AI.
 
-Detail: Misha membangun dashboard menggunakan React dan Vite dengan empat halaman utama, yaitu Live Monitor, Detection Logs, Risk Analysis, dan Settings. Desainnya dibuat clean dan modern supaya nyaman dilihat selama berjam jam di shift kerja. Sidebar navigasi, stat cards, dan alert list semua dirancang responsive dari desktop sampai mobile.
+Detail: Misha built the dashboard using React and Vite with four main pages: Live Monitor, Detection Logs, Risk Analysis, and Settings. The design was kept clean and modern so it is comfortable to look at during long work shifts. Sidebar navigation, stat cards, and the alert list were all designed to be responsive from desktop down to mobile.
 
-Acceptance Criteria: Dashboard bisa diakses di browser, navigasi antar halaman lancar, dan layout tidak pecah di layar HP.
+Acceptance Criteria: The dashboard loads in the browser, navigation between pages works smoothly, and the layout does not break on mobile screens.
 
 
-## PB 03: Video Simulator dan Live Streaming
+## PB 03: Video Simulator and Live Streaming
 
-Priority: Tinggi
+Priority: High
 Type: Integration
 Status: Done
-Assigned to: Fathir dan Sultan
+Assigned to: Fathir and Sultan
 
-Goal: Sistem harus bisa menampilkan feed video kamera gudang secara real time, lengkap dengan bounding box yang menandai hewan yang terdeteksi.
+Goal: The system must be able to display the warehouse camera feed in real time, complete with bounding boxes marking any detected animals.
 
-Detail: Backend menggunakan OpenCV untuk capture frame dari kamera, lalu YOLO memproses setiap frame untuk deteksi. Hasilnya dikirim sebagai MJPEG stream ke frontend. Kalau ada hewan terdeteksi, bounding box langsung digambar di frame sebelum dikirim ke client.
+Detail: The backend uses OpenCV to capture frames from the camera, then YOLO processes each frame for detection. The result is sent as an MJPEG stream to the frontend. If an animal is detected, bounding boxes are drawn on the frame before it is sent to the client.
 
-Acceptance Criteria: Tombol Start Cam di dashboard bisa mengaktifkan kamera, video tampil lancar, dan bounding box muncul saat ada hewan.
+Acceptance Criteria: The Start Cam button on the dashboard activates the camera, video plays smoothly, and bounding boxes appear when animals are detected.
 
 
-## PB 04: Database Logging untuk Setiap Deteksi
+## PB 04: Database Logging for Every Detection
 
-Priority: Tinggi
+Priority: High
 Type: Backend
 Status: Done
 Assigned to: Fathir
 
-Goal: Semua event deteksi harus tersimpan di database supaya ada historical record yang bisa diakses kapan saja, bukan cuma real time.
+Goal: All detection events must be saved in a database so there is a historical record that can be accessed anytime, not just in real time.
 
-Detail: Setiap kali model mendeteksi hewan, backend otomatis menyimpan data ke SQLite dengan informasi tipe hewan, lokasi zona kamera, timestamp, dan level risiko. Data ini kemudian bisa diambil oleh frontend melalui REST API endpoint.
+Detail: Every time the model detects an animal, the backend automatically saves the data to SQLite with full information including animal type, camera zone location, timestamp, and risk level. This data can then be retrieved by the frontend through the REST API endpoint.
 
-Acceptance Criteria: Setiap deteksi tercatat di database, bisa dilihat di halaman Detection Logs, dan data bertahan meskipun server di restart.
+Acceptance Criteria: Every detection is recorded in the database, viewable on the Detection Logs page, and data persists even when the server is restarted.
 
 
-## PB 05: Sistem Alert dan Notifikasi Cepat
+## PB 05: Alert and Rapid Notification System
 
-Priority: Sedang
+Priority: Medium
 Type: Feature
 Status: Done
-Assigned to: Misha dan Sultan
+Assigned to: Misha and Sultan
 
-Goal: Pekerja gudang butuh peringatan cepat kalau ada hewan berbahaya terdeteksi, terutama ular yang bisa mengancam keselamatan jiwa.
+Goal: Warehouse workers need a fast warning when a dangerous animal is detected, especially snakes that can threaten human safety.
 
-Detail: Sistem membedakan dua tingkat alert. Pertama, Bio Hazard untuk ular yang memicu peringatan darurat. Kedua, Contamination untuk kucing dan cicak yang sifatnya lebih ke risiko pencemaran barang. Alert muncul di Recent Alerts panel secara real time, dan bisa di share ke WhatsApp atau Telegram untuk notifikasi tim lapangan.
+Detail: The system distinguishes two alert levels. First, Bio Hazard for snakes which triggers an emergency warning. Second, Contamination for cats and geckos which are more about the risk of product spoilage. Alerts appear in the Recent Alerts panel in real time, and can be shared to WhatsApp or Telegram to notify field teams.
 
-Acceptance Criteria: Alert muncul otomatis saat ada deteksi baru, badge risiko tampil dengan benar, dan tombol share berfungsi.
+Acceptance Criteria: Alerts appear automatically when a new detection occurs, risk badges display correctly, and share buttons work.
 
 
-## PB 06: Halaman Risk Analysis dan Executive Summary
+## PB 06: Risk Analysis Page and Executive Summary
 
-Priority: Sedang
+Priority: Medium
 Type: Feature
 Status: Done
-Assigned to: Misha dan Risly
+Assigned to: Misha and Risly
 
-Goal: Manager butuh ringkasan analisis mingguan yang bisa dipresentasikan ke manajemen PT. Kawan Lama, bukan cuma data mentah.
+Goal: Managers need a weekly analysis summary that can be presented to PT. Kawan Lama management, not just raw data.
 
-Detail: Halaman Risk Analysis menampilkan chart distribusi risiko per minggu menggunakan Recharts. Ada juga section rapid response protocols yang menjelaskan SOP penanganan untuk setiap tipe hewan. Risly menyusun konten executive summary berdasarkan data riil dari database deteksi.
+Detail: The Risk Analysis page displays a weekly risk distribution chart using Recharts. There is also a section on rapid response protocols explaining the standard operating procedure for handling each animal type. Risly wrote the executive summary content based on real data from the detection database.
 
-Acceptance Criteria: Chart menampilkan data mingguan, protokol penanganan jelas terbaca, dan halaman bisa di export atau di screenshot untuk presentasi.
+Acceptance Criteria: Charts display weekly data, handling protocols are clearly readable, and the page can be exported or screenshotted for presentations.
 
 
-## PB 07: API Endpoint dan Autentikasi JWT
+## PB 07: API Endpoints and JWT Authentication
 
-Priority: Tinggi
+Priority: High
 Type: Backend
 Status: Done
-Assigned to: Fathir dan Sultan
+Assigned to: Fathir and Sultan
 
-Goal: Frontend butuh API yang aman untuk mengambil data deteksi, dan sistem harus mencegah akses tidak sah ke kamera dan database.
+Goal: The frontend needs secure API endpoints to retrieve detection data, and the system must prevent unauthorized access to the camera and database.
 
-Detail: Backend menyediakan beberapa endpoint REST melalui FastAPI, termasuk endpoint untuk login, register, mengambil detection logs, dan streaming video. Semua endpoint yang sensitif dilindungi oleh JWT token. Kalau user belum login, request otomatis ditolak oleh server.
+Detail: The backend provides several REST endpoints through FastAPI, including endpoints for login, registration, fetching detection logs, and video streaming. All sensitive endpoints are protected by JWT tokens. If a user is not logged in, the request is automatically rejected by the server.
 
-Acceptance Criteria: User harus login dulu sebelum bisa akses dashboard, token expired setelah waktu tertentu, dan endpoint kamera tidak bisa diakses tanpa autentikasi.
+Acceptance Criteria: Users must log in before accessing the dashboard, tokens expire after a set time, and camera endpoints cannot be accessed without authentication.
 
 
-## PB 08: Filter Objek Cerdas (Whitelist Detection)
+## PB 08: Smart Object Filtering (Whitelist Detection)
 
-Priority: Sedang
+Priority: Medium
 Type: Bug Fix / Enhancement
 Status: Done
 Assigned to: Sultan
 
-Goal: Model YOLO secara default mendeteksi 80 kelas objek termasuk benda mati seperti sofa, tas, dan laptop. Kita perlu filter supaya hanya hewan relevan yang masuk ke log.
+Goal: The YOLO model by default detects 80 object classes including inanimate objects like couches, backpacks, and laptops. We need a filter so only relevant animals are logged.
 
-Detail: Sultan menambahkan whitelist class di backend yang hanya mengizinkan kelas person, cat, dog, bird, horse, sheep, cow, dan beberapa hewan lain yang relevan. Objek seperti backpack, couch, dan laptop otomatis diabaikan meskipun terdeteksi oleh model. Ini menghilangkan false positive yang bikin log berantakan.
+Detail: Sultan added a class whitelist in the backend that only allows classes like person, cat, dog, bird, horse, sheep, cow, and other relevant animals. Objects like backpack, couch, and laptop are automatically ignored even if detected by the model. This eliminates false positives that would clutter the logs.
 
-Acceptance Criteria: Hanya hewan dan manusia yang muncul di detection logs. Benda mati tidak lagi tercatat sebagai kontaminasi.
+Acceptance Criteria: Only animals and humans appear in detection logs. Inanimate objects are no longer recorded as contamination events.
 
 
-## PB 09: Responsivitas Mobile untuk Semua Perangkat
+## PB 09: Mobile Responsiveness Across All Devices
 
-Priority: Sedang
+Priority: Medium
 Type: Frontend
 Status: Done
-Assigned to: Misha dan Sultan
+Assigned to: Misha and Sultan
 
-Goal: Dashboard harus bisa diakses dengan nyaman dari HP pekerja lapangan, bukan cuma dari komputer kantor.
+Goal: The dashboard must be comfortably usable from field workers' phones, not just from office computers.
 
-Detail: CSS media queries ditambahkan untuk breakpoint 768px dan 480px. Stat cards yang tadinya grid 4 kolom di desktop berubah jadi stack vertical di mobile. Sidebar menjadi collapsible, dan tombol tombol kontrol kamera tidak terpotong di layar kecil. Testing dilakukan di resolusi iPhone XR sampai Samsung Note series.
+Detail: CSS media queries were added for breakpoints at 768px and 480px. Stat cards that were in a 4 column grid on desktop switch to a vertical stack on mobile. The sidebar becomes collapsible, and camera control buttons do not get cut off on small screens. Testing was done on resolutions from iPhone XR up to Samsung Note series.
 
-Acceptance Criteria: Semua halaman tampil rapi di layar HP tanpa horizontal scroll dan tanpa elemen yang terpotong.
+Acceptance Criteria: All pages display properly on phone screens without horizontal scrolling and without any elements being cut off.
 
 
-## PB 10: Halaman Settings dan Konfigurasi User
+## PB 10: Settings Page and User Configuration
 
-Priority: Rendah
+Priority: Low
 Type: Feature
 Status: Done
 Assigned to: Misha
 
-Goal: Admin gudang perlu bisa mengatur preferensi dasar seperti dark mode, bahasa notifikasi, dan pengaturan akun dari dalam dashboard.
+Goal: Warehouse admins need to be able to adjust basic preferences like dark mode, notification language, and account settings from within the dashboard.
 
-Detail: Halaman Settings menyediakan toggle untuk dark mode, pengaturan profil user, dan opsi konfigurasi lainnya. Semua perubahan tersimpan di local state dan langsung berpengaruh ke seluruh tampilan dashboard.
+Detail: The Settings page provides a toggle for dark mode, user profile settings, and other configuration options. All changes are saved in local state and immediately affect the entire dashboard appearance.
 
-Acceptance Criteria: Toggle dark mode berfungsi, perubahan settings langsung terlihat efeknya, dan halaman tidak error saat diakses.
+Acceptance Criteria: Dark mode toggle works, settings changes are immediately visible, and the page does not error when accessed.

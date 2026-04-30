@@ -8,25 +8,25 @@ Group: 5
 
 Risly Maria Theresia Worung (001202400069)
 
-Risly bertanggung jawab sebagai pemilik visi produk. Dia yang menentukan arah utama project ini, yaitu membangun sistem deteksi hewan liar di gudang PT. Kawan Lama yang bisa berdampak langsung ke keselamatan pekerja dan keamanan barang. Risly juga yang memastikan setiap fitur yang kita bangun benar benar menjawab kebutuhan dari studi kasus hackathon, bukan fitur yang kita bikin asal ada. Selain itu, dia yang menyusun Executive Summary dan memvalidasi bahwa output akhir sudah sesuai ekspektasi juri.
+Risly is the one who defines the product vision and makes sure it aligns with the hackathon challenge from PT. Kawan Lama. She decides which features actually matter for the judges and which ones are just nice to have. Throughout the project, she kept the team focused on solving the real problem: detecting wild animals in large warehouse environments. She also wrote the Executive Summary and validated the final output before the demo.
 
 
 ## Scrum Master
 
 Sultan Zhalifunnas Musyaffa (001202400200)
 
-Sultan mengatur jalannya sprint, dari perencanaan awal sampai review di akhir minggu. Kalau ada blocker teknis seperti model training yang lambat atau bug integrasi frontend backend, Sultan yang cari jalan keluarnya bareng tim. Dia juga yang nge push supaya commit harian berjalan dan memastikan setiap orang tahu task mereka di setiap sprint. Di sisi teknis, Sultan ikut bantu di bagian backend dan deployment.
+Sultan manages the sprint cycles from planning to review. When technical blockers come up, like slow model training or frontend backend integration bugs, he steps in to find workarounds with the team. He also makes sure daily commits happen and that every member knows their tasks for each sprint. On the technical side, Sultan contributes to backend development and handles deployment.
 
 
 ## Developer (Backend and AI)
 
 Fathir Barhouti Awlya (001202400054)
 
-Fathir pegang kendali penuh di sisi AI dan backend. Mulai dari ngumpulin dataset gambar hewan, training model YOLO, sampai bikin API endpoint pakai FastAPI, semua jadi tanggung jawab dia. Fathir juga yang bikin pipeline video processing supaya kamera bisa streaming real time ke dashboard dengan bounding box yang tergambar otomatis.
+Fathir owns the entire AI and backend pipeline. He collected the image datasets, annotated them for training, trained the YOLO model, and built the FastAPI endpoints that serve video streams and detection data. He also built the video processing pipeline using OpenCV so the camera feed can stream to the dashboard in real time with bounding boxes drawn on detected animals.
 
 
 ## Developer (Frontend and Dashboard)
 
 Misha Andalusia (001202400040)
 
-Misha bertanggung jawab membangun seluruh tampilan dashboard monitoring menggunakan React dan Vite. Dia yang merancang layout UI, membuat halaman Live Monitor, Detection Logs, Risk Analysis, dan Settings. Misha juga yang mengintegrasikan data dari backend API ke komponen React supaya alert dan log deteksi bisa muncul secara real time tanpa perlu refresh halaman.
+Misha built the entire monitoring dashboard using React and Vite. She designed the UI layout and created the Live Monitor, Detection Logs, Risk Analysis, and Settings pages. She also integrated the backend API data into React components so alerts and detection logs show up in real time without needing a page refresh.
