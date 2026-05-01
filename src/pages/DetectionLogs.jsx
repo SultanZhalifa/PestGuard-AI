@@ -11,7 +11,7 @@ const RISK_FILTERS = [
 export default function DetectionLogs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
-  const { logs: allLogs } = useWarehouse();
+  const { logs: allLogs, authToken } = useWarehouse();
   
   // Typing animation state
   const placeholders = ["Search 'Snake'...", "Search 'Zone A'...", "Search 'Contamination'..."];
@@ -49,25 +49,20 @@ export default function DetectionLogs() {
   // We no longer need to fetch manually, WarehouseContext provides live data!
   const loading = allLogs.length === 0 && !searchTerm; // simple loading check
 
-  const handleExportCSV = () => {
-    if (filteredLogs.length === 0) return;
-    
-    const headers = ['ID', 'Animal Type', 'Risk Level', 'Location', 'Date', 'Time', 'AI Confidence'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredLogs.map(log => [
-        log.id, log.type, log.risk, `"${log.location}"`, log.date, log.time, log.confidence
-      ].join(','))
-    ].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `warehouse-logs-${activeFilter}-${new Date().toISOString().slice(0,10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleExportCSV = async () => {
+    try {
+      const response = await fetch(`/api/export/logs?token=${authToken}`);
+      if (!response.ok) throw new Error('Export failed');
+      const csvText = await response.text();
+      const today = new Date().toISOString().slice(0,10);
+      const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvText);
+      const a = document.createElement('a');
+      a.href = dataUri;
+      a.download = `warehouse-logs-${today}.csv`;
+      a.click();
+    } catch (err) {
+      console.error('CSV export failed:', err);
+    }
   };
 
   const filteredLogs = allLogs.filter(log => {

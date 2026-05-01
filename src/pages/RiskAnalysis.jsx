@@ -39,20 +39,18 @@ export default function RiskAnalysis() {
     setExporting(true);
     try {
       const canvas = await html2canvas(reportRef.current, {
-        scale: 2,
+        scale: 1.5,
         useCORS: true,
         backgroundColor: '#111111',
         logging: false,
       });
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/jpeg', 0.85);
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       
-      // If the content is taller than one page, scale it
       const pageHeight = pdf.internal.pageSize.getHeight();
       if (pdfHeight > pageHeight) {
-        // Multi-page
         let position = 0;
         let remaining = canvas.height;
         const pageCanvasHeight = (pageHeight * canvas.width) / pdfWidth;
@@ -65,20 +63,25 @@ export default function RiskAnalysis() {
           const ctx = pageCanvas.getContext('2d');
           ctx.drawImage(canvas, 0, position, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
           
-          const pageImg = pageCanvas.toDataURL('image/png');
+          const pageImg = pageCanvas.toDataURL('image/jpeg', 0.85);
           const slicePdfH = (sliceHeight * pdfWidth) / canvas.width;
           
           if (position > 0) pdf.addPage();
-          pdf.addImage(pageImg, 'PNG', 0, 0, pdfWidth, slicePdfH);
+          pdf.addImage(pageImg, 'JPEG', 0, 0, pdfWidth, slicePdfH);
           
           position += sliceHeight;
           remaining -= sliceHeight;
         }
       } else {
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
       }
       
-      pdf.save(`SmartWarehouse-ExecutiveSummary-${new Date().toISOString().slice(0,10)}.pdf`);
+      // Use data URI to download with proper filename
+      const pdfBase64 = pdf.output('datauristring');
+      const a = document.createElement('a');
+      a.href = pdfBase64;
+      a.download = `SmartWarehouse-ExecutiveSummary-${new Date().toISOString().slice(0,10)}.pdf`;
+      a.click();
     } catch (err) {
       console.error('PDF Export failed:', err);
     }

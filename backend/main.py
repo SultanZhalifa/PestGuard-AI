@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, Response
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import cv2
@@ -171,6 +171,31 @@ def get_logs(auth: bool = Depends(verify_token)):
     rows = cursor.fetchall()
     conn.close()
     return [{"id": r[0], "type": r[1], "location": r[2], "date": r[3], "time": r[4], "confidence": r[5], "risk": r[6]} for r in rows]
+
+@app.get("/api/export/logs")
+def export_logs_csv(token: Optional[str] = None):
+    # Accept token as query param since window.open can't send headers
+    if not token or not token.startswith("jwt-token-"):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, type, location, date, time, confidence, risk FROM logs ORDER BY id DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    
+    import io
+    output = io.StringIO()
+    output.write("ID,Animal Type,Location,Date,Time,Confidence,Risk Level\n")
+    for r in rows:
+        output.write(f'{r[0]},{r[1]},"{r[2]}",{r[3]},{r[4]},{r[5]},{r[6]}\n')
+    
+    csv_content = output.getvalue()
+    today = time.strftime("%Y-%m-%d")
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="warehouse-logs-{today}.csv"'}
+    )
 
 @app.get("/api/analytics")
 def get_analytics(auth: bool = Depends(verify_token)):
