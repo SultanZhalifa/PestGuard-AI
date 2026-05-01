@@ -230,6 +230,76 @@ export default function Settings() {
         </div>
 
       </div>
+
+      {/* System Architecture Section */}
+      <div style={{ 
+        backgroundColor: 'var(--bg-secondary)', borderRadius: '20px', padding: '2.5rem', 
+        border: '1px solid var(--border-color)', marginTop: '2rem',
+        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02), 0 10px 15px -3px rgba(0,0,0,0.05)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.75rem' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          </div>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>
+            System Architecture
+          </h3>
+        </div>
+
+        {/* Architecture Flow */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap', padding: '1.5rem 0' }}>
+          {[
+            { name: 'Camera/Video', sub: 'OpenCV', color: '#6366f1', icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z' },
+            { name: 'YOLO11 AI', sub: 'Inference', color: '#ef4444', icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' },
+            { name: 'FastAPI', sub: 'Backend', color: '#059669', icon: 'M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01' },
+            { name: 'SQLite', sub: 'Database', color: '#0ea5e9', icon: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4' },
+            { name: 'WebSocket', sub: 'Real-time', color: '#f59e0b', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
+            { name: 'React', sub: 'Dashboard', color: '#3b82f6', icon: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+          ].map((item, i, arr) => (
+            <React.Fragment key={i}>
+              <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem',
+                padding: '1rem 1.25rem', borderRadius: '14px', backgroundColor: 'var(--bg-primary)',
+                border: '1px solid var(--border-color)', minWidth: '100px',
+                transition: 'all 0.3s ease'
+              }}
+                onMouseOver={e => { e.currentTarget.style.borderColor = item.color; e.currentTarget.style.boxShadow = `0 4px 12px ${item.color}20`; }}
+                onMouseOut={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
+              >
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: `${item.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={item.icon}></path></svg>
+                </div>
+                <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)' }}>{item.name}</span>
+                <span style={{ fontSize: '0.65rem', fontWeight: '500', color: 'var(--text-secondary)' }}>{item.sub}</span>
+              </div>
+              {i < arr.length - 1 && (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4, flexShrink: 0 }}>
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+
+        {/* Tech Specs */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem' }}>
+          {[
+            { label: 'Frontend Framework', value: 'React 19 + Vite 8' },
+            { label: 'Backend Framework', value: 'FastAPI + Uvicorn' },
+            { label: 'AI Model', value: 'YOLO11-Nano (Ultralytics)' },
+            { label: 'Computer Vision', value: 'OpenCV 4 + NumPy' },
+            { label: 'Database', value: 'SQLite3 (Local)' },
+            { label: 'Real-time Protocol', value: 'WebSocket (Bi-directional)' },
+            { label: 'Charting Library', value: 'Recharts 3' },
+            { label: 'Report Export', value: 'jsPDF + html2canvas' },
+          ].map((spec, i) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 0', borderBottom: '1px solid var(--border-color)' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{spec.label}</span>
+              <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-primary)' }}>{spec.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
       
       <style>{`
         @keyframes slideUp {

@@ -10,15 +10,15 @@ export function WarehouseProvider({ children }) {
   const [alerts, setAlerts] = useState([]);
   const [logs, setLogs] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
-  const [authToken, setAuthToken] = useState(localStorage.getItem('token'));
+  const [authToken, setAuthToken] = useState(sessionStorage.getItem('token'));
 
-  // Sync token to localStorage and state
+  // Sync token to sessionStorage and state
   const login = (token) => {
-    localStorage.setItem('token', token);
+    sessionStorage.setItem('token', token);
     setAuthToken(token);
   };
   const logout = () => {
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     setAuthToken(null);
   };
 

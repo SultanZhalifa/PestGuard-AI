@@ -255,10 +255,14 @@ def toggle_camera(req: CameraState, auth: bool = Depends(verify_token)):
         if global_camera is None:
             cam_src = APP_SETTINGS["cameraUrl"]
             if cam_src == "0": cam_src = 0
-            if cam_src == 0:
-                global_camera = cv2.VideoCapture(cam_src, cv2.CAP_DSHOW)
-            else:
-                global_camera = cv2.VideoCapture(cam_src)
+            
+            global_camera = cv2.VideoCapture(cam_src)
+            
+            if cam_src == 0 and not global_camera.isOpened():
+                # Fallback to directshow or index 1 if 0 fails
+                global_camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+                if not global_camera.isOpened():
+                    global_camera = cv2.VideoCapture(1)
             if cam_src == 0:
                 global_camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
                 global_camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
@@ -286,7 +290,12 @@ def background_video_processor():
         try:
             if global_camera is None or not global_camera.isOpened():
                 frame = np.zeros((480, 640, 3), dtype=np.uint8)
-                cv2.putText(frame, "Camera is OFF (Standby Mode)", (120, 240), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (150, 150, 150), 2)
+                if global_camera is not None:
+                    cv2.putText(frame, "ERROR: No Webcam Detected", (120, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+                    cv2.putText(frame, "Please configure an MP4 file path", (100, 240), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (200, 200, 200), 2)
+                    cv2.putText(frame, "in the Settings page.", (180, 280), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (200, 200, 200), 2)
+                else:
+                    cv2.putText(frame, "Camera is OFF (Standby Mode)", (120, 240), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (150, 150, 150), 2)
                 ret, buffer = cv2.imencode('.jpg', frame)
                 LATEST_FRAME_BYTES = buffer.tobytes()
                 LATEST_INFERENCE_TIME = 0
@@ -370,8 +379,6 @@ def background_video_processor():
             else:
                 annotated_frame = frame
                 
-            timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-            cv2.putText(annotated_frame, f"LIVE CAM | {timestamp}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
             
             ret, buffer = cv2.imencode('.jpg', annotated_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
             LATEST_FRAME_BYTES = buffer.tobytes()

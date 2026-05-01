@@ -4,8 +4,14 @@ import { useWarehouse } from '../context/WarehouseContext';
 
 export default function DashboardLayout() {
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-  const { alerts, logout } = useWarehouse();
+  const { alerts, logout, authToken } = useWarehouse();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authToken) {
+      navigate('/login');
+    }
+  }, [authToken, navigate]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })), 1000);
