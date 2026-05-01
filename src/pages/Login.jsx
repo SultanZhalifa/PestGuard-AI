@@ -115,6 +115,16 @@ export default function Login() {
           position: 'absolute', inset: 0, zIndex: 1,
           background: 'linear-gradient(90deg, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.85) 40%, rgba(15,23,42,0.4) 100%)'
         }} />
+
+        {/* --- Mock Bounding Boxes --- */}
+        <div style={{ position: 'absolute', top: '22%', right: '35%', width: '90px', height: '60px', border: '2px solid #22c55e', zIndex: 1, boxShadow: '0 0 15px rgba(34,197,94,0.2)', pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', top: '-24px', left: '-2px', backgroundColor: '#22c55e', color: '#0f172a', padding: '2px 8px', fontSize: '0.75rem', fontWeight: '800' }}>Mouse (id: 42)</div>
+        </div>
+        <div style={{ position: 'absolute', bottom: '25%', right: '20%', width: '180px', height: '100px', border: '2px solid #22c55e', zIndex: 1, boxShadow: '0 0 15px rgba(34,197,94,0.2)', pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', top: '-24px', left: '-2px', backgroundColor: '#22c55e', color: '#0f172a', padding: '2px 8px', fontSize: '0.75rem', fontWeight: '800' }}>Gecko (id: 10)</div>
+        </div>
+        <div style={{ position: 'absolute', top: '18%', right: '55%', width: '45px', height: '35px', border: '2px solid rgba(34,197,94,0.4)', zIndex: 1, pointerEvents: 'none' }}></div>
+        {/* --------------------------- */}
         
         {/* Top: wordmark */}
         <div style={{ position: 'relative', zIndex: 2 }}>
@@ -131,9 +141,28 @@ export default function Login() {
           }}>
             Intelligent<br />surveillance,<br />simplified.
           </h1>
-          <p style={{ fontSize: '1.125rem', color: '#cbd5e1', lineHeight: 1.6, marginBottom: '3rem', fontWeight: '400' }}>
+          <p style={{ fontSize: '1.125rem', color: '#cbd5e1', lineHeight: 1.6, marginBottom: '2rem', fontWeight: '400' }}>
             AI-powered pest detection for modern warehouses. Real-time monitoring, smart alerts, and actionable insights — all in one platform.
           </p>
+
+          {/* Animal Detection Log Terminal */}
+          <div style={{
+            backgroundColor: 'rgba(15, 23, 42, 0.65)', border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '12px', padding: '1.25rem', marginBottom: '2.5rem', backdropFilter: 'blur(12px)',
+            maxWidth: '380px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.3)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <span style={{ color: '#f8fafc', fontWeight: '700', fontSize: '0.85rem' }}>Animal Detection Log</span>
+              <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', padding: '4px 8px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px', letterSpacing: '0.05em' }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#4ade80', animation: 'pulse 2s infinite' }} /> SYSTEM ACTIVE
+              </span>
+            </div>
+            <div style={{ fontFamily: 'monospace', fontSize: '0.8rem', color: '#94a3b8', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div><span style={{ color: '#64748b', marginRight: '12px' }}>10:14:02</span> Mouse detected - Tier 3</div>
+              <div><span style={{ color: '#64748b', marginRight: '12px' }}>10:14:03</span> Gecko detected - Tier 1</div>
+              <div><span style={{ color: '#64748b', marginRight: '12px' }}>10:14:05</span> <span style={{ color: '#cbd5e1' }}>Confirmed activity - 2 animals</span></div>
+            </div>
+          </div>
 
           {/* Metrics */}
           <div style={{ display: 'flex', gap: '3rem' }}>
@@ -375,7 +404,7 @@ export default function Login() {
         </div>
       </div>
 
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}`}</style>
     </div>
   );
 }
