@@ -58,7 +58,7 @@ export default function Settings() {
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', animation: 'fadeIn 0.5s ease-out', paddingBottom: '2rem' }}>
+    <div className="page-transition" style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '2rem' }}>
       
       {toastMsg && (
         <div style={{ 

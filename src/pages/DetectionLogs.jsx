@@ -79,7 +79,7 @@ export default function DetectionLogs() {
   const infoCount = allLogs.filter(l => l.risk === 'info').length;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', animation: 'fadeIn 0.5s ease-out' }}>
+    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
       {/* Summary Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
@@ -217,9 +217,29 @@ export default function DetectionLogs() {
                   {filteredLogs.length === 0 && (
                     <tr>
                       <td colSpan="5" style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                          <span>No detections found{searchTerm ? ` matching "${searchTerm}"` : activeFilter !== 'all' ? ` for this filter` : ''}. Start the camera to begin detecting.</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem' }}>
+                          <svg width="80" height="80" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="60" cy="60" r="55" stroke="var(--border-color)" strokeWidth="2" strokeDasharray="6 4" />
+                            <circle cx="60" cy="60" r="35" fill="var(--bg-tertiary)" />
+                            <path d="M50 55L55 60L70 45" stroke="var(--text-secondary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.5" />
+                            <circle cx="60" cy="55" r="12" stroke="var(--text-secondary)" strokeWidth="1.5" opacity="0.4" />
+                            <line x1="69" y1="64" x2="80" y2="75" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
+                            <circle cx="42" cy="38" r="3" fill="var(--border-color)" opacity="0.5">
+                              <animate attributeName="opacity" values="0.5;0.2;0.5" dur="3s" repeatCount="indefinite" />
+                            </circle>
+                            <circle cx="82" cy="42" r="2" fill="var(--border-color)" opacity="0.3">
+                              <animate attributeName="opacity" values="0.3;0.1;0.3" dur="4s" repeatCount="indefinite" />
+                            </circle>
+                            <circle cx="38" cy="78" r="2.5" fill="var(--border-color)" opacity="0.4">
+                              <animate attributeName="opacity" values="0.4;0.15;0.4" dur="3.5s" repeatCount="indefinite" />
+                            </circle>
+                          </svg>
+                          <div style={{ maxWidth: '300px' }}>
+                            <p style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', margin: '0 0 0.375rem 0' }}>No detections found</p>
+                            <p style={{ fontSize: '0.825rem', margin: 0, lineHeight: 1.5 }}>
+                              {searchTerm ? `No results matching "${searchTerm}". Try a different keyword.` : activeFilter !== 'all' ? 'No entries match this filter. Try selecting a different category.' : 'Start the AI camera to begin real-time bio-hazard detection.'}
+                            </p>
+                          </div>
                         </div>
                       </td>
                     </tr>

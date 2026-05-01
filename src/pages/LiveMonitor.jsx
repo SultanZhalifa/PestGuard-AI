@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
+import { useToast } from '../components/ToastNotification';
 
 export default function LiveMonitor() {
   const { logs: allLogs, authToken } = useWarehouse();
+  const { addToast } = useToast();
   const [status, setStatus] = useState("Loading...");
   const [aiData, setAiData] = useState({ speed: "0ms", model: "YOLO11" });
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const prevLogCountRef = useRef(allLogs.length);
 
   const [isCameraOn, setIsCameraOn] = useState(false);
 
@@ -53,9 +57,20 @@ export default function LiveMonitor() {
     };
 
     fetchStatus();
-    const interval = setInterval(fetchStatus, 2000); // Poll every 2 seconds
+    const interval = setInterval(fetchStatus, 2000);
     return () => clearInterval(interval);
   }, [authToken]);
+
+  // Fire toast when new detections arrive
+  useEffect(() => {
+    if (allLogs.length > prevLogCountRef.current && prevLogCountRef.current > 0) {
+      const newLog = allLogs[0]; // newest log
+      const toastType = newLog.risk === 'danger' ? 'danger' : newLog.risk === 'warning' ? 'warning' : 'info';
+      addToast(`${newLog.type} detected at ${newLog.location} (${newLog.confidence} confidence)`, toastType);
+      setLastUpdated(new Date());
+    }
+    prevLogCountRef.current = allLogs.length;
+  }, [allLogs.length]);
 
   const logs = allLogs.slice(0, 4); // Use top 4 from global context
 
@@ -83,7 +98,7 @@ Mohon segera lakukan pengecekan pada dashboard Smart Warehouse atau tugaskan per
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', animation: 'fadeIn 0.5s ease-out' }}>
+    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
       {/* Top Stat Cards (Command Center) */}
       <div className="stat-grid">
@@ -95,6 +110,7 @@ Mohon segera lakukan pengecekan pada dashboard Smart Warehouse atau tugaskan per
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>System Status</p>
             <h3 style={{ margin: '0.25rem 0 0 0', fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-primary)' }}>{status}</h3>
+            {lastUpdated && <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.65rem', color: 'var(--text-secondary)', opacity: 0.7 }}>Updated {lastUpdated.toLocaleTimeString()}</p>}
           </div>
         </div>
 

@@ -90,16 +90,32 @@ export default function RiskAnalysis() {
 
   if (loading) {
     return (
-      <div style={{ padding: '4rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', color: 'var(--text-secondary)' }}>
-        <span style={{ display: 'inline-block', width: '32px', height: '32px', border: '3px solid var(--border-color)', borderTopColor: 'var(--accent-primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
-        <span style={{ fontSize: '1.125rem', fontWeight: '500' }}>Aggregating Analytics...</span>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '1rem 0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="skeleton" style={{ height: 32, width: 250 }} />
+          <div className="skeleton" style={{ height: 40, width: 160, borderRadius: 10 }} />
+        </div>
+        <div className="skeleton-card">
+          <div className="skeleton skeleton-text" style={{ width: '90%' }} />
+          <div className="skeleton skeleton-text medium" />
+          <div className="skeleton skeleton-text short" />
+        </div>
+        <div className="skeleton-card">
+          <div className="skeleton skeleton-title" />
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+            {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 50, flex: 1 }} />)}
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          <div className="skeleton-card" style={{ minHeight: 200 }}><div className="skeleton" style={{ height: '100%', minHeight: 160 }} /></div>
+          <div className="skeleton-card" style={{ minHeight: 200 }}><div className="skeleton" style={{ height: '100%', minHeight: 160 }} /></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', animation: 'fadeIn 0.5s ease-out' }}>
+    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
       
       {/* Header with PDF Export */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
