@@ -57,6 +57,36 @@ export default function Settings() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="page-transition" style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '2rem' }}>
+        <div style={{ marginBottom: '2.5rem' }}>
+          <div className="skeleton" style={{ height: 32, width: 160, marginBottom: 8 }} />
+          <div className="skeleton" style={{ height: 16, width: 320 }} />
+        </div>
+        <div className="skeleton-card" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div className="skeleton skeleton-circle" />
+            <div className="skeleton" style={{ height: 22, width: 200 }} />
+          </div>
+          <div className="skeleton" style={{ height: 48, width: '100%', borderRadius: 12 }} />
+          <div className="skeleton" style={{ height: 6, width: '100%', borderRadius: 4 }} />
+          <div style={{ height: 1, backgroundColor: 'var(--border-color)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div className="skeleton skeleton-circle" />
+            <div className="skeleton" style={{ height: 22, width: 150 }} />
+          </div>
+          {[1,2].map(i => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div><div className="skeleton" style={{ height: 16, width: 160, marginBottom: 6 }} /><div className="skeleton" style={{ height: 12, width: 260 }} /></div>
+              <div className="skeleton" style={{ height: 28, width: 50, borderRadius: 20 }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="page-transition" style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '2rem' }}>
       
@@ -112,6 +142,9 @@ export default function Settings() {
                 onFocus={(e) => { e.target.style.borderColor = 'var(--text-secondary)'; e.target.style.boxShadow = '0 0 0 3px var(--bg-tertiary)'; }}
                 onBlur={(e) => { e.target.style.borderColor = 'var(--border-color)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.02)'; }}
               />
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem', opacity: 0.8 }}>
+                Use <code style={{ backgroundColor: 'var(--bg-tertiary)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.7rem' }}>0</code> for default webcam, or paste an RTSP/HTTP stream URL or local <code style={{ backgroundColor: 'var(--bg-tertiary)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.7rem' }}>.mp4</code> file path.
+              </p>
             </div>
             
             <div>
@@ -298,6 +331,129 @@ export default function Settings() {
               <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-primary)' }}>{spec.value}</span>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Team Section */}
+      <div style={{ 
+        backgroundColor: 'var(--bg-secondary)', borderRadius: '20px', padding: '2.5rem', 
+        border: '1px solid var(--border-color)', marginTop: '2rem',
+        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02), 0 10px 15px -3px rgba(0,0,0,0.05)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.75rem' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          </div>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>
+            Development Team
+          </h3>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem' }}>
+          {[
+            { name: 'Sultan', role: 'Scrum Master', color: '#3b82f6', initials: 'SZ' },
+            { name: 'Fathir', role: 'Backend & AI Lead', color: '#ef4444', initials: 'FF' },
+            { name: 'Risly', role: 'Frontend Dev', color: '#8b5cf6', initials: 'RM' },
+            { name: 'Mishaandalusia', role: 'UI/UX Designer', color: '#f59e0b', initials: 'MS' },
+          ].map((member, i) => (
+            <div key={i} style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem',
+              padding: '1.5rem 1rem', borderRadius: '16px', backgroundColor: 'var(--bg-primary)',
+              border: '1px solid var(--border-color)', transition: 'all 0.3s ease'
+            }}
+              onMouseOver={e => { e.currentTarget.style.borderColor = member.color; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseOut={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            >
+              <div style={{
+                width: '48px', height: '48px', borderRadius: '50%',
+                background: `linear-gradient(135deg, ${member.color}, ${member.color}88)`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.9rem', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em'
+              }}>
+                {member.initials}
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <p style={{ fontSize: '0.875rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>{member.name}</p>
+                <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0', fontWeight: '500' }}>{member.role}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Version & Uptime */}
+      <div style={{ 
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem',
+        backgroundColor: 'var(--bg-secondary)', borderRadius: '16px', padding: '1.25rem 1.75rem', 
+        border: '1px solid var(--border-color)', marginTop: '2rem',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span style={{ 
+            fontSize: '0.7rem', fontWeight: '700', padding: '0.25rem 0.625rem', borderRadius: '6px',
+            backgroundColor: 'rgba(34,197,94,0.1)', color: '#22c55e', letterSpacing: '0.05em'
+          }}>v1.0.0</span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>SmartWarehouse Dashboard</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+          <span>Build: <strong style={{ color: 'var(--text-primary)' }}>b984ec2</strong></span>
+          <span>Stack: <strong style={{ color: 'var(--text-primary)' }}>React 19 + FastAPI</strong></span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#22c55e', display: 'inline-block' }} />
+            All systems operational
+          </span>
+        </div>
+      </div>
+
+      {/* Danger Zone */}
+      <div style={{ 
+        backgroundColor: 'var(--bg-secondary)', borderRadius: '20px', padding: '2rem 2.5rem', 
+        border: '1px solid rgba(239,68,68,0.2)', marginTop: '2rem',
+        boxShadow: '0 4px 6px -1px rgba(239,68,68,0.03)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(239,68,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          </div>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#ef4444', margin: 0 }}>
+            Danger Zone
+          </h3>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0', borderBottom: '1px solid var(--border-color)' }}>
+            <div>
+              <p style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>Clear Detection Logs</p>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>Permanently delete all detection history from the database.</p>
+            </div>
+            <button style={{
+              padding: '0.5rem 1.25rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: '600',
+              backgroundColor: 'transparent', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)',
+              cursor: 'pointer', transition: 'all 0.2s ease', whiteSpace: 'nowrap'
+            }}
+              onMouseOver={e => { e.currentTarget.style.backgroundColor = '#ef4444'; e.currentTarget.style.color = '#fff'; }}
+              onMouseOut={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#ef4444'; }}
+              onClick={() => { if(confirm('Are you sure? This will permanently delete ALL detection logs.')) { setToastMsg('Logs cleared (demo only)'); setTimeout(() => setToastMsg(''), 3000); }}}
+            >
+              Clear Logs
+            </button>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0' }}>
+            <div>
+              <p style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>Reset All Settings</p>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>Restore camera URL, threshold, and preferences to factory defaults.</p>
+            </div>
+            <button style={{
+              padding: '0.5rem 1.25rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: '600',
+              backgroundColor: 'transparent', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)',
+              cursor: 'pointer', transition: 'all 0.2s ease', whiteSpace: 'nowrap'
+            }}
+              onMouseOver={e => { e.currentTarget.style.backgroundColor = '#ef4444'; e.currentTarget.style.color = '#fff'; }}
+              onMouseOut={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#ef4444'; }}
+              onClick={() => { if(confirm('Reset all settings to default?')) { setCameraUrl('0'); setThreshold(85); setNotifications(true); setToastMsg('Settings reset to defaults'); setTimeout(() => setToastMsg(''), 3000); }}}
+            >
+              Reset Settings
+            </button>
+          </div>
         </div>
       </div>
       

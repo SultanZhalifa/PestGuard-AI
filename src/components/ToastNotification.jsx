@@ -46,7 +46,7 @@ export function ToastProvider({ children }) {
                 {toast.type === 'danger' ? 'HAZARD ALERT' : toast.type === 'warning' ? 'WARNING' : toast.type === 'success' ? 'CLEARED' : 'DETECTION'}
               </div>
               <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                {message}
+                {toast.message}
               </div>
             </div>
             <div style={{ 
