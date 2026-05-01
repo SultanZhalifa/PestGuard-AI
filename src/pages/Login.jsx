@@ -117,13 +117,13 @@ export default function Login() {
         }} />
 
         {/* --- Mock Bounding Boxes --- */}
-        <div style={{ position: 'absolute', top: '22%', right: '35%', width: '90px', height: '60px', border: '2px solid #22c55e', zIndex: 1, boxShadow: '0 0 15px rgba(34,197,94,0.2)', pointerEvents: 'none' }}>
-          <div style={{ position: 'absolute', top: '-24px', left: '-2px', backgroundColor: '#22c55e', color: '#0f172a', padding: '2px 8px', fontSize: '0.75rem', fontWeight: '800' }}>Mouse (id: 42)</div>
+        <div style={{ position: 'absolute', top: '15%', right: '8%', width: '120px', height: '80px', border: '2px solid #22c55e', zIndex: 1, boxShadow: '0 0 15px rgba(34,197,94,0.2)', pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', top: '-24px', left: '-2px', backgroundColor: '#22c55e', color: '#0f172a', padding: '2px 8px', fontSize: '0.75rem', fontWeight: '800', whiteSpace: 'nowrap' }}>Mouse (id: 42)</div>
         </div>
-        <div style={{ position: 'absolute', bottom: '25%', right: '20%', width: '180px', height: '100px', border: '2px solid #22c55e', zIndex: 1, boxShadow: '0 0 15px rgba(34,197,94,0.2)', pointerEvents: 'none' }}>
-          <div style={{ position: 'absolute', top: '-24px', left: '-2px', backgroundColor: '#22c55e', color: '#0f172a', padding: '2px 8px', fontSize: '0.75rem', fontWeight: '800' }}>Gecko (id: 10)</div>
+        <div style={{ position: 'absolute', bottom: '30%', right: '12%', width: '180px', height: '120px', border: '2px solid #22c55e', zIndex: 1, boxShadow: '0 0 15px rgba(34,197,94,0.2)', pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', top: '-24px', left: '-2px', backgroundColor: '#22c55e', color: '#0f172a', padding: '2px 8px', fontSize: '0.75rem', fontWeight: '800', whiteSpace: 'nowrap' }}>Gecko (id: 10)</div>
         </div>
-        <div style={{ position: 'absolute', top: '18%', right: '55%', width: '45px', height: '35px', border: '2px solid rgba(34,197,94,0.4)', zIndex: 1, pointerEvents: 'none' }}></div>
+        <div style={{ position: 'absolute', top: '28%', right: '28%', width: '60px', height: '40px', border: '2px solid rgba(34,197,94,0.4)', zIndex: 1, pointerEvents: 'none' }}></div>
         {/* --------------------------- */}
         
         {/* Top: wordmark */}
