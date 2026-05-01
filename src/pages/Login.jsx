@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWarehouse } from '../context/WarehouseContext';
 
 export default function Login() {
   const navigate = useNavigate();
   const { login: setAuthToken } = useWarehouse();
-  const [mode, setMode] = useState('login'); // 'login' or 'signup'
+  const [mode, setMode] = useState('login'); // 'login', 'signup', 'forgot', 'reset'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  // Reset password states
+  const [resetCode, setResetCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [demoCode, setDemoCode] = useState('');
+
+  // Load remembered email
+  useEffect(() => {
+    const saved = localStorage.getItem('sw_remembered_email');
+    if (saved) { setEmail(saved); setRememberMe(true); }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,10 +31,43 @@ export default function Login() {
     setSuccessMsg('');
 
     try {
+      if (mode === 'forgot') {
+        const res = await fetch('/api/forgot-password', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setDemoCode(data.demo_code || '');
+          setSuccessMsg(data.message);
+          setMode('reset');
+        } else {
+          setError(data.detail || 'Failed to send reset code.');
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      if (mode === 'reset') {
+        const res = await fetch('/api/reset-password', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, code: resetCode, new_password: newPassword })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setSuccessMsg(data.message);
+          setResetCode(''); setNewPassword(''); setDemoCode('');
+          setMode('login');
+        } else {
+          setError(data.detail || 'Failed to reset password.');
+        }
+        setIsLoading(false);
+        return;
+      }
+
       const endpoint = mode === 'signup' ? '/api/register' : '/api/login';
       const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
 
@@ -34,264 +79,304 @@ export default function Login() {
           setPassword('');
           setIsLoading(false);
         } else {
-          // Successful login
+          if (rememberMe) { localStorage.setItem('sw_remembered_email', email); }
+          else { localStorage.removeItem('sw_remembered_email'); }
           setAuthToken(data.token);
           navigate('/');
         }
       } else {
         const errData = await response.json();
-        setError(errData.detail || 'Authentication failed. Please try again.');
+        setError(errData.detail || 'Authentication failed.');
         setIsLoading(false);
       }
     } catch (err) {
-      setError('Cannot connect to the server. Is the Python backend running?');
+      setError('Cannot connect to the server. Is the backend running?');
       setIsLoading(false);
     }
   };
 
-  const inputStyle = {
-    width: '100%', padding: '0.875rem 1rem', borderRadius: '10px',
-    border: '1px solid rgba(255,255,255,0.1)', outline: 'none', fontSize: '0.875rem', 
-    color: '#f8fafc', backgroundColor: 'rgba(255,255,255,0.05)',
-    transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
+  const getTitle = () => {
+    if (mode === 'login') return 'Welcome back';
+    if (mode === 'signup') return 'Create account';
+    if (mode === 'forgot') return 'Forgot password';
+    return 'Reset password';
   };
 
-  const ssoButtonStyle = {
-    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-    padding: '0.75rem', backgroundColor: 'rgba(255,255,255,0.05)', color: '#cbd5e1',
-    border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', fontSize: '0.875rem', fontWeight: '600',
-    cursor: 'pointer', transition: 'all 0.2s ease'
+  const getSubtitle = () => {
+    if (mode === 'login') return 'Enter your credentials to access the dashboard.';
+    if (mode === 'signup') return 'Start your automated surveillance journey.';
+    if (mode === 'forgot') return "We'll send a verification code to your email.";
+    return 'Enter the code and your new password.';
   };
 
   return (
-    <div className="login-bg" style={{
-      display: 'flex',
-      minHeight: '100vh',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '2rem',
-      fontFamily: 'var(--font-family)',
-      position: 'relative',
-      overflow: 'hidden'
+    <div style={{
+      display: 'flex', minHeight: '100vh', fontFamily: 'var(--font-family)',
+      backgroundColor: '#f0f4f8', position: 'relative', overflow: 'hidden'
     }}>
 
-      {/* Floating particles */}
-      <div className="login-particle" style={{ width: 300, height: 300, top: '10%', left: '-5%', opacity: 0.5 }} />
-      <div className="login-particle" style={{ width: 200, height: 200, bottom: '10%', right: '-3%', opacity: 0.3 }} />
-      <div className="login-particle" style={{ width: 150, height: 150, top: '60%', left: '20%', opacity: 0.2 }} />
-
-      {/* Subtle grid pattern overlay */}
+      {/* Left panel - Branding */}
       <div style={{
-        position: 'absolute', inset: 0,
-        backgroundImage: 'radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)',
-        backgroundSize: '32px 32px',
-        pointerEvents: 'none'
-      }} />
-
-      <div style={{
-        width: '100%', maxWidth: '440px',
-        backgroundColor: 'rgba(15, 23, 42, 0.8)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        borderRadius: '24px',
-        padding: '2.5rem',
-        border: '1px solid rgba(255,255,255,0.08)',
-        boxShadow: '0 25px 80px -15px rgba(0,0,0,0.5)',
-        position: 'relative',
-        zIndex: 10,
-        animation: 'pageEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards'
+        flex: '0 0 45%', display: 'flex', flexDirection: 'column', justifyContent: 'center',
+        padding: '4rem', background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
+        position: 'relative', overflow: 'hidden'
       }}>
+        {/* Decorative elements */}
+        <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(59,130,246,0.08)' }} />
+        <div style={{ position: 'absolute', bottom: '-15%', left: '-10%', width: 300, height: 300, borderRadius: '50%', background: 'rgba(59,130,246,0.05)' }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
-        {/* Branding */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '3rem' }}>
             <div style={{
-              width: '44px', height: '44px', borderRadius: '12px',
+              width: 48, height: 48, borderRadius: 14,
               background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 4px 15px rgba(59,130,246,0.3)'
+              boxShadow: '0 8px 24px rgba(59,130,246,0.3)'
             }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M10 5.172C10 3.782 8.423 2.679 6.5 3c-2.823.47-4.113 6.006-4 7 .08.703 1.725 1.722 3.656 1 1.261-.472 1.96-1.45 2.344-2.5M14.267 5.172c0-1.39 1.577-2.493 3.5-2.172 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5M8 14v.5M16 14v.5M11.25 16.25h1.5L12 17l-.75-.75z"/>
               </svg>
             </div>
-            <span style={{ fontSize: '1.35rem', fontWeight: '800', color: '#f8fafc', letterSpacing: '-0.03em' }}>
-              SmartWarehouse
-            </span>
+            <span style={{ fontSize: '1.5rem', fontWeight: '800', color: '#f8fafc', letterSpacing: '-0.03em' }}>SmartWarehouse</span>
           </div>
-          <p style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '500', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            AI-Powered Pest Surveillance System
+
+          <h2 style={{ fontSize: '2.25rem', fontWeight: '800', color: '#f8fafc', lineHeight: 1.2, marginBottom: '1.25rem', letterSpacing: '-0.03em' }}>
+            AI-Powered<br />Pest Surveillance
+          </h2>
+          <p style={{ fontSize: '1rem', color: '#94a3b8', lineHeight: 1.7, maxWidth: '380px', marginBottom: '2.5rem' }}>
+            Protect your warehouse from bio-hazards with real-time YOLO11 object detection, automated alerts, and comprehensive analytics.
           </p>
+
+          {/* Feature pills */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.625rem' }}>
+            {['Real-time Detection', 'Smart Alerts', 'Risk Analytics', 'Export Reports'].map(f => (
+              <span key={f} style={{
+                padding: '0.4rem 0.875rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '600',
+                backgroundColor: 'rgba(59,130,246,0.1)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.15)'
+              }}>{f}</span>
+            ))}
+          </div>
         </div>
 
-        {/* Toggle Log In / Sign Up */}
-        {mode !== 'forgot' && (
-          <div style={{
-            display: 'flex', backgroundColor: 'rgba(255,255,255,0.05)',
-            borderRadius: '12px', padding: '0.375rem', marginBottom: '2rem',
-            border: '1px solid rgba(255,255,255,0.08)'
-          }}>
-            <button
-              onClick={() => setMode('login')}
-              style={{
-                flex: 1, padding: '0.625rem', border: 'none', borderRadius: '8px',
-                backgroundColor: mode === 'login' ? '#3b82f6' : 'transparent',
-                color: mode === 'login' ? '#fff' : '#94a3b8',
-                fontWeight: mode === 'login' ? '700' : '500', fontSize: '0.875rem',
-                cursor: 'pointer', transition: 'all 0.2s ease'
-              }}
-            >
-              Log In
-            </button>
-            <button
-              onClick={() => setMode('signup')}
-              style={{
-                flex: 1, padding: '0.625rem', border: 'none', borderRadius: '8px',
-                backgroundColor: mode === 'signup' ? '#3b82f6' : 'transparent',
-                color: mode === 'signup' ? '#fff' : '#94a3b8',
-                fontWeight: mode === 'signup' ? '700' : '500', fontSize: '0.875rem',
-                cursor: 'pointer', transition: 'all 0.2s ease'
-              }}
-            >
-              Sign Up
-            </button>
+        {/* Footer */}
+        <p style={{ position: 'absolute', bottom: '2rem', left: '4rem', fontSize: '0.75rem', color: '#475569' }}>
+          © 2026 PT. Kawan Lama &bull; Powered by YOLO11
+        </p>
+      </div>
+
+      {/* Right panel - Form */}
+      <div style={{
+        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem'
+      }}>
+        <div style={{ width: '100%', maxWidth: '400px' }}>
+
+          {/* Tab toggle (login/signup only) */}
+          {(mode === 'login' || mode === 'signup') && (
+            <div style={{
+              display: 'flex', backgroundColor: '#e8edf2', borderRadius: '12px',
+              padding: '4px', marginBottom: '2rem'
+            }}>
+              {['login', 'signup'].map(m => (
+                <button key={m} onClick={() => { setMode(m); setError(''); setSuccessMsg(''); }}
+                  style={{
+                    flex: 1, padding: '0.6rem', border: 'none', borderRadius: '9px',
+                    backgroundColor: mode === m ? '#fff' : 'transparent',
+                    color: mode === m ? '#0f172a' : '#64748b',
+                    fontWeight: mode === m ? '700' : '500', fontSize: '0.875rem',
+                    cursor: 'pointer', transition: 'all 0.2s ease',
+                    boxShadow: mode === m ? '0 1px 3px rgba(0,0,0,0.08)' : 'none'
+                  }}
+                >{m === 'login' ? 'Log In' : 'Sign Up'}</button>
+              ))}
+            </div>
+          )}
+
+          {/* Header */}
+          <div style={{ marginBottom: '2rem' }}>
+            <h1 style={{ fontSize: '1.625rem', fontWeight: '800', color: '#0f172a', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>
+              {getTitle()}
+            </h1>
+            <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: 1.5 }}>{getSubtitle()}</p>
           </div>
-        )}
 
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#f8fafc', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>
-            {mode === 'login' ? 'Welcome back' : mode === 'signup' ? 'Create an account' : 'Reset password'}
-          </h1>
-          <p style={{ color: '#64748b', fontSize: '0.875rem' }}>
-            {mode === 'login' ? 'Enter your credentials to access the dashboard.' : mode === 'signup' ? 'Start your automated surveillance journey.' : 'Enter your email to receive a reset link.'}
-          </p>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          {/* Messages */}
           {error && (
-            <div style={{ backgroundColor: 'rgba(220,38,38,0.1)', color: '#ef4444', padding: '0.75rem', borderRadius: '10px', fontSize: '0.875rem', textAlign: 'center', border: '1px solid rgba(220,38,38,0.2)' }}>
+            <div style={{
+              backgroundColor: '#fef2f2', color: '#dc2626', padding: '0.75rem 1rem', borderRadius: '10px',
+              fontSize: '0.85rem', marginBottom: '1.25rem', border: '1px solid #fecaca',
+              display: 'flex', alignItems: 'center', gap: '0.5rem'
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
               {error}
             </div>
           )}
           {successMsg && (
-            <div style={{ backgroundColor: 'rgba(34,197,94,0.1)', color: '#22c55e', padding: '0.75rem', borderRadius: '10px', fontSize: '0.875rem', textAlign: 'center', border: '1px solid rgba(34,197,94,0.2)' }}>
+            <div style={{
+              backgroundColor: '#f0fdf4', color: '#16a34a', padding: '0.75rem 1rem', borderRadius: '10px',
+              fontSize: '0.85rem', marginBottom: '1.25rem', border: '1px solid #bbf7d0',
+              display: 'flex', alignItems: 'center', gap: '0.5rem'
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
               {successMsg}
             </div>
           )}
 
-          <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem', color: '#cbd5e1' }}>Email</label>
-            <input
-              type="email" placeholder="name@company.com" value={email}
-              onChange={(e) => setEmail(e.target.value)} required
-              style={inputStyle}
-              onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.15)'; }}
-              onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'none'; }}
-            />
-          </div>
+          {/* Demo code display for forgot password */}
+          {mode === 'reset' && demoCode && (
+            <div style={{
+              backgroundColor: '#eff6ff', padding: '0.875rem 1rem', borderRadius: '10px',
+              fontSize: '0.85rem', marginBottom: '1.25rem', border: '1px solid #bfdbfe', color: '#1d4ed8'
+            }}>
+              <strong>Demo Mode:</strong> Your verification code is <code style={{
+                backgroundColor: '#dbeafe', padding: '0.15rem 0.5rem', borderRadius: 4, fontWeight: '800', fontSize: '1rem', letterSpacing: '0.15em'
+              }}>{demoCode}</code>
+            </div>
+          )}
 
-          {mode !== 'forgot' && (
+          {/* Form */}
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
+            
+            {/* Email - always visible */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#cbd5e1' }}>Password</label>
-                {mode === 'login' && <a href="#" onClick={(e) => { e.preventDefault(); setMode('forgot'); }} style={{ fontSize: '0.75rem', color: '#3b82f6', textDecoration: 'none', fontWeight: '600', cursor: 'pointer' }}>Forgot?</a>}
-              </div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.4rem', color: '#334155' }}>Email address</label>
               <input
-                type="password" placeholder="••••••••" value={password}
-                onChange={(e) => setPassword(e.target.value)} required
-                style={inputStyle}
-                onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.15)'; }}
-                onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'none'; }}
+                type="email" placeholder="name@company.com" value={email}
+                onChange={(e) => setEmail(e.target.value)} required
+                disabled={mode === 'reset'}
+                style={{
+                  width: '100%', padding: '0.8rem 1rem', borderRadius: '10px',
+                  border: '1.5px solid #e2e8f0', outline: 'none', fontSize: '0.9rem',
+                  color: '#0f172a', backgroundColor: mode === 'reset' ? '#f8fafc' : '#fff',
+                  transition: 'all 0.2s ease'
+                }}
+                onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.1)'; }}
+                onBlur={(e) => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }}
               />
             </div>
-          )}
 
-          <button
-            type="submit" disabled={isLoading}
-            style={{
-              width: '100%', padding: '0.875rem', marginTop: '0.5rem',
-              background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-              color: '#fff', border: 'none', borderRadius: '10px',
-              fontSize: '0.875rem', fontWeight: '700', cursor: 'pointer',
-              display: 'flex', justifyContent: 'center', alignItems: 'center',
-              boxShadow: '0 4px 15px rgba(59,130,246,0.3)',
-              transition: 'all 0.2s ease', opacity: isLoading ? 0.7 : 1
-            }}
-            onMouseOver={(e) => { if (!isLoading) e.currentTarget.style.transform = 'translateY(-1px)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
-          >
-            {isLoading ? (
-              <div style={{ width: 20, height: 20, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
-            ) : (mode === 'login' ? 'Log In' : mode === 'signup' ? 'Sign Up' : 'Send Reset Link')}
-          </button>
+            {/* Password - login & signup only */}
+            {(mode === 'login' || mode === 'signup') && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: '600', color: '#334155' }}>Password</label>
+                  {mode === 'login' && (
+                    <button type="button" onClick={() => { setMode('forgot'); setError(''); setSuccessMsg(''); }}
+                      style={{ fontSize: '0.8rem', color: '#3b82f6', background: 'none', border: 'none', fontWeight: '600', cursor: 'pointer' }}
+                    >Forgot password?</button>
+                  )}
+                </div>
+                <input
+                  type="password" placeholder="••••••••" value={password}
+                  onChange={(e) => setPassword(e.target.value)} required
+                  style={{
+                    width: '100%', padding: '0.8rem 1rem', borderRadius: '10px',
+                    border: '1.5px solid #e2e8f0', outline: 'none', fontSize: '0.9rem',
+                    color: '#0f172a', backgroundColor: '#fff', transition: 'all 0.2s ease'
+                  }}
+                  onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.1)'; }}
+                  onBlur={(e) => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }}
+                />
+              </div>
+            )}
 
-          {mode === 'forgot' && (
-            <button type="button" onClick={() => setMode('login')}
-              style={{ width: '100%', padding: '0.875rem', marginTop: '0.25rem', backgroundColor: 'transparent', color: '#94a3b8', border: 'none', fontSize: '0.875rem', fontWeight: '600', cursor: 'pointer' }}
+            {/* Reset code + new password (reset mode) */}
+            {mode === 'reset' && (
+              <>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.4rem', color: '#334155' }}>Verification code</label>
+                  <input
+                    type="text" placeholder="Enter 6-digit code" value={resetCode} maxLength={6}
+                    onChange={(e) => setResetCode(e.target.value.replace(/\D/g, ''))} required
+                    style={{
+                      width: '100%', padding: '0.8rem 1rem', borderRadius: '10px',
+                      border: '1.5px solid #e2e8f0', outline: 'none', fontSize: '1.1rem',
+                      color: '#0f172a', backgroundColor: '#fff', letterSpacing: '0.2em', fontWeight: '700',
+                      textAlign: 'center'
+                    }}
+                    onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.1)'; }}
+                    onBlur={(e) => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.4rem', color: '#334155' }}>New password</label>
+                  <input
+                    type="password" placeholder="Min. 6 characters" value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)} required
+                    style={{
+                      width: '100%', padding: '0.8rem 1rem', borderRadius: '10px',
+                      border: '1.5px solid #e2e8f0', outline: 'none', fontSize: '0.9rem',
+                      color: '#0f172a', backgroundColor: '#fff'
+                    }}
+                    onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.1)'; }}
+                    onBlur={(e) => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Remember me - login only */}
+            {mode === 'login' && (
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.85rem', color: '#475569' }}
+                onClick={() => setRememberMe(!rememberMe)}
+              >
+                <div style={{
+                  width: 18, height: 18, borderRadius: 5, border: `1.5px solid ${rememberMe ? '#3b82f6' : '#cbd5e1'}`,
+                  backgroundColor: rememberMe ? '#3b82f6' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.2s ease', flexShrink: 0
+                }}>
+                  {rememberMe && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                </div>
+                Remember me
+              </label>
+            )}
+
+            {/* Submit button */}
+            <button type="submit" disabled={isLoading}
+              style={{
+                width: '100%', padding: '0.875rem', marginTop: '0.25rem',
+                background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                color: '#fff', border: 'none', borderRadius: '10px',
+                fontSize: '0.9rem', fontWeight: '700', cursor: 'pointer',
+                display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem',
+                boxShadow: '0 4px 14px rgba(59,130,246,0.35)',
+                transition: 'all 0.2s ease', opacity: isLoading ? 0.7 : 1
+              }}
+              onMouseOver={(e) => { if (!isLoading) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(59,130,246,0.4)'; }}}
+              onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(59,130,246,0.35)'; }}
             >
-              Back to Log In
+              {isLoading ? (
+                <div style={{ width: 20, height: 20, border: '2.5px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+              ) : (
+                <>
+                  {mode === 'login' && 'Log In'}
+                  {mode === 'signup' && 'Create Account'}
+                  {mode === 'forgot' && 'Send Reset Code'}
+                  {mode === 'reset' && 'Update Password'}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </>
+              )}
             </button>
-          )}
-        </form>
 
-        {mode !== 'forgot' && (
-          <>
-            {/* Divider */}
-            <div style={{ display: 'flex', alignItems: 'center', margin: '2rem 0' }}>
-              <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(255,255,255,0.08)' }} />
-              <span style={{ padding: '0 1rem', color: '#475569', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Or continue with</span>
-              <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(255,255,255,0.08)' }} />
-            </div>
-
-            {/* SSO Buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <button style={ssoButtonStyle}
-                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" /></svg>
-                  Google
-                </button>
-                <button style={ssoButtonStyle}
-                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#cbd5e1"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.05 2.95.72 3.4 1.8-3.22 1.96-2.66 6.01.66 7.33-.79 1.58-1.74 2.94-2.71 3.88M12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25" /></svg>
-                  Apple
-                </button>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <button style={ssoButtonStyle}
-                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#00A4EF" d="M1 1h10v10H1z" /><path fill="#7FBA00" d="M12 1h10v10H12z" /><path fill="#FFB900" d="M1 12h10v10H1z" /><path fill="#F25022" d="M12 12h10v10H12z" /></svg>
-                  Microsoft
-                </button>
-                <button style={ssoButtonStyle}
-                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#cbd5e1"><path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"/></svg>
-                  GitHub
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* Footer */}
-        <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.75rem', color: '#475569' }}>
-          Powered by YOLO11 &bull; PT. Kawan Lama Surveillance
-        </p>
-
+            {/* Back link for forgot/reset */}
+            {(mode === 'forgot' || mode === 'reset') && (
+              <button type="button"
+                onClick={() => { setMode('login'); setError(''); setSuccessMsg(''); setDemoCode(''); }}
+                style={{
+                  width: '100%', padding: '0.625rem', backgroundColor: 'transparent',
+                  color: '#64748b', border: 'none', fontSize: '0.85rem', fontWeight: '600',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem'
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Back to Log In
+              </button>
+            )}
+          </form>
+        </div>
       </div>
 
-      {/* Inline spinner keyframe */}
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );

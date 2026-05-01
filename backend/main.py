@@ -146,6 +146,70 @@ def register(request: LoginRequest):
     conn.close()
     return {"status": "success", "message": "Registered successfully."}
 
+# --- Forgot / Reset Password ---
+import random, string
+password_reset_codes = {}  # email -> { code, expires }
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    code: str
+    new_password: str
+
+@app.post("/api/forgot-password")
+def forgot_password(request: ForgotPasswordRequest):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE email=?", (request.email,))
+    user = cursor.fetchone()
+    conn.close()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="No account found with that email address.")
+    
+    # Generate 6-digit OTP code
+    code = ''.join(random.choices(string.digits, k=6))
+    password_reset_codes[request.email] = {
+        "code": code,
+        "expires": time.time() + 600  # 10 minutes
+    }
+    
+    # In production, this would send an email. For demo, we return it.
+    return {
+        "status": "success", 
+        "message": f"Reset code sent to {request.email}.",
+        "demo_code": code  # Remove in production
+    }
+
+@app.post("/api/reset-password")
+def reset_password(request: ResetPasswordRequest):
+    stored = password_reset_codes.get(request.email)
+    
+    if not stored:
+        raise HTTPException(status_code=400, detail="No reset code found. Please request a new one.")
+    
+    if time.time() > stored["expires"]:
+        del password_reset_codes[request.email]
+        raise HTTPException(status_code=400, detail="Reset code has expired. Please request a new one.")
+    
+    if stored["code"] != request.code:
+        raise HTTPException(status_code=400, detail="Invalid reset code. Please try again.")
+    
+    if len(request.new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
+    
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    new_hash = hashlib.sha256(request.new_password.encode()).hexdigest()
+    cursor.execute("UPDATE users SET password_hash=? WHERE email=?", (new_hash, request.email))
+    conn.commit()
+    conn.close()
+    
+    del password_reset_codes[request.email]
+    return {"status": "success", "message": "Password updated successfully. You can now log in."}
+
 @app.get("/api/settings")
 def get_settings():
     load_settings_cache()
