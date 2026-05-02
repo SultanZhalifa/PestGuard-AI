@@ -2,36 +2,57 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useWarehouse } from '../context/WarehouseContext';
 import WarehouseZoneMap from '../components/WarehouseZoneMap';
+import { useToast } from '../components/ToastNotification';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
 export default function RiskAnalysis() {
   const { authToken, logs: recentLogs } = useWarehouse();
+  const { addToast } = useToast();
   const [weeklyData, setWeeklyData] = useState([]);
   const [distributionData, setDistributionData] = useState([]);
   const [zoneData, setZoneData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [exporting, setExporting] = useState(false);
   const reportRef = useRef(null);
 
   useEffect(() => {
     if (!authToken) return;
 
-    fetch('/api/analytics', {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.detail) throw new Error(data.detail);
-        setWeeklyData(data.weekly);
-        setDistributionData(data.distribution);
-        setZoneData(data.zone_activity);
-        setLoading(false);
+    let retries = 0;
+    const maxRetries = 3;
+
+    const fetchAnalytics = () => {
+      fetch('/api/analytics', {
+        headers: { 'Authorization': `Bearer ${authToken}` }
       })
-      .catch(err => {
-        console.error("Error fetching analytics:", err);
-        setLoading(false);
-      });
+        .then(res => {
+          if (!res.ok) throw new Error('Server error');
+          return res.json();
+        })
+        .then(data => {
+          if (data.detail) throw new Error(data.detail);
+          setWeeklyData(data.weekly);
+          setDistributionData(data.distribution);
+          setZoneData(data.zone_activity);
+          setLoading(false);
+          setFetchError(false);
+        })
+        .catch(err => {
+          console.error("Error fetching analytics:", err);
+          retries++;
+          if (retries < maxRetries) {
+            const delay = Math.pow(2, retries) * 1000; // 2s, 4s
+            setTimeout(fetchAnalytics, delay);
+          } else {
+            setLoading(false);
+            setFetchError(true);
+          }
+        });
+    };
+
+    fetchAnalytics();
   }, [authToken]);
 
   const handleExportPDF = async () => {
@@ -82,8 +103,10 @@ export default function RiskAnalysis() {
       a.href = pdfBase64;
       a.download = `SmartWarehouse-ExecutiveSummary-${new Date().toISOString().slice(0,10)}.pdf`;
       a.click();
+      addToast('PDF report exported successfully!', 'info');
     } catch (err) {
       console.error('PDF Export failed:', err);
+      addToast('Failed to generate PDF. Please try again.', 'danger');
     }
     setExporting(false);
   };

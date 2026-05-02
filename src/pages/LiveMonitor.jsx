@@ -9,13 +9,14 @@ export default function LiveMonitor() {
   const [aiData, setAiData] = useState({ speed: "0ms", model: "YOLO11" });
   const [lastUpdated, setLastUpdated] = useState(null);
   const prevLogCountRef = useRef(allLogs.length);
+  const isCameraOnRef = useRef(false);
 
   const [isCameraOn, setIsCameraOn] = useState(false);
 
-  // Fungsi untuk menyalakan/mematikan kamera di backend
+  // Toggle camera with error feedback
   const toggleCamera = async (turnOn) => {
     try {
-      await fetch('/api/camera/toggle', {
+      const res = await fetch('/api/camera/toggle', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -23,20 +24,31 @@ export default function LiveMonitor() {
         },
         body: JSON.stringify({ state: turnOn })
       });
+      if (!res.ok) throw new Error('Server error');
       setIsCameraOn(turnOn);
+      isCameraOnRef.current = turnOn;
     } catch (err) {
       console.error("Failed to toggle camera", err);
+      addToast(`Failed to ${turnOn ? 'start' : 'stop'} camera. Check server connection.`, 'danger');
     }
   };
 
-  // Matikan kamera secara otomatis jika user pindah halaman
+  // Cleanup on unmount + beforeunload backup
   useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (isCameraOnRef.current) {
+        // Use sendBeacon for reliable cleanup on tab close
+        navigator.sendBeacon?.('/api/camera/toggle', JSON.stringify({ state: false }));
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
-      if (isCameraOn) {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (isCameraOnRef.current) {
         toggleCamera(false);
       }
     };
-  }, [isCameraOn]);
+  }, []);
 
   useEffect(() => {
     if (!authToken) return;
@@ -45,7 +57,10 @@ export default function LiveMonitor() {
       fetch('/api/status', {
         headers: { 'Authorization': `Bearer ${authToken}` }
       })
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error('Unauthorized');
+          return res.json();
+        })
         .then(data => {
           setStatus(data.status || "Active");
           setAiData({ 
@@ -53,7 +68,7 @@ export default function LiveMonitor() {
             model: data.ai_performance?.model || "YOLO11" 
           });
         })
-        .catch(err => setStatus("Offline"));
+        .catch(() => setStatus("Offline"));
     };
 
     fetchStatus();

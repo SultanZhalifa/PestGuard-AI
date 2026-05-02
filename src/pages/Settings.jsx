@@ -32,6 +32,13 @@ export default function Settings() {
   }, [authToken]);
 
   const handleSave = async () => {
+    // Validate camera URL
+    if (cameraUrl !== '0' && cameraUrl !== '1' && !cameraUrl.match(/^(rtsp|http|https):\/\//) && !cameraUrl.match(/\.(mp4|avi|mov|mkv)$/i)) {
+      setToastMsg('⚠️ Camera source must be 0, 1, an RTSP/HTTP URL, or a video file path.');
+      setTimeout(() => setToastMsg(''), 5000);
+      return;
+    }
+
     setIsSaving(true);
     setToastMsg('');
 
@@ -47,11 +54,16 @@ export default function Settings() {
 
       if (response.ok) {
         const data = await response.json();
-        setToastMsg(data.message || 'Settings saved');
+        setToastMsg(data.message || 'Settings saved successfully.');
+        setTimeout(() => setToastMsg(''), 4000);
+      } else {
+        setToastMsg('⚠️ Failed to save settings. Please try again.');
         setTimeout(() => setToastMsg(''), 4000);
       }
     } catch (err) {
       console.error("Failed to save settings", err);
+      setToastMsg('⚠️ Server unreachable. Please check your connection.');
+      setTimeout(() => setToastMsg(''), 4000);
     } finally {
       setIsSaving(false);
     }

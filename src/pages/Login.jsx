@@ -4,7 +4,7 @@ import { useWarehouse } from '../context/WarehouseContext';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login: setAuthToken } = useWarehouse();
+  const { login: setAuthToken, authToken } = useWarehouse();
   const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,6 +21,11 @@ export default function Login() {
   // Live detection log state
   const [detectionLogs, setDetectionLogs] = useState([]);
   const [systemOnline, setSystemOnline] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (authToken) navigate('/');
+  }, [authToken, navigate]);
 
   useEffect(() => {
     const saved = localStorage.getItem('sw_remembered_email');
@@ -48,7 +53,16 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
     setSuccessMsg('');
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       if (mode === 'forgot') {

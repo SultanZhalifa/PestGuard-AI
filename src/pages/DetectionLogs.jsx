@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
+import { useToast } from '../components/ToastNotification';
 
 const RISK_FILTERS = [
   { key: 'all', label: 'All Detections' },
@@ -11,7 +12,9 @@ const RISK_FILTERS = [
 export default function DetectionLogs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
-  const { logs: allLogs, authToken } = useWarehouse();
+  const [isExporting, setIsExporting] = useState(false);
+  const { logs: allLogs, logsLoaded, authToken } = useWarehouse();
+  const { addToast } = useToast();
   
   // Typing animation state
   const placeholders = ["Search 'Snake'...", "Search 'Zone A'...", "Search 'Contamination'..."];
@@ -46,10 +49,10 @@ export default function DetectionLogs() {
     return () => clearTimeout(timer);
   }, [placeholderText, isDeleting, phraseIndex]);
 
-  // We no longer need to fetch manually, WarehouseContext provides live data!
-  const loading = allLogs.length === 0 && !searchTerm; // simple loading check
+  const loading = !logsLoaded;
 
   const handleExportCSV = async () => {
+    setIsExporting(true);
     try {
       const response = await fetch(`/api/export/logs?token=${authToken}`);
       if (!response.ok) throw new Error('Export failed');
@@ -60,8 +63,12 @@ export default function DetectionLogs() {
       a.href = dataUri;
       a.download = `warehouse-logs-${today}.csv`;
       a.click();
+      addToast('CSV exported successfully!', 'info');
     } catch (err) {
       console.error('CSV export failed:', err);
+      addToast('Failed to export CSV. Please try again.', 'danger');
+    } finally {
+      setIsExporting(false);
     }
   };
 

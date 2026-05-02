@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 
 const WarehouseContext = createContext();
 
@@ -9,42 +9,116 @@ export function useWarehouse() {
 export function WarehouseProvider({ children }) {
   const [alerts, setAlerts] = useState([]);
   const [logs, setLogs] = useState([]);
+  const [logsLoaded, setLogsLoaded] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [authToken, setAuthToken] = useState(sessionStorage.getItem('token'));
+  const [authToken, setAuthToken] = useState(localStorage.getItem('sw_token'));
 
-  // Sync token to sessionStorage and state
-  const login = (token) => {
-    sessionStorage.setItem('token', token);
+  // Sync token to localStorage with 24h TTL
+  const login = useCallback((token) => {
+    const tokenData = { token, expires: Date.now() + 86400000 }; // 24 hours
+    localStorage.setItem('sw_token', token);
+    localStorage.setItem('sw_token_meta', JSON.stringify(tokenData));
     setAuthToken(token);
-  };
-  const logout = () => {
-    sessionStorage.removeItem('token');
-    setAuthToken(null);
-  };
+  }, []);
 
-  // Setup WebSocket when authenticated
+  const logout = useCallback(() => {
+    localStorage.removeItem('sw_token');
+    localStorage.removeItem('sw_token_meta');
+    setAuthToken(null);
+    setLogs([]);
+    setLogsLoaded(false);
+  }, []);
+
+  // On mount: check if token is expired locally, then verify with server
+  useEffect(() => {
+    const token = localStorage.getItem('sw_token');
+    const meta = localStorage.getItem('sw_token_meta');
+
+    if (!token) return;
+
+    // Check local expiry first
+    if (meta) {
+      try {
+        const parsed = JSON.parse(meta);
+        if (Date.now() > parsed.expires) {
+          logout();
+          return;
+        }
+      } catch { /* ignore parse errors */ }
+    }
+
+    // Verify token with server
+    fetch('/api/verify-token', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => {
+        if (!res.ok) {
+          logout();
+        }
+      })
+      .catch(() => {
+        // Server unreachable — keep token but don't force logout
+        console.warn('Could not verify token — server may be offline.');
+      });
+  }, [logout]);
+
+  // Setup WebSocket when authenticated (dynamic URL)
   useEffect(() => {
     if (!authToken) return;
-    
-    const ws = new WebSocket('ws://localhost:8000/api/ws/alerts');
-    
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      const alertId = data.id || Date.now() + Math.random();
-      
-      const newAlert = { ...data, id: alertId };
-      setAlerts(prev => [...prev, newAlert]);
-      
-      // Auto dismiss after 5 seconds
-      setTimeout(() => {
-        setAlerts(prev => prev.filter(a => a.id !== alertId));
-      }, 5000);
 
-      // Automatically unshift to logs table
-      setLogs(prev => [newAlert, ...prev]);
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsHost = window.location.hostname;
+    const wsPort = window.location.port === '5173' ? '8000' : window.location.port;
+    const wsUrl = `${wsProtocol}//${wsHost}:${wsPort}/api/ws/alerts`;
+
+    let ws;
+    let reconnectTimer;
+    let reconnectAttempts = 0;
+    const maxReconnectDelay = 30000;
+
+    const connect = () => {
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        reconnectAttempts = 0;
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          const alertId = data.id || Date.now() + Math.random();
+          const newAlert = { ...data, id: alertId };
+
+          setAlerts(prev => [...prev, newAlert]);
+          setTimeout(() => {
+            setAlerts(prev => prev.filter(a => a.id !== alertId));
+          }, 5000);
+
+          // Automatically add to logs
+          setLogs(prev => [newAlert, ...prev]);
+        } catch (e) {
+          console.error('Failed to parse WebSocket message:', e);
+        }
+      };
+
+      ws.onclose = () => {
+        // Auto-reconnect with exponential backoff
+        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), maxReconnectDelay);
+        reconnectAttempts++;
+        reconnectTimer = setTimeout(connect, delay);
+      };
+
+      ws.onerror = () => {
+        ws.close();
+      };
     };
-    
-    return () => ws.close();
+
+    connect();
+
+    return () => {
+      clearTimeout(reconnectTimer);
+      if (ws) ws.close();
+    };
   }, [authToken]);
 
   // Initial Data Fetch
@@ -55,9 +129,16 @@ export function WarehouseProvider({ children }) {
     fetch('/api/logs', {
       headers: { 'Authorization': `Bearer ${authToken}` }
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Unauthorized');
+        return res.json();
+      })
       .then(data => {
-        if (!data.detail) setLogs(data); // prevent setting unauthorized errors as data
+        setLogs(data);
+        setLogsLoaded(true);
+      })
+      .catch(() => {
+        setLogsLoaded(true); // Mark as loaded even on error to prevent infinite loading
       });
 
     // Fetch settings for dark mode
@@ -78,8 +159,8 @@ export function WarehouseProvider({ children }) {
   };
 
   return (
-    <WarehouseContext.Provider value={{ 
-      alerts, logs, setLogs, darkMode, toggleDarkMode, authToken, login, logout 
+    <WarehouseContext.Provider value={{
+      alerts, logs, setLogs, logsLoaded, darkMode, toggleDarkMode, authToken, login, logout
     }}>
       {children}
     </WarehouseContext.Provider>
