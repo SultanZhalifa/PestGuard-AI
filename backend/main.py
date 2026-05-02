@@ -236,6 +236,16 @@ def get_logs(auth: bool = Depends(verify_token)):
     conn.close()
     return [{"id": r[0], "type": r[1], "location": r[2], "date": r[3], "time": r[4], "confidence": r[5], "risk": r[6]} for r in rows]
 
+# Public endpoint for login page live detection log (no sensitive data)
+@app.get("/api/public/latest-detections")
+def get_latest_detections_public():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT type, time, risk FROM logs ORDER BY id DESC LIMIT 5")
+    rows = cursor.fetchall()
+    conn.close()
+    return [{"type": r[0], "time": r[1], "risk": r[2]} for r in rows]
+
 @app.get("/api/export/logs")
 def export_logs_csv(token: Optional[str] = None):
     # Accept token as query param since window.open can't send headers

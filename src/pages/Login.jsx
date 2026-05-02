@@ -18,9 +18,30 @@ export default function Login() {
   const [newPassword, setNewPassword] = useState('');
   const [demoCode, setDemoCode] = useState('');
 
+  // Live detection log state
+  const [detectionLogs, setDetectionLogs] = useState([]);
+  const [systemOnline, setSystemOnline] = useState(false);
+
   useEffect(() => {
     const saved = localStorage.getItem('sw_remembered_email');
     if (saved) { setEmail(saved); setRememberMe(true); }
+  }, []);
+
+  // Fetch real detection logs every 5 seconds
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const res = await fetch('/api/public/latest-detections');
+        if (res.ok) {
+          const data = await res.json();
+          setDetectionLogs(data);
+          setSystemOnline(true);
+        } else { setSystemOnline(false); }
+      } catch { setSystemOnline(false); }
+    };
+    fetchLogs();
+    const interval = setInterval(fetchLogs, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleSubmit = async (e) => {
@@ -141,14 +162,24 @@ export default function Login() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <span style={{ color: '#ffffff', fontWeight: '700', fontSize: '1rem', letterSpacing: '-0.02em' }}>Animal Detection Log</span>
-              <span style={{ backgroundColor: '#064e3b', color: '#34d399', padding: '4px 10px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px', letterSpacing: '0.05em' }}>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#34d399', animation: 'pulse 2s infinite' }} /> SYSTEM ACTIVE
+              <span style={{ backgroundColor: systemOnline ? '#064e3b' : '#7f1d1d', color: systemOnline ? '#34d399' : '#fca5a5', padding: '4px 10px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px', letterSpacing: '0.05em' }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: systemOnline ? '#34d399' : '#fca5a5', animation: 'pulse 2s infinite' }} /> {systemOnline ? 'SYSTEM ACTIVE' : 'OFFLINE'}
               </span>
             </div>
             <div style={{ fontFamily: '"Fira Code", "Courier New", monospace', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div><span style={{ color: '#475569', marginRight: '16px' }}>10:14:02</span> <span style={{ color: '#cbd5e1' }}>Mouse detected - Tier 3</span></div>
-              <div><span style={{ color: '#475569', marginRight: '16px' }}>10:14:03</span> <span style={{ color: '#cbd5e1' }}>Gecko detected - Tier 1</span></div>
-              <div><span style={{ color: '#475569', marginRight: '16px' }}>10:14:05</span> <span style={{ color: '#ffffff', fontWeight: '500' }}>Confirmed activity - 2 animals</span></div>
+              {detectionLogs.length > 0 ? (
+                detectionLogs.map((log, i) => (
+                  <div key={i}>
+                    <span style={{ color: '#475569', marginRight: '16px' }}>{log.time}</span>
+                    <span style={{ color: log.risk === 'danger' ? '#fca5a5' : log.risk === 'warning' ? '#fcd34d' : '#86efac' }}>
+                      {log.type} detected
+                    </span>
+                    <span style={{ color: '#475569' }}> — {log.risk}</span>
+                  </div>
+                ))
+              ) : (
+                <div style={{ color: '#64748b', fontStyle: 'italic' }}>No detections recorded yet.</div>
+              )}
             </div>
           </div>
 
