@@ -16,11 +16,26 @@ export default function DetectionLogs() {
   const { logs: allLogs, logsLoaded, authToken } = useWarehouse();
   const { addToast } = useToast();
   
-  // Typing animation state
-  const placeholders = ["Search 'Snake'...", "Search 'Zone A'...", "Search 'Contamination'..."];
+  // Enhanced typing animation
+  const placeholders = [
+    "Search 'Snake'...",
+    "Filter by 'Zone A'...",
+    "Try 'Cat' or 'Dog'...",
+    "Search 'danger'...",
+    "Find 'Person'...",
+  ];
   const [placeholderText, setPlaceholderText] = useState('');
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showCursor, setShowCursor] = useState(true);
+
+  // Blinking cursor effect
+  useEffect(() => {
+    const cursorInterval = setInterval(() => {
+      setShowCursor(prev => !prev);
+    }, 530);
+    return () => clearInterval(cursorInterval);
+  }, []);
 
   useEffect(() => {
     let timer;
@@ -30,24 +45,40 @@ export default function DetectionLogs() {
       if (placeholderText === '') {
         setIsDeleting(false);
         setPhraseIndex((prev) => (prev + 1) % placeholders.length);
-        timer = setTimeout(() => {}, 400); // Wait before typing next
+        timer = setTimeout(() => {}, 600); // Pause before next phrase
       } else {
+        // Fast deletion with slight variation
+        const deleteSpeed = 25 + Math.random() * 15;
         timer = setTimeout(() => {
           setPlaceholderText(currentPhrase.substring(0, placeholderText.length - 1));
-        }, 40); // Deletion speed
+        }, deleteSpeed);
       }
     } else {
       if (placeholderText === currentPhrase) {
-        timer = setTimeout(() => setIsDeleting(true), 2000); // Wait before deleting
+        // Hold the completed phrase longer
+        timer = setTimeout(() => setIsDeleting(true), 2800);
       } else {
+        // Natural typing: vary speed per character, occasional micro-pauses
+        const nextChar = currentPhrase[placeholderText.length];
+        let typeSpeed = 60 + Math.random() * 50; // Base: 60-110ms
+        
+        // Slow down slightly after spaces (like a real typist)
+        if (nextChar === ' ' || nextChar === "'") typeSpeed += 40;
+        // Occasional micro-pause (simulates thinking)
+        if (Math.random() < 0.08) typeSpeed += 120;
+        
         timer = setTimeout(() => {
           setPlaceholderText(currentPhrase.substring(0, placeholderText.length + 1));
-        }, 80); // Typing speed
+        }, typeSpeed);
       }
     }
 
     return () => clearTimeout(timer);
   }, [placeholderText, isDeleting, phraseIndex]);
+
+  // Build the display placeholder with cursor
+  const cursorChar = showCursor ? '|' : '';
+  const displayPlaceholder = searchTerm ? '' : (placeholderText + cursorChar);
 
   const loading = !logsLoaded;
 
@@ -118,7 +149,7 @@ export default function DetectionLogs() {
               <svg style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               <input 
                 type="text" 
-                placeholder={placeholderText || "Search..."} 
+                placeholder={displayPlaceholder || "Search..."} 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
