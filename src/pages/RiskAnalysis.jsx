@@ -9,22 +9,25 @@ import { jsPDF } from 'jspdf';
 export default function RiskAnalysis() {
   const { authToken, logs: recentLogs } = useWarehouse();
   const { addToast } = useToast();
-  const [weeklyData, setWeeklyData] = useState([]);
+  const [trendData, setTrendData] = useState([]);
   const [distributionData, setDistributionData] = useState([]);
   const [zoneData, setZoneData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [activeRange, setActiveRange] = useState('weekly');
+  const [trendLoading, setTrendLoading] = useState(false);
   const reportRef = useRef(null);
 
-  useEffect(() => {
+  const fetchAnalytics = (range = 'weekly', isInitial = false) => {
     if (!authToken) return;
+    if (!isInitial) setTrendLoading(true);
 
     let retries = 0;
     const maxRetries = 3;
 
-    const fetchAnalytics = () => {
-      fetch('/api/analytics', {
+    const doFetch = () => {
+      fetch(`/api/analytics?time_range=${range}`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       })
         .then(res => {
@@ -33,27 +36,38 @@ export default function RiskAnalysis() {
         })
         .then(data => {
           if (data.detail) throw new Error(data.detail);
-          setWeeklyData(data.weekly);
+          setTrendData(data.trend);
           setDistributionData(data.distribution);
           setZoneData(data.zone_activity);
           setLoading(false);
+          setTrendLoading(false);
           setFetchError(false);
         })
         .catch(err => {
           console.error("Error fetching analytics:", err);
           retries++;
           if (retries < maxRetries) {
-            const delay = Math.pow(2, retries) * 1000; // 2s, 4s
-            setTimeout(fetchAnalytics, delay);
+            const delay = Math.pow(2, retries) * 1000;
+            setTimeout(doFetch, delay);
           } else {
             setLoading(false);
+            setTrendLoading(false);
             setFetchError(true);
           }
         });
     };
 
-    fetchAnalytics();
+    doFetch();
+  };
+
+  useEffect(() => {
+    fetchAnalytics('weekly', true);
   }, [authToken]);
+
+  const handleRangeChange = (range) => {
+    setActiveRange(range);
+    fetchAnalytics(range);
+  };
 
   const handleExportPDF = async () => {
     if (!reportRef.current) return;
@@ -221,20 +235,68 @@ export default function RiskAnalysis() {
         {/* Charts Row */}
         <div className="grid-layout" style={{ gridTemplateColumns: '1fr 1fr' }}>
           
-          {/* Weekly Trend Chart */}
+          {/* Detection Trend Chart with Range Toggle */}
           <div className="card" style={{ height: '420px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '2rem', color: 'var(--text-primary)' }}>Weekly Detection Trend</h3>
-            <div style={{ flex: 1, minHeight: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>
+                Detection Trend
+              </h3>
+              <div style={{ 
+                display: 'flex', gap: '2px', backgroundColor: 'var(--bg-primary)', 
+                borderRadius: '10px', padding: '3px', border: '1px solid var(--border-color)'
+              }}>
+                {[
+                  { key: 'daily', label: 'Daily' },
+                  { key: 'weekly', label: 'Weekly' },
+                  { key: 'monthly', label: 'Monthly' },
+                ].map(opt => (
+                  <button
+                    key={opt.key}
+                    onClick={() => handleRangeChange(opt.key)}
+                    disabled={trendLoading}
+                    style={{
+                      padding: '0.375rem 0.875rem',
+                      fontSize: '0.75rem',
+                      fontWeight: activeRange === opt.key ? '700' : '500',
+                      color: activeRange === opt.key ? 'var(--bg-primary)' : 'var(--text-secondary)',
+                      backgroundColor: activeRange === opt.key ? 'var(--text-primary)' : 'transparent',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: trendLoading ? 'wait' : 'pointer',
+                      transition: 'all 0.2s ease',
+                      letterSpacing: '0.01em',
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+              {trendLoading && (
+                <div style={{
+                  position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  backgroundColor: 'var(--bg-secondary)', opacity: 0.8, borderRadius: '8px', zIndex: 2
+                }}>
+                  <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Loading...</span>
+                </div>
+              )}
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weeklyData} margin={{ top: 20, right: 30, left: -20, bottom: 0 }}>
+                <BarChart data={trendData} margin={{ top: 20, right: 30, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" opacity={0.5} />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} dy={10} />
+                  <XAxis 
+                    dataKey="name" axisLine={false} tickLine={false} 
+                    tick={{ fontSize: activeRange === 'monthly' ? 9 : 12, fill: 'var(--text-secondary)' }} 
+                    dy={10}
+                    interval={activeRange === 'monthly' ? 2 : activeRange === 'daily' ? 1 : 0}
+                  />
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
                   <Tooltip cursor={{ fill: 'var(--bg-tertiary)' }} contentStyle={{ borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
                   <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '20px', color: 'var(--text-secondary)' }} />
-                  <Bar dataKey="Snake" stackId="a" fill="var(--alert-danger)" radius={[0, 0, 4, 4]} barSize={32} />
+                  <Bar dataKey="Person" stackId="a" fill="var(--alert-success)" radius={[0, 0, 4, 4]} barSize={activeRange === 'monthly' ? 12 : 28} />
                   <Bar dataKey="Cat" stackId="a" fill="var(--alert-warning)" />
-                  <Bar dataKey="Gecko" stackId="a" fill="var(--accent-primary)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Dog" stackId="a" fill="#f97316" />
+                  <Bar dataKey="Snake" stackId="a" fill="var(--alert-danger)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

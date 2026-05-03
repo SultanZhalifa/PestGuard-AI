@@ -361,7 +361,7 @@ def export_logs_csv(token: Optional[str] = None):
 
 # ─── Analytics (Real Data) ───
 @app.get("/api/analytics")
-def get_analytics(auth: bool = Depends(verify_token)):
+def get_analytics(time_range: str = "weekly", auth: bool = Depends(verify_token)):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
@@ -378,23 +378,59 @@ def get_analytics(auth: bool = Depends(verify_token)):
         elif row[0] == "warning": distribution[1]["value"] = row[1]
         elif row[0] == "info": distribution[2]["value"] = row[1]
 
-    # Weekly chart (real data from last 7 days)
+    # Trend chart based on time_range
     today = datetime.date.today()
-    day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    weekly = []
-    for i in range(6, -1, -1):
-        d = today - datetime.timedelta(days=i)
-        day_name = day_names[d.weekday()]
-        date_str = d.strftime("%Y-%m-%d")
-        cursor.execute("SELECT type, COUNT(*) FROM logs WHERE date=? GROUP BY type", (date_str,))
-        counts = {row[0]: row[1] for row in cursor.fetchall()}
-        weekly.append({
-            "name": day_name,
-            "Snake": counts.get("Snake", 0),
-            "Cat": counts.get("Cat", 0),
-            "Dog": counts.get("Dog", 0),
-            "Person": counts.get("Person", 0),
-        })
+    trend = []
+
+    if time_range == "daily":
+        # Today's data, grouped by hour
+        today_str = today.strftime("%Y-%m-%d")
+        for h in range(24):
+            hour_str = f"{h:02d}"
+            cursor.execute(
+                "SELECT type, COUNT(*) FROM logs WHERE date=? AND time LIKE ? GROUP BY type",
+                (today_str, f"{hour_str}:%")
+            )
+            counts = {row[0]: row[1] for row in cursor.fetchall()}
+            trend.append({
+                "name": f"{hour_str}:00",
+                "Snake": counts.get("Snake", 0),
+                "Cat": counts.get("Cat", 0),
+                "Dog": counts.get("Dog", 0),
+                "Person": counts.get("Person", 0),
+            })
+
+    elif time_range == "monthly":
+        # Last 30 days
+        for i in range(29, -1, -1):
+            d = today - datetime.timedelta(days=i)
+            date_str = d.strftime("%Y-%m-%d")
+            label = d.strftime("%d/%m")
+            cursor.execute("SELECT type, COUNT(*) FROM logs WHERE date=? GROUP BY type", (date_str,))
+            counts = {row[0]: row[1] for row in cursor.fetchall()}
+            trend.append({
+                "name": label,
+                "Snake": counts.get("Snake", 0),
+                "Cat": counts.get("Cat", 0),
+                "Dog": counts.get("Dog", 0),
+                "Person": counts.get("Person", 0),
+            })
+
+    else:  # weekly (default)
+        day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        for i in range(6, -1, -1):
+            d = today - datetime.timedelta(days=i)
+            day_name = day_names[d.weekday()]
+            date_str = d.strftime("%Y-%m-%d")
+            cursor.execute("SELECT type, COUNT(*) FROM logs WHERE date=? GROUP BY type", (date_str,))
+            counts = {row[0]: row[1] for row in cursor.fetchall()}
+            trend.append({
+                "name": day_name,
+                "Snake": counts.get("Snake", 0),
+                "Cat": counts.get("Cat", 0),
+                "Dog": counts.get("Dog", 0),
+                "Person": counts.get("Person", 0),
+            })
 
     # Zone heatmap (derived from actual log counts)
     cursor.execute("SELECT location, COUNT(*) FROM logs GROUP BY location")
@@ -404,7 +440,6 @@ def get_analytics(auth: bool = Depends(verify_token)):
     for row in zone_rows:
         intensity = min(100, int((row[1] / total_logs) * 100))
         zone_activity.append({"zone": row[0], "intensity": intensity})
-    # Fill default zones if empty
     if not zone_activity:
         zone_activity = [
             {"zone": "Zone A", "intensity": 0},
@@ -414,7 +449,7 @@ def get_analytics(auth: bool = Depends(verify_token)):
         ]
 
     conn.close()
-    return {"weekly": weekly, "distribution": distribution, "zone_activity": zone_activity}
+    return {"trend": trend, "distribution": distribution, "zone_activity": zone_activity}
 
 @app.get("/api/status")
 def get_status(auth: bool = Depends(verify_token)):
