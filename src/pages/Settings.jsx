@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
 
 export default function Settings() {
-  const { authToken, darkMode, toggleDarkMode } = useWarehouse();
+  const { authToken, darkMode, toggleDarkMode, setLogs } = useWarehouse();
   
   const [cameraUrl, setCameraUrl] = useState('0');
   const [threshold, setThreshold] = useState(85);
@@ -444,7 +444,20 @@ export default function Settings() {
             }}
               onMouseOver={e => { e.currentTarget.style.backgroundColor = '#ef4444'; e.currentTarget.style.color = '#fff'; }}
               onMouseOut={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#ef4444'; }}
-              onClick={() => { if(confirm('Are you sure? This will permanently delete ALL detection logs.')) { setToastMsg('Logs cleared (demo only)'); setTimeout(() => setToastMsg(''), 3000); }}}
+              onClick={async () => { 
+                if(!confirm('⚠️ Are you sure?\n\nThis will permanently delete ALL detection logs from the database. This action cannot be undone.')) return;
+                try {
+                  const res = await fetch('/api/logs', { method: 'DELETE', headers: { 'Authorization': `Bearer ${authToken}` }});
+                  const data = await res.json();
+                  if (res.ok) {
+                    setLogs([]);
+                    setToastMsg('✅ ' + (data.message || 'All logs cleared.'));
+                  } else {
+                    setToastMsg('⚠️ ' + (data.detail || 'Failed to clear logs.'));
+                  }
+                } catch { setToastMsg('⚠️ Server error. Could not clear logs.'); }
+                setTimeout(() => setToastMsg(''), 4000);
+              }}
             >
               Clear Logs
             </button>
@@ -461,7 +474,21 @@ export default function Settings() {
             }}
               onMouseOver={e => { e.currentTarget.style.backgroundColor = '#ef4444'; e.currentTarget.style.color = '#fff'; }}
               onMouseOut={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#ef4444'; }}
-              onClick={() => { if(confirm('Reset all settings to default?')) { setCameraUrl('0'); setThreshold(85); setNotifications(true); setToastMsg('Settings reset to defaults'); setTimeout(() => setToastMsg(''), 3000); }}}
+              onClick={async () => { 
+                if(!confirm('Reset all settings to factory defaults?\n\nCamera URL → 0\nThreshold → 85%\nNotifications → On\nDark Mode → Off')) return;
+                try {
+                  const res = await fetch('/api/settings/reset', { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` }});
+                  const data = await res.json();
+                  if (res.ok) {
+                    setCameraUrl('0'); setThreshold(85); setNotifications(true);
+                    toggleDarkMode(false);
+                    setToastMsg('✅ ' + (data.message || 'Settings restored to defaults.'));
+                  } else {
+                    setToastMsg('⚠️ ' + (data.detail || 'Failed to reset settings.'));
+                  }
+                } catch { setToastMsg('⚠️ Server error. Could not reset settings.'); }
+                setTimeout(() => setToastMsg(''), 4000);
+              }}
             >
               Reset Settings
             </button>

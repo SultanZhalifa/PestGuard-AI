@@ -473,6 +473,19 @@ def clear_logs(auth: bool = Depends(verify_token)):
     conn.close()
     return {"status": "success", "message": "All detection logs cleared."}
 
+# ─── Danger Zone: Reset Settings ───
+@app.post("/api/settings/reset")
+def reset_settings(auth: bool = Depends(verify_token)):
+    defaults = {"cameraUrl": "0", "threshold": "85", "notifications": "true", "darkMode": "false"}
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    for k, v in defaults.items():
+        cursor.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (k, v))
+    conn.commit()
+    conn.close()
+    load_settings_cache()
+    return {"status": "success", "message": "All settings restored to defaults."}
+
 # ─── Video & AI Singleton Logic ───
 try:
     model = YOLO('yolo11n.pt')
