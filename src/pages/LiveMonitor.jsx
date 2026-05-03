@@ -72,7 +72,7 @@ export default function LiveMonitor() {
     };
 
     fetchStatus();
-    const interval = setInterval(fetchStatus, 2000);
+    const interval = setInterval(fetchStatus, 5000);
     return () => clearInterval(interval);
   }, [authToken]);
 

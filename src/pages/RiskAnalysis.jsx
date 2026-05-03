@@ -151,6 +151,17 @@ export default function RiskAnalysis() {
     );
   }
 
+  if (fetchError) {
+    return (
+      <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', minHeight: '400px', textAlign: 'center' }}>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <h3 style={{ color: 'var(--text-primary)', fontWeight: '600' }}>Failed to load analytics</h3>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>The server may be temporarily unavailable.</p>
+        <button className="btn" onClick={() => { setLoading(true); setFetchError(false); fetchAnalytics('weekly', true); }} style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', border: 'none', fontWeight: '600', marginTop: '0.5rem' }}>Retry</button>
+      </div>
+    );
+  }
+
   return (
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
       

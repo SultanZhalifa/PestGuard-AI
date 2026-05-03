@@ -19,10 +19,10 @@ Furthermore, our system is smart enough to differentiate between threats and sta
 ## 3. The Architecture (Fathir - Backend and AI Lead) [1:45 - 2:30]
 [Slide: Tech Stack, Threading and Security]
 "Under the hood, we engineered an enterprise grade architecture. Our Python FastAPI backend utilizes a Singleton Background Threading model for the OpenCV and YOLO11 pipeline. This guarantees maximum FPS and ensures the system will not crash even if multiple managers open the camera feed simultaneously.
-We did not stop at just AI. We secured the entire REST API ecosystem with JWT (JSON Web Token) Authentication. Any unauthorized attempt to access our camera or database logs is immediately blocked at the server level."
+We did not stop at just AI. We secured the entire REST API ecosystem with Token Based Session Authentication and Salted Password Hashing. We also implemented Rate Limiting on all authentication endpoints to prevent brute force attacks. Any unauthorized attempt to access our camera or database logs is immediately blocked at the server level."
 
 ## 4. Business Impact and Conclusion (Sultan - Scrum Master) [2:30 - 3:00]
 [Slide: Executive Summary and CSV Export]
-"Finally, we understand that data is only valuable if it is actionable. All detections are persisted in an SQLite database. Managers can view weekly risk distribution charts, and with one click, generate an Export to CSV report for external business intelligence tools.
+"Finally, we understand that data is only valuable if it is actionable. All detections are persisted in an SQLite database. Managers can toggle between Daily, Weekly, and Monthly risk distribution charts, and with one click, generate an Export to CSV or a full PDF Executive Summary report for external business intelligence tools.
 We executed this project using strict Agile Scrum methodology over three intensive sprints. We have delivered a highly scalable, secure, and production ready solution that protects both human lives and business inventory.
 Thank you, and we now open the floor to your questions."
