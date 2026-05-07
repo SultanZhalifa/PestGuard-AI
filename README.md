@@ -150,7 +150,7 @@ set ROBOFLOW_API_KEY=your_key_from_roboflow.com
 python download_datasets.py
 python train_custom_model.py
 ```
-See [`TRAINING_GUIDE.md`](TRAINING_GUIDE.md) for details.
+The training script will guide you through dataset setup and training.
 
 ### Demo Videos
 
@@ -197,8 +197,6 @@ We trained a custom YOLO11 model (`warehouse_pest.pt`) on curated datasets from 
 - **Snake Detection** — 1,200+ annotated images
 - **Cat Detection** — 800+ annotated images  
 - **Gecko/Lizard Detection** — 600+ annotated images
-
-Training details available in [`TRAINING_GUIDE.md`](TRAINING_GUIDE.md).
 
 ---
 
@@ -247,7 +245,6 @@ Training details available in [`TRAINING_GUIDE.md`](TRAINING_GUIDE.md).
 | [`docs/SCRUM_ROLES.md`](docs/SCRUM_ROLES.md) | Team roles and responsibilities |
 | [`docs/PRODUCT_BACKLOG.md`](docs/PRODUCT_BACKLOG.md) | Product backlog with priorities |
 | [`docs/SPRINT_REPORTS.md`](docs/SPRINT_REPORTS.md) | Weekly sprint progress reports |
-| [`TRAINING_GUIDE.md`](TRAINING_GUIDE.md) | Custom AI model training guide |
 
 ---
 

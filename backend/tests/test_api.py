@@ -138,12 +138,12 @@ class TestCamera:
     def test_camera_toggle_on(self, client, auth_headers):
         response = client.post("/api/camera/toggle", json={"state": True}, headers=auth_headers)
         assert response.status_code == 200
-        assert "ON" in response.json()["message"]
+        assert "started" in response.json()["message"].lower()
 
     def test_camera_toggle_off(self, client, auth_headers):
         response = client.post("/api/camera/toggle", json={"state": False}, headers=auth_headers)
         assert response.status_code == 200
-        assert "OFF" in response.json()["message"]
+        assert "stopped" in response.json()["message"].lower()
 
 
 # ─── Registration Tests ───
