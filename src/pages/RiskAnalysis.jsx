@@ -293,18 +293,19 @@ export default function RiskAnalysis() {
                 </div>
               )}
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={trendData} margin={{ top: 20, right: 30, left: -20, bottom: 0 }}>
+                <BarChart data={trendData} margin={{ top: 20, right: 30, left: -20, bottom: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" opacity={0.5} />
-                  <XAxis 
-                    dataKey="name" axisLine={false} tickLine={false} 
-                    tick={{ fontSize: activeRange === 'monthly' ? 9 : 12, fill: 'var(--text-secondary)' }} 
-                    dy={10}
-                    interval={activeRange === 'monthly' ? 2 : activeRange === 'daily' ? 1 : 0}
+                  <XAxis
+                    dataKey="name" axisLine={false} tickLine={false}
+                    tick={{ fontSize: activeRange === 'monthly' ? 10 : 11, fill: 'var(--text-secondary)' }}
+                    dy={8}
+                    interval={activeRange === 'daily' ? 3 : activeRange === 'monthly' ? 2 : 0}
+                    minTickGap={activeRange === 'daily' ? 24 : 12}
                   />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} allowDecimals={false} />
                   <Tooltip cursor={{ fill: 'var(--bg-tertiary)' }} contentStyle={{ borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
                   <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '20px', color: 'var(--text-secondary)' }} />
-                  <Bar dataKey="Gecko" stackId="a" fill="var(--alert-success)" radius={[0, 0, 4, 4]} barSize={activeRange === 'monthly' ? 12 : 28} />
+                  <Bar dataKey="Gecko" stackId="a" fill="var(--alert-success)" radius={[0, 0, 4, 4]} barSize={activeRange === 'monthly' ? 12 : activeRange === 'daily' ? 14 : 28} />
                   <Bar dataKey="Cat" stackId="a" fill="var(--alert-warning)" />
                   <Bar dataKey="Snake" stackId="a" fill="var(--alert-danger)" radius={[4, 4, 0, 0]} />
                 </BarChart>
