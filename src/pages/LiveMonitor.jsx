@@ -7,7 +7,7 @@ export default function LiveMonitor() {
   const { logs: allLogs, authToken } = useWarehouse();
   const { addToast } = useToast();
   const [status, setStatus] = useState("Loading...");
-  const [aiData, setAiData] = useState({ speed: "0ms", model: "YOLO11" });
+  const [aiData, setAiData] = useState({ speed: "Idle", model: "YOLO11" });
   const [activeZones, setActiveZones] = useState([]);
   const [lastUpdated, setLastUpdated] = useState(null);
   const prevLogCountRef = useRef(allLogs.length);
