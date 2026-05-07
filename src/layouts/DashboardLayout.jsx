@@ -40,6 +40,40 @@ export default function DashboardLayout() {
 
   const isMac = typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform);
 
+  // Typing animation for "Quick search" hint — rotates through suggestions
+  const searchHints = ['Quick search', 'Find anything', 'Jump to...', 'Try "Logs"', 'Try "Users"'];
+  const [hintText, setHintText] = useState('Quick search');
+  const [hintPhraseIdx, setHintPhraseIdx] = useState(0);
+  const [hintDeleting, setHintDeleting] = useState(false);
+  const [hintCursorVisible, setHintCursorVisible] = useState(true);
+
+  useEffect(() => {
+    const cursorBlink = setInterval(() => setHintCursorVisible(v => !v), 530);
+    return () => clearInterval(cursorBlink);
+  }, []);
+
+  useEffect(() => {
+    let timer;
+    const phrase = searchHints[hintPhraseIdx];
+    if (hintDeleting) {
+      if (hintText === '') {
+        setHintDeleting(false);
+        setHintPhraseIdx(i => (i + 1) % searchHints.length);
+      } else {
+        timer = setTimeout(() => setHintText(phrase.substring(0, hintText.length - 1)), 28);
+      }
+    } else {
+      if (hintText === phrase) {
+        timer = setTimeout(() => setHintDeleting(true), 2200);
+      } else {
+        const next = phrase[hintText.length];
+        const speed = next === ' ' ? 90 : 55 + Math.random() * 35;
+        timer = setTimeout(() => setHintText(phrase.substring(0, hintText.length + 1)), speed);
+      }
+    }
+    return () => clearTimeout(timer);
+  }, [hintText, hintDeleting, hintPhraseIdx]);
+
   return (
     <div className="app-container">
       <CommandPalette />
@@ -143,7 +177,15 @@ export default function DashboardLayout() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
-              <span>Quick search</span>
+              <span style={{ minWidth: '120px', display: 'inline-block', textAlign: 'left' }}>
+                {hintText}
+                <span style={{
+                  display: 'inline-block', width: '1px',
+                  opacity: hintCursorVisible ? 1 : 0,
+                  marginLeft: '1px', color: 'var(--accent-primary)',
+                  transition: 'opacity 0.05s',
+                }}>|</span>
+              </span>
               <span style={{
                 fontSize: '0.7rem', padding: '0.1rem 0.35rem',
                 background: 'var(--bg-secondary)', border: '1px solid var(--border-color)',
