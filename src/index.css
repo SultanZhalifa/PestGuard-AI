@@ -300,6 +300,24 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.5rem;
 }
 
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
 .log-item {
   display: flex;
   justify-content: space-between;

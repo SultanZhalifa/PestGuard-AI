@@ -40,6 +40,7 @@ from routes.camera import router as camera_router, start_video_thread, get_infer
 from routes.zones import router as zones_router, init_camera_zones
 from routes.model_info import router as model_info_router
 from routes.users import router as users_router
+from services.snapshot_retention import start_retention_thread
 
 
 # ─── Lifespan (modern startup/shutdown) ───
@@ -131,6 +132,7 @@ init_db()
 init_camera_zones()
 load_settings_cache()
 start_video_thread()
+start_retention_thread()
 
 
 # ─── Run Server ───

@@ -283,7 +283,12 @@ Mohon segera lakukan pengecekan pada dashboard Smart Warehouse atau tugaskan per
           <h3 style={{ fontSize: '1.125rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Recent Alerts</h3>
         </div>
         
-        <div className="logs-list" style={{ gap: '1rem' }}>
+        <div className="logs-list custom-scrollbar" style={{
+          gap: '1rem',
+          maxHeight: 'calc(100vh - 240px)',
+          overflowY: 'auto',
+          paddingRight: '0.25rem',
+        }}>
           {logs.map((log) => (
             <div key={log.id} style={{ 
               display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
