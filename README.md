@@ -154,12 +154,12 @@ See [`TRAINING_GUIDE.md`](TRAINING_GUIDE.md) for details.
 
 ### Demo Videos
 
-Place demo videos in `backend/demo_videos/` (also not committed):
-- `Cat.mp4` → Zone B
-- `Gecko.mp4` → Zone C
-- `Snake.mp4` → Zone D
+Demo videos are included in `backend/demo_videos/` for immediate testing:
+- `Cat.mp4` → Zone B (Storage Area)
+- `Gecko.mp4` → Zone C (Loading Dock)
+- `Snake.mp4` → Zone D (Entrance Gate)
 
-See [`backend/demo_videos/README.md`](backend/demo_videos/README.md) for sources.
+To replace with your own footage, see [`backend/demo_videos/README.md`](backend/demo_videos/README.md).
 
 ### 4. Docker Deployment (One Command)
 

@@ -47,12 +47,8 @@ backend/dataset/
 backend/dataset_merged/
 backend/runs/
 
-# Demo videos (binary media; collaborators provide their own — keep README)
-backend/demo_videos/*.mp4
-backend/demo_videos/*.avi
-backend/demo_videos/*.mov
-backend/demo_videos/*.mkv
-backend/demo_videos/*.webm
+# Demo videos — kept in repo so collaborators can test immediately
+# (Total ~8.6MB, well under GitHub 100MB per-file limit)
 
 # OS / IDE leftovers
 Thumbs.db
