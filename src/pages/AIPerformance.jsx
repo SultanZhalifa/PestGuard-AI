@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
+import { useT } from '../hooks/useT';
 
 /* ─── Inline SVG Icon Components ─── */
 const Icons = {
@@ -94,6 +95,7 @@ function MetricCard({ label, targetValue, desc, color, iconFn }) {
 
 
 export default function AIPerformance() {
+  const t = useT();
   const [modelInfo, setModelInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -128,9 +130,9 @@ export default function AIPerformance() {
     return (
       <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', minHeight: '400px', textAlign: 'center' }}>
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 15h8"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/></svg>
-        <h3 style={{ color: 'var(--text-primary)', fontWeight: '600' }}>No AI Model Loaded</h3>
+        <h3 style={{ color: 'var(--text-primary)', fontWeight: '600' }}>{t.aiPerformance.noModelTitle}</h3>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', maxWidth: 400 }}>
-          The YOLO model is not currently loaded. Please ensure <code>warehouse_pest.pt</code> or <code>yolo11n.pt</code> is available in the backend directory.
+          {t.aiPerformance.noModelDesc}
         </p>
       </div>
     );
@@ -141,10 +143,10 @@ export default function AIPerformance() {
   const artifacts = modelInfo.artifacts || [];
 
   const metricCards = metrics ? [
-    { label: 'mAP@50', targetValue: metrics.mAP50, desc: 'Mean Average Precision', color: '#22c55e', iconFn: Icons.target },
-    { label: 'mAP@50-95', targetValue: metrics.mAP50_95, desc: 'Strict mAP', color: '#3b82f6', iconFn: Icons.barChart },
-    { label: 'Precision', targetValue: metrics.precision, desc: 'True Positive Rate', color: '#a855f7', iconFn: Icons.checkCircle },
-    { label: 'Recall', targetValue: metrics.recall, desc: 'Detection Coverage', color: '#f59e0b', iconFn: Icons.search },
+    { label: t.aiPerformance.mAP50, targetValue: metrics.mAP50, desc: t.aiPerformance.meanAvgPrecision, color: '#22c55e', iconFn: Icons.target },
+    { label: t.aiPerformance.mAP5095, targetValue: metrics.mAP50_95, desc: t.aiPerformance.strictMap, color: '#3b82f6', iconFn: Icons.barChart },
+    { label: t.aiPerformance.precision, targetValue: metrics.precision, desc: t.aiPerformance.truePositiveRate, color: '#a855f7', iconFn: Icons.checkCircle },
+    { label: t.aiPerformance.recall, targetValue: metrics.recall, desc: t.aiPerformance.detectionCoverage, color: '#f59e0b', iconFn: Icons.search },
   ] : [];
 
   return (
@@ -152,8 +154,8 @@ export default function AIPerformance() {
       
       {/* Header */}
       <div>
-        <h2 style={{ fontSize: '1.875rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>AI Model Performance</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Custom-trained YOLO11 model metrics and training analytics</p>
+        <h2 style={{ fontSize: '1.875rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>{t.aiPerformance.title}</h2>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{t.aiPerformance.subtitle}</p>
       </div>
 
       {/* Model Info Banner */}
@@ -199,7 +201,7 @@ export default function AIPerformance() {
             </div>
             <div>
               <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)' }}>{training.epochs_trained}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>Epochs Trained</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>{t.aiPerformance.epochsTrained}</div>
             </div>
           </div>
           <div className="card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -208,7 +210,7 @@ export default function AIPerformance() {
             </div>
             <div>
               <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)' }}>Epoch {training.best_epoch}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>Best mAP@50</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>{t.aiPerformance.bestMap}</div>
             </div>
           </div>
           <div className="card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -217,7 +219,7 @@ export default function AIPerformance() {
             </div>
             <div>
               <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)' }}>{modelInfo.input_resolution}px</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>Training Resolution</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>{t.aiPerformance.trainingResolution}</div>
             </div>
           </div>
         </div>
@@ -228,7 +230,7 @@ export default function AIPerformance() {
         <div className="grid-layout" style={{ gridTemplateColumns: '1fr 1fr' }}>
           {/* mAP Curve */}
           <div className="card" style={{ height: '400px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>mAP Over Training</h3>
+            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{t.aiPerformance.mapOverTraining}</h3>
             <div style={{ flex: 1, minHeight: 0 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={training.training_curve} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
@@ -256,7 +258,7 @@ export default function AIPerformance() {
 
           {/* Loss Curve */}
           <div className="card" style={{ height: '400px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Validation Loss</h3>
+            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{t.aiPerformance.validationLoss}</h3>
             <div style={{ flex: 1, minHeight: 0 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={training.training_curve} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
@@ -277,26 +279,83 @@ export default function AIPerformance() {
       {/* Training Artifacts Gallery */}
       {artifacts.length > 0 && (
         <div className="card" style={{ padding: '2rem' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Training Artifacts</h3>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{t.aiPerformance.trainingArtifacts}</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
-            {artifacts.map((a) => (
-              <button
-                key={a.key}
-                onClick={() => setActiveArtifact(activeArtifact === a.key ? null : a.key)}
-                style={{
-                  padding: '0.75rem', borderRadius: '12px',
-                  border: activeArtifact === a.key ? '2px solid var(--text-primary)' : '1px solid var(--border-color)',
-                  backgroundColor: activeArtifact === a.key ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
-                  cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s ease',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem'
-                }}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+            {artifacts.map((a) => {
+              const isActive = activeArtifact === a.key;
+              const iconColor = isActive ? 'var(--text-primary)' : 'var(--text-secondary)';
+              const artifactIcons = {
+                confusion_matrix: (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/>
+                    <rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
+                  </svg>
+                ),
+                confusion_matrix_normalized: (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/>
+                    <rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
+                    <line x1="3" y1="21" x2="21" y2="3" strokeDasharray="2 2"/>
+                  </svg>
+                ),
+                results: (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                  </svg>
+                ),
+                BoxF1_curve: (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 20 Q8 4 12 12 Q16 20 21 4"/>
+                    <line x1="3" y1="20" x2="21" y2="20"/><line x1="3" y1="4" x2="3" y2="20"/>
+                  </svg>
+                ),
+                BoxPR_curve: (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 20 Q6 20 10 14 Q14 8 21 4"/>
+                    <line x1="3" y1="20" x2="21" y2="20"/><line x1="3" y1="4" x2="3" y2="20"/>
+                  </svg>
+                ),
+                BoxP_curve: (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 20 7 8 12 14 17 6 21 10"/>
+                    <line x1="3" y1="20" x2="21" y2="20"/><line x1="3" y1="4" x2="3" y2="20"/>
+                  </svg>
+                ),
+                BoxR_curve: (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 8 14 13 10 18 16 21 12"/>
+                    <line x1="3" y1="20" x2="21" y2="20"/><line x1="3" y1="4" x2="3" y2="20"/>
+                  </svg>
+                ),
+                labels: (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="14" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/>
+                    <rect x="17" y="4" width="4" height="17" rx="1"/>
+                  </svg>
+                ),
+              };
+              const icon = artifactIcons[a.key] || (
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                 </svg>
-                <span style={{ fontSize: '0.7rem', fontWeight: '600', color: 'var(--text-secondary)' }}>{a.label}</span>
-              </button>
-            ))}
+              );
+              return (
+                <button
+                  key={a.key}
+                  onClick={() => setActiveArtifact(isActive ? null : a.key)}
+                  style={{
+                    padding: '1rem 0.75rem', borderRadius: '12px',
+                    border: isActive ? '2px solid var(--text-primary)' : '1px solid var(--border-color)',
+                    backgroundColor: isActive ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
+                    cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s ease',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem',
+                  }}
+                >
+                  {icon}
+                  <span style={{ fontSize: '0.7rem', fontWeight: '600', color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)', lineHeight: 1.3 }}>{a.label}</span>
+                </button>
+              );
+            })}
           </div>
           
           {/* Artifact Viewer */}
@@ -322,12 +381,12 @@ export default function AIPerformance() {
 
       {/* Risk Classification Reference */}
       <div className="card" style={{ padding: '2rem' }}>
-        <h3 style={{ fontSize: '1.125rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Detection Class Mapping</h3>
+        <h3 style={{ fontSize: '1.125rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{t.aiPerformance.detectionClassMapping}</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
           {[
-            { cls: 'Snake', risk: 'DANGER', color: 'var(--alert-danger)', bg: 'var(--alert-danger-bg)', action: 'Immediate zone evacuation', iconFn: Icons.snake },
-            { cls: 'Cat', risk: 'WARNING', color: 'var(--alert-warning)', bg: 'var(--alert-warning-bg)', action: 'Contamination alert + cleanup', iconFn: Icons.cat },
-            { cls: 'Gecko / Lizard', risk: 'MONITOR', color: '#22c55e', bg: 'rgba(34,197,94,0.12)', action: 'Log entry + inspect zone', iconFn: Icons.lizard },
+            { cls: 'Snake', risk: 'DANGER', color: 'var(--alert-danger)', bg: 'var(--alert-danger-bg)', action: t.aiPerformance.immediateEvacuation, iconFn: Icons.snake },
+            { cls: 'Cat', risk: 'WARNING', color: 'var(--alert-warning)', bg: 'var(--alert-warning-bg)', action: t.aiPerformance.contaminationAlert, iconFn: Icons.cat },
+            { cls: 'Gecko / Lizard', risk: 'MONITOR', color: '#22c55e', bg: 'rgba(34,197,94,0.12)', action: t.aiPerformance.logInspect, iconFn: Icons.lizard },
           ].map((item, i) => (
             <div key={i} style={{ padding: '1.25rem', borderRadius: '12px', backgroundColor: item.bg, border: `1px solid ${item.color}22`, display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: `${item.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

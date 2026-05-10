@@ -1,8 +1,26 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
 import { useToast } from './ToastNotification';
+import { useT } from '../hooks/useT';
 
 const TRACKED_CLASSES = ['snake', 'cat', 'gecko', 'lizard'];
+
+const ControlBtn = ({ onClick, title, children, active }) => (
+  <button
+    onClick={onClick}
+    title={title}
+    style={{
+      background: active ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.15)',
+      border: '1px solid rgba(255,255,255,0.25)',
+      borderRadius: '6px', color: '#fff', width: 30, height: 30,
+      cursor: 'pointer', fontSize: '1rem', display: 'flex',
+      alignItems: 'center', justifyContent: 'center',
+      backdropFilter: 'blur(4px)', flexShrink: 0,
+    }}
+  >
+    {children}
+  </button>
+);
 
 const RISK_COLORS = {
   danger: '#ef4444',
@@ -15,10 +33,16 @@ const RISK_COLORS = {
 export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) {
   const { authToken, user } = useWarehouse();
   const { addToast } = useToast();
+  const t = useT();
   const [stats, setStats] = useState(null);
   const [logs, setLogs] = useState([]);
   const [filter, setFilter] = useState('all');
   const [snapshotLoading, setSnapshotLoading] = useState(false);
+  const [rotation, setRotation] = useState(0);
+  const [fitMode, setFitMode] = useState('contain');
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isHoveringVideo, setIsHoveringVideo] = useState(false);
+  const videoContainerRef = useRef(null);
 
   const isAdmin = user?.role === 'admin';
   const isLive = zone.status === 'live';
@@ -49,14 +73,37 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
 
   // Esc key closes modal
   useEffect(() => {
-    const handler = (e) => e.key === 'Escape' && onClose();
+    const handler = (e) => e.key === 'Escape' && !document.fullscreenElement && onClose();
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
+  // Reset player state when zone changes
+  useEffect(() => {
+    setRotation(0);
+    setFitMode('contain');
+  }, [zone.id]);
+
+  // Sync fullscreen state
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+
+  const toggleFullscreen = () => {
+    const el = videoContainerRef.current;
+    if (!el) return;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   const takeSnapshot = async () => {
     if (!isLive) {
-      addToast('Zone must be LIVE to take a snapshot', 'warning');
+      addToast(t.zoneModal.snapshotMustBeLive, 'warning');
       return;
     }
     setSnapshotLoading(true);
@@ -76,9 +123,9 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-      addToast('Snapshot saved', 'success');
+      addToast(t.zoneModal.snapshotSaved, 'success');
     } catch (err) {
-      addToast('Failed to take snapshot', 'danger');
+      addToast(t.zoneModal.snapshotFailed, 'danger');
     } finally {
       setSnapshotLoading(false);
     }
@@ -139,17 +186,30 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
           {/* LEFT: video + stats */}
           <div>
             {/* Live Stream */}
-            <div style={{
-              aspectRatio: '16/9', backgroundColor: '#0a0a0a',
-              borderRadius: '12px', overflow: 'hidden', position: 'relative',
-              border: isLive ? `2px solid ${RISK_COLORS.danger}` : '1px solid var(--border-color)',
-            }}>
+            <div
+              ref={videoContainerRef}
+              onMouseEnter={() => setIsHoveringVideo(true)}
+              onMouseLeave={() => setIsHoveringVideo(false)}
+              style={{
+                aspectRatio: '16/9', backgroundColor: '#0a0a0a',
+                borderRadius: '12px', overflow: 'hidden', position: 'relative',
+                border: isLive ? `2px solid ${RISK_COLORS.danger}` : '1px solid var(--border-color)',
+              }}
+            >
               {isLive ? (
                 <img
                   key={`detail-${zone.id}-${zone.status}`}
-                  src={`/api/video_feed/${zone.id}`}
+                  src={`/api/video_feed/${zone.id}?token=${authToken}`}
                   alt={zone.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{
+                    width: rotation % 180 === 0 ? '100%' : '100%',
+                    height: '100%',
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    objectFit: fitMode,
+                    transform: `rotate(${rotation}deg)`,
+                    transition: 'transform 0.3s ease',
+                  }}
                 />
               ) : (
                 <div style={{
@@ -162,7 +222,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
                     <path d="M16.5 7.5V6a2 2 0 0 0-2-2h-5a2 2 0 0 0-2 2v0"/><path d="M2 2l20 20"/><path d="M23 7l-7 5"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2" style={{ opacity: 0.3 }}/>
                   </svg>
                   <span style={{ fontSize: '0.8rem', fontWeight: '600', letterSpacing: '0.1em' }}>
-                    {zone.has_source ? 'CAMERA OFFLINE' : 'NO SOURCE CONFIGURED'}
+                    {zone.has_source ? t.zoneModal.cameraOffline : t.zoneModal.noSourceConfigured}
                   </span>
                 </div>
               )}
@@ -180,9 +240,54 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
                   animation: isLive ? 'pulse 2s infinite' : 'none',
                 }} />
                 <span style={{ fontSize: '0.75rem', fontWeight: '700', color: isLive ? '#22c55e' : '#f59e0b', letterSpacing: '0.1em' }}>
-                  {isLive ? 'LIVE' : 'STANDBY'}
+                  {isLive ? t.zoneModal.live : t.zoneModal.standby}
                 </span>
               </div>
+
+              {/* YouTube-style controls bar */}
+              {isLive && (
+                <div style={{
+                  position: 'absolute', bottom: 0, left: 0, right: 0,
+                  background: 'linear-gradient(transparent, rgba(0,0,0,0.75))',
+                  padding: '1.5rem 0.75rem 0.5rem',
+                  display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.4rem',
+                  opacity: isHoveringVideo ? 1 : 0,
+                  transition: 'opacity 0.2s ease',
+                  pointerEvents: isHoveringVideo ? 'auto' : 'none',
+                }}>
+                  {(rotation !== 0 || fitMode !== 'contain') && (
+                    <ControlBtn
+                      onClick={() => { setRotation(0); setFitMode('contain'); }}
+                      title="Reset"
+                    >↺</ControlBtn>
+                  )}
+                  <ControlBtn
+                    onClick={() => setRotation(r => (r - 90 + 360) % 360)}
+                    title="Rotate CCW"
+                  >⟲</ControlBtn>
+                  <ControlBtn
+                    onClick={() => setRotation(r => (r + 90) % 360)}
+                    title="Rotate CW"
+                  >⟳</ControlBtn>
+                  <ControlBtn
+                    onClick={() => setFitMode(m => m === 'contain' ? 'cover' : m === 'cover' ? 'fill' : 'contain')}
+                    title={`Fit: ${fitMode} → ${fitMode === 'contain' ? 'cover' : fitMode === 'cover' ? 'fill' : 'contain'}`}
+                    active={fitMode !== 'contain'}
+                  >
+                    {fitMode === 'contain' ? '⊡' : fitMode === 'cover' ? '⊠' : '⬚'}
+                  </ControlBtn>
+                  <ControlBtn
+                    onClick={toggleFullscreen}
+                    title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+                  >
+                    {isFullscreen ? (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/></svg>
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+                    )}
+                  </ControlBtn>
+                </div>
+              )}
             </div>
 
             {/* Control buttons */}
@@ -201,7 +306,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
                     opacity: isPending ? 0.6 : 1,
                   }}
                 >
-                  {isPending ? '...' : (isLive ? 'STOP MONITORING' : 'START MONITORING')}
+                  {isPending ? '...' : (isLive ? t.zoneModal.stopMonitoring : t.zoneModal.startMonitoring)}
                 </button>
               )}
               <button
@@ -217,7 +322,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
                   opacity: !isLive ? 0.4 : 1,
                 }}
               >
-                {snapshotLoading ? '...' : 'SNAPSHOT'}
+                {snapshotLoading ? '...' : t.zoneModal.snapshot}
               </button>
               <button
                 onClick={exportLogs}
@@ -229,17 +334,17 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
                   fontWeight: '700', fontSize: '0.8rem', cursor: 'pointer',
                 }}
               >
-                EXPORT CSV
+                {t.zoneModal.exportCsv}
               </button>
             </div>
 
             {/* Stats Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginTop: '1rem' }}>
               {[
-                { label: 'TODAY', value: stats?.total_today ?? '—' },
-                { label: 'ALL TIME', value: stats?.total_all ?? '—' },
-                { label: 'AVG CONF', value: stats ? `${stats.avg_confidence}%` : '—' },
-                { label: 'STATUS', value: isLive ? 'ACTIVE' : 'IDLE' },
+                { label: t.zoneModal.today, value: stats?.total_today ?? '—' },
+                { label: t.zoneModal.allTime, value: stats?.total_all ?? '—' },
+                { label: t.zoneModal.avgConf, value: stats ? `${stats.avg_confidence}%` : '—' },
+                { label: t.zoneModal.status, value: isLive ? t.zoneModal.active : t.zoneModal.idle },
               ].map((s) => (
                 <div key={s.label} style={{
                   backgroundColor: 'var(--bg-tertiary)', padding: '0.7rem',
@@ -260,7 +365,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
             {stats?.breakdown?.length > 0 && (
               <div style={{ marginTop: '1rem' }}>
                 <p style={{ margin: '0 0 0.5rem', fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '700', letterSpacing: '0.1em' }}>
-                  DETECTION BREAKDOWN
+                  {t.zoneModal.detectionBreakdown}
                 </p>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   {stats.breakdown.map((b) => (
@@ -288,7 +393,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
             {/* Filter tabs */}
             <div>
               <p style={{ margin: '0 0 0.5rem', fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '700', letterSpacing: '0.1em' }}>
-                RECENT DETECTIONS
+                {t.zoneModal.recentDetections}
               </p>
               <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
                 {['all', ...TRACKED_CLASSES].map((c) => (
@@ -321,7 +426,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
                     backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px',
                     border: '1px dashed var(--border-color)',
                   }}>
-                    No detections in this zone yet
+                    {t.zoneModal.noDetectionsYet}
                   </div>
                 ) : (
                   filteredLogs.map((log) => {
@@ -358,21 +463,21 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
             {/* Configuration Section */}
             <div>
               <p style={{ margin: '0 0 0.5rem', fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '700', letterSpacing: '0.1em' }}>
-                ZONE CONFIGURATION
+                {t.zoneModal.zoneConfiguration}
               </p>
               <div style={{
                 backgroundColor: 'var(--bg-tertiary)', padding: '0.75rem',
                 borderRadius: '10px', border: '1px solid var(--border-color)',
                 fontSize: '0.75rem',
               }}>
-                <ConfigRow label="Zone ID" value={zone.id} />
-                <ConfigRow label="Source Type" value={(zone.source_type || 'none').toUpperCase()} />
-                <ConfigRow label="Has Source" value={zone.has_source ? 'Yes' : 'No'} />
-                <ConfigRow label="Last Detection" value={zone.last_detection || 'Never'} />
+                <ConfigRow label={t.zoneModal.zoneId} value={zone.id} />
+                <ConfigRow label={t.zoneModal.sourceType} value={(zone.source_type || 'none').toUpperCase()} />
+                <ConfigRow label={t.zoneModal.hasSource} value={zone.has_source ? t.zoneModal.yes : t.zoneModal.no} />
+                <ConfigRow label={t.zoneModal.lastDetection} value={zone.last_detection || t.zoneModal.never} />
                 {isAdmin && zone.source && (
                   <div style={{ marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px solid var(--border-color)' }}>
                     <p style={{ margin: 0, fontSize: '0.6rem', color: 'var(--text-secondary)', fontWeight: '700', letterSpacing: '0.05em' }}>
-                      SOURCE PATH
+                      {t.zoneModal.sourcePath}
                     </p>
                     <p style={{ margin: '0.2rem 0 0', fontSize: '0.65rem', color: 'var(--text-primary)', fontFamily: 'monospace', wordBreak: 'break-all' }}>
                       {zone.source}

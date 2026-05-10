@@ -13,7 +13,7 @@ from typing import Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import Response, FileResponse
 
-from config import verify_token, active_sessions
+from config import verify_token, require_role, active_sessions
 from database import get_db
 
 router = APIRouter(prefix="/api", tags=["Detection Logs"])
@@ -27,13 +27,18 @@ def get_logs(
     limit: int = 100,
 ):
     """Optionally filter by zone name (substring match) and customise limit."""
+    # Security: cap limit to prevent DoS via huge result sets
+    limit = min(max(1, limit), 1000)
+
     with get_db() as conn:
         cursor = conn.cursor()
         if zone:
+            # Security: escape LIKE wildcards to prevent pattern injection
+            safe_zone = zone.replace("%", "\\%").replace("_", "\\_")
             cursor.execute(
                 "SELECT id, type, location, date, time, confidence, risk, snapshot_path "
-                "FROM logs WHERE location LIKE ? ORDER BY id DESC LIMIT ?",
-                (f"%{zone}%", limit),
+                "FROM logs WHERE location LIKE ? ESCAPE '\\' ORDER BY id DESC LIMIT ?",
+                (f"%{safe_zone}%", limit),
             )
         else:
             cursor.execute(
@@ -157,9 +162,9 @@ def export_logs_csv(token: Optional[str] = None):
     )
 
 
-# ─── Clear All Logs (Danger Zone) ───
+# ─── Clear All Logs (Admin only) ───
 @router.delete("/logs")
-def clear_logs(auth: bool = Depends(verify_token)):
+def clear_logs(session: dict = Depends(require_role("admin"))):
     with get_db() as conn:
         conn.cursor().execute("DELETE FROM logs")
 
@@ -171,8 +176,13 @@ SNAPSHOT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "snapsho
 
 
 @router.get("/snapshots/{filename}")
-def get_snapshot(filename: str):
-    """Serve a detection snapshot image."""
+def get_snapshot(filename: str, token: str = ""):
+    """Serve a detection snapshot image (authenticated)."""
+    # Security: verify auth token
+    session = active_sessions.get(token) if token else None
+    if not session or time.time() > session.get("expires", 0):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
     # Security: prevent directory traversal
     if ".." in filename or "/" in filename or "\\" in filename:
         raise HTTPException(status_code=400, detail="Invalid filename")

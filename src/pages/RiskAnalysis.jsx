@@ -3,12 +3,14 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useWarehouse } from '../context/WarehouseContext';
 import WarehouseZoneMap from '../components/WarehouseZoneMap';
 import { useToast } from '../components/ToastNotification';
+import { useT } from '../hooks/useT';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
 export default function RiskAnalysis() {
   const { authToken, logs: recentLogs } = useWarehouse();
   const { addToast } = useToast();
+  const t = useT();
   const [trendData, setTrendData] = useState([]);
   const [distributionData, setDistributionData] = useState([]);
   const [zoneData, setZoneData] = useState([]);
@@ -117,10 +119,10 @@ export default function RiskAnalysis() {
       a.href = pdfBase64;
       a.download = `SmartWarehouse-ExecutiveSummary-${new Date().toISOString().slice(0,10)}.pdf`;
       a.click();
-      addToast('PDF report exported successfully!', 'info');
+      addToast(t.riskAnalysis.exportSuccess, 'info');
     } catch (err) {
       console.error('PDF Export failed:', err);
-      addToast('Failed to generate PDF. Please try again.', 'danger');
+      addToast(t.riskAnalysis.exportFailed, 'danger');
     }
     setExporting(false);
   };
@@ -155,9 +157,9 @@ export default function RiskAnalysis() {
     return (
       <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', minHeight: '400px', textAlign: 'center' }}>
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-        <h3 style={{ color: 'var(--text-primary)', fontWeight: '600' }}>Failed to load analytics</h3>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>The server may be temporarily unavailable.</p>
-        <button className="btn" onClick={() => { setLoading(true); setFetchError(false); fetchAnalytics('weekly', true); }} style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', border: 'none', fontWeight: '600', marginTop: '0.5rem' }}>Retry</button>
+        <h3 style={{ color: 'var(--text-primary)', fontWeight: '600' }}>{t.riskAnalysis.failedAnalytics}</h3>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{t.riskAnalysis.serverUnavailable}</p>
+        <button className="btn" onClick={() => { setLoading(true); setFetchError(false); fetchAnalytics('weekly', true); }} style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', border: 'none', fontWeight: '600', marginTop: '0.5rem' }}>{t.riskAnalysis.retry}</button>
       </div>
     );
   }
@@ -168,13 +170,13 @@ export default function RiskAnalysis() {
       {/* Header with PDF Export */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h2 style={{ fontSize: '1.875rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>Executive Summary</h2>
+          <h2 style={{ fontSize: '1.875rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>{t.riskAnalysis.executiveSummary}</h2>
         </div>
-        <button 
-          onClick={handleExportPDF} 
+        <button
+          onClick={handleExportPDF}
           disabled={exporting}
           className="btn"
-          style={{ 
+          style={{
             display: 'flex', alignItems: 'center', gap: '0.5rem',
             backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)',
             border: 'none', fontWeight: '600', padding: '0.625rem 1.25rem',
@@ -184,7 +186,7 @@ export default function RiskAnalysis() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
-          {exporting ? 'Generating PDF...' : 'Download Report'}
+          {exporting ? t.riskAnalysis.generatingPdf : t.riskAnalysis.downloadReport}
         </button>
       </div>
 
@@ -203,24 +205,24 @@ export default function RiskAnalysis() {
 
         {/* Risk Matrix Table */}
         <div className="card" style={{ padding: '2rem' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Risk Assessment Matrix</h3>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{t.riskAnalysis.riskMatrix}</h3>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
               <thead>
                 <tr style={{ backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)' }}>
-                  <th style={{ padding: '0.75rem 1rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>Threat Type</th>
-                  <th style={{ padding: '0.75rem 1rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>Category</th>
-                  <th style={{ padding: '0.75rem 1rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>Severity</th>
-                  <th style={{ padding: '0.75rem 1rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>Likelihood</th>
-                  <th style={{ padding: '0.75rem 1rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>Risk Score</th>
-                  <th style={{ padding: '0.75rem 1rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>Response</th>
+                  <th style={{ padding: '0.75rem 1rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>{t.riskAnalysis.threatType}</th>
+                  <th style={{ padding: '0.75rem 1rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>{t.riskAnalysis.category}</th>
+                  <th style={{ padding: '0.75rem 1rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>{t.riskAnalysis.severity}</th>
+                  <th style={{ padding: '0.75rem 1rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>{t.riskAnalysis.likelihood}</th>
+                  <th style={{ padding: '0.75rem 1rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>{t.riskAnalysis.riskScore}</th>
+                  <th style={{ padding: '0.75rem 1rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>{t.riskAnalysis.response}</th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  { type: 'Snake', cat: 'Bio-Hazard', severity: 'Critical', likelihood: 'Low', score: 'HIGH', scoreColor: '#ef4444', response: 'Evacuate zone immediately' },
-                  { type: 'Cat', cat: 'Contamination', severity: 'Moderate', likelihood: 'High', score: 'MEDIUM', scoreColor: '#f59e0b', response: 'Log & dispatch cleanup' },
-                  { type: 'Gecko/Lizard', cat: 'Contamination', severity: 'Low', likelihood: 'High', score: 'LOW', scoreColor: '#22c55e', response: 'Monitor & log entry' },
+                  { type: 'Snake', cat: t.riskAnalysis.biohazard, severity: t.riskAnalysis.critical, likelihood: t.riskAnalysis.low, score: t.riskAnalysis.high, scoreColor: '#ef4444', response: t.riskAnalysis.evacuate },
+                  { type: 'Cat', cat: t.riskAnalysis.contamination, severity: t.riskAnalysis.moderate, likelihood: t.riskAnalysis.high, score: t.riskAnalysis.moderate, scoreColor: '#f59e0b', response: t.riskAnalysis.logDispatch },
+                  { type: 'Gecko/Lizard', cat: t.riskAnalysis.contamination, severity: t.riskAnalysis.low, likelihood: t.riskAnalysis.high, score: t.riskAnalysis.low, scoreColor: '#22c55e', response: t.riskAnalysis.monitorLog },
                 ].map((row, i) => (
                   <tr key={i} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background-color 0.2s' }}
                     onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--bg-primary)'}
@@ -250,16 +252,16 @@ export default function RiskAnalysis() {
           <div className="card" style={{ height: '420px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
               <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>
-                Detection Trend
+                {t.riskAnalysis.detectionTrend}
               </h3>
-              <div style={{ 
-                display: 'flex', gap: '2px', backgroundColor: 'var(--bg-primary)', 
+              <div style={{
+                display: 'flex', gap: '2px', backgroundColor: 'var(--bg-primary)',
                 borderRadius: '10px', padding: '3px', border: '1px solid var(--border-color)'
               }}>
                 {[
-                  { key: 'daily', label: 'Daily' },
-                  { key: 'weekly', label: 'Weekly' },
-                  { key: 'monthly', label: 'Monthly' },
+                  { key: 'daily', label: t.riskAnalysis.daily },
+                  { key: 'weekly', label: t.riskAnalysis.weekly },
+                  { key: 'monthly', label: t.riskAnalysis.monthly },
                 ].map(opt => (
                   <button
                     key={opt.key}
@@ -289,7 +291,7 @@ export default function RiskAnalysis() {
                   position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   backgroundColor: 'var(--bg-secondary)', opacity: 0.8, borderRadius: '8px', zIndex: 2
                 }}>
-                  <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Loading...</span>
+                  <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: '500' }}>{t.riskAnalysis.loading}</span>
                 </div>
               )}
               <ResponsiveContainer width="100%" height="100%">
@@ -315,7 +317,7 @@ export default function RiskAnalysis() {
 
           {/* Risk Distribution Chart */}
           <div className="card" style={{ height: '420px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--text-primary)' }}>Risk Distribution</h3>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--text-primary)' }}>{t.riskAnalysis.riskDistribution}</h3>
             <div style={{ flex: 1, minHeight: 0 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -346,7 +348,7 @@ export default function RiskAnalysis() {
         
         {/* Mitigation Protocol */}
         <div className="card" style={{ padding: '2rem' }}>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Rapid Response Protocols</h3>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{t.riskAnalysis.rapidResponse}</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
             
             {/* Snake Protocol */}
@@ -360,7 +362,7 @@ export default function RiskAnalysis() {
                 <div style={{ padding: '0.5rem', backgroundColor: 'var(--alert-danger-bg)', borderRadius: '8px', color: 'var(--alert-danger)' }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                 </div>
-                <h4 style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>Bio-Hazard (Snakes)</h4>
+                <h4 style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>{t.riskAnalysis.bioHazardSnakes}</h4>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.7' }}>
                 <p style={{ margin: '0 0 0.5rem 0' }}><strong>1.</strong> Immediately halt all operations in the affected zone.</p>
@@ -381,7 +383,7 @@ export default function RiskAnalysis() {
                 <div style={{ padding: '0.5rem', backgroundColor: 'var(--alert-warning-bg)', borderRadius: '8px', color: 'var(--alert-warning)' }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                 </div>
-                <h4 style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>Contamination (Cats)</h4>
+                <h4 style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>{t.riskAnalysis.contaminationCats}</h4>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.7' }}>
                 <p style={{ margin: '0 0 0.5rem 0' }}><strong>1.</strong> Log the entry point and timestamp of detection.</p>
@@ -402,7 +404,7 @@ export default function RiskAnalysis() {
                 <div style={{ padding: '0.5rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px', color: 'var(--accent-primary)' }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                 </div>
-                <h4 style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>Monitoring (Geckos)</h4>
+                <h4 style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>{t.riskAnalysis.monitoringGeckos}</h4>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.7' }}>
                 <p style={{ margin: '0 0 0.5rem 0' }}><strong>1.</strong> Record the detection event in the monitoring log.</p>

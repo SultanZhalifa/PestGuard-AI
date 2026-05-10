@@ -20,6 +20,7 @@ export function WarehouseProvider({ children }) {
   const [logs, setLogs] = useState([]);
   const [logsLoaded, setLogsLoaded] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [language, setLanguage] = useState(() => localStorage.getItem('sw_language') || 'en');
   const [authToken, setAuthToken] = useState(localStorage.getItem('sw_token'));
   const [user, setUser] = useState(loadStoredUser);
 
@@ -106,7 +107,7 @@ export function WarehouseProvider({ children }) {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsHost = window.location.hostname;
     const wsPort = window.location.port === '5173' ? '8000' : window.location.port;
-    const wsUrl = `${wsProtocol}//${wsHost}:${wsPort}/api/ws/alerts`;
+    const wsUrl = `${wsProtocol}//${wsHost}:${wsPort}/api/ws/alerts?token=${authToken}`;
 
     let ws;
     let reconnectTimer;
@@ -188,14 +189,21 @@ export function WarehouseProvider({ children }) {
   }, [authToken]);
 
   const toggleDarkMode = (isDark) => {
-    setDarkMode(isDark);
-    document.body.classList.toggle('dark-mode', isDark);
+    const next = typeof isDark === 'boolean' ? isDark : !darkMode;
+    setDarkMode(next);
+    document.body.classList.toggle('dark-mode', next);
+  };
+
+  const changeLanguage = (lang) => {
+    setLanguage(lang);
+    localStorage.setItem('sw_language', lang);
   };
 
   return (
     <WarehouseContext.Provider value={{
       alerts, logs, setLogs, logsLoaded,
       darkMode, toggleDarkMode,
+      language, changeLanguage,
       authToken, user, login, logout, updateUser, hasRole,
     }}>
       {children}

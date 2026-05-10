@@ -6,8 +6,10 @@ status tracking via database persistence.
 """
 
 from pathlib import Path
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 
 from config import verify_token, BASE_DIR
 from database import get_db
@@ -98,11 +100,12 @@ def get_camera_zones(auth: bool = Depends(verify_token)):
             real_count = cursor.fetchone()[0]
 
             cursor.execute(
-                "SELECT time FROM logs WHERE location LIKE ? ORDER BY id DESC LIMIT 1",
+                "SELECT time, risk FROM logs WHERE location LIKE ? ORDER BY id DESC LIMIT 1",
                 (f"%{name}%",)
             )
             last_row = cursor.fetchone()
             last_time = last_row[0] if last_row else ""
+            last_risk = last_row[1] if last_row else "info"
 
             runtime_status = get_zone_runtime_status(zone_id, fallback=status)
 
@@ -116,6 +119,7 @@ def get_camera_zones(auth: bool = Depends(verify_token)):
                 "has_source": bool(source),
                 "last_detection": last_time,
                 "detection_count": real_count,
+                "last_risk": last_risk,
             })
 
     return zones
@@ -132,9 +136,15 @@ def _classify_source(source: str) -> str:
     return "video"
 
 
+class ZoneUpdateRequest(BaseModel):
+    source: Optional[str] = None
+    status: Optional[str] = None
+    name: Optional[str] = None
+
+
 # ─── Update Camera Zone ───
 @router.post("/cameras/{zone_id}")
-def update_camera_zone(zone_id: str, data: dict, auth: bool = Depends(verify_token)):
+def update_camera_zone(zone_id: str, data: ZoneUpdateRequest, auth: bool = Depends(verify_token)):
     with get_db() as conn:
         cursor = conn.cursor()
 
@@ -142,20 +152,35 @@ def update_camera_zone(zone_id: str, data: dict, auth: bool = Depends(verify_tok
         if not cursor.fetchone():
             raise HTTPException(status_code=404, detail="Zone not found")
 
-        if "source" in data:
+        if data.source is not None:
+            # Security: validate camera source to prevent SSRF and path traversal
+            src = data.source.strip()
+            if src and not src.isdigit():
+                # Block dangerous protocols
+                if src.lower().startswith(("file://", "ftp://", "gopher://")):
+                    raise HTTPException(status_code=400, detail="Invalid source protocol.")
+                # Block path traversal
+                if ".." in src:
+                    raise HTTPException(status_code=400, detail="Invalid source path.")
+                # Block obvious internal network targets
+                if any(internal in src.lower() for internal in [
+                    "169.254.", "127.0.0.1", "localhost", "0.0.0.0",
+                    "metadata.google", "metadata.aws",
+                ]):
+                    raise HTTPException(status_code=400, detail="Internal network addresses are not allowed.")
             cursor.execute(
                 "UPDATE camera_zones SET source=? WHERE id=?",
-                (data["source"], zone_id)
+                (src, zone_id)
             )
-        if "status" in data:
+        if data.status is not None:
             cursor.execute(
                 "UPDATE camera_zones SET status=? WHERE id=?",
-                (data["status"], zone_id)
+                (data.status, zone_id)
             )
-        if "name" in data:
+        if data.name is not None:
             cursor.execute(
                 "UPDATE camera_zones SET name=? WHERE id=?",
-                (data["name"], zone_id)
+                (data.name, zone_id)
             )
 
     return {"status": "success", "message": f"Zone {zone_id} updated."}

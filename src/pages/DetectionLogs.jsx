@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
 import { useToast } from '../components/ToastNotification';
+import { useT } from '../hooks/useT';
 
 /* ─── Animal SVG Icons ─── */
 const AnimalIcon = ({ type }) => {
@@ -16,12 +17,7 @@ const AnimalIcon = ({ type }) => {
   );
 };
 
-const RISK_FILTERS = [
-  { key: 'all', label: 'All Detections' },
-  { key: 'danger', label: 'Hazard' },
-  { key: 'warning', label: 'Contamination' },
-  { key: 'info', label: 'Monitoring' },
-];
+const RISK_FILTERS_KEYS = ['all', 'danger', 'warning', 'info'];
 
 export default function DetectionLogs() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,6 +25,13 @@ export default function DetectionLogs() {
   const [isExporting, setIsExporting] = useState(false);
   const { logs: allLogs, logsLoaded, authToken } = useWarehouse();
   const { addToast } = useToast();
+  const t = useT();
+  const RISK_FILTERS = [
+    { key: 'all', label: t.detectionLogs.allDetections },
+    { key: 'danger', label: t.detectionLogs.hazard },
+    { key: 'warning', label: t.detectionLogs.contamination },
+    { key: 'info', label: t.detectionLogs.monitoring },
+  ];
   const [snapshotModal, setSnapshotModal] = useState(null);
   
   // Enhanced typing animation
@@ -109,10 +112,10 @@ export default function DetectionLogs() {
       a.href = dataUri;
       a.download = `warehouse-logs-${today}.csv`;
       a.click();
-      addToast('CSV exported successfully!', 'info');
+      addToast(t.detectionLogs.exportSuccess, 'info');
     } catch (err) {
       console.error('CSV export failed:', err);
-      addToast('Failed to export CSV. Please try again.', 'danger');
+      addToast(t.detectionLogs.exportFailed, 'danger');
     } finally {
       setIsExporting(false);
     }
@@ -137,10 +140,10 @@ export default function DetectionLogs() {
       {/* Summary Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
         {[
-          { label: 'Total Detections', value: totalCount, color: 'var(--text-primary)' },
-          { label: 'Hazard Events', value: dangerCount, color: '#ef4444' },
-          { label: 'Contamination', value: warningCount, color: '#f59e0b' },
-          { label: 'Monitoring', value: infoCount, color: '#22c55e' },
+          { label: t.detectionLogs.totalDetections, value: totalCount, color: 'var(--text-primary)' },
+          { label: t.detectionLogs.hazardEvents, value: dangerCount, color: '#ef4444' },
+          { label: t.detectionLogs.contamination, value: warningCount, color: '#f59e0b' },
+          { label: t.detectionLogs.monitoring, value: infoCount, color: '#22c55e' },
         ].map((stat, i) => (
           <div key={i} className="card" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
             <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stat.label}</span>
@@ -155,8 +158,8 @@ export default function DetectionLogs() {
         {/* Header & Search */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Detection History</h3>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Comprehensive log of all AI-detected entities.</p>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{t.detectionLogs.detectionHistory}</h3>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{t.detectionLogs.comprehensiveLog}</p>
           </div>
           
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -180,7 +183,7 @@ export default function DetectionLogs() {
             </div>
             <button onClick={handleExportCSV} className="btn" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Export CSV
+              {t.detectionLogs.exportCSV}
             </button>
           </div>
         </div>
@@ -222,53 +225,55 @@ export default function DetectionLogs() {
             {loading ? (
               <div style={{ padding: '3rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', color: 'var(--text-secondary)' }}>
                 <span style={{ display: 'inline-block', width: '24px', height: '24px', border: '3px solid var(--border-color)', borderTopColor: 'var(--accent-primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
-                Loading detection logs...
+                {t.detectionLogs.loading}
               </div>
             ) : (
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', whiteSpace: 'nowrap' }}>
                 <thead>
                   <tr style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)' }}>
-                    <th style={{ padding: '1rem 1.5rem', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Animal Type</th>
-                    <th style={{ padding: '1rem 1.5rem', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Risk Level</th>
-                    <th style={{ padding: '1rem 1.5rem', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Location</th>
-                    <th style={{ padding: '1rem 1.5rem', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Date & Time</th>
-                    <th style={{ padding: '1rem 1.5rem', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>AI Confidence</th>
-                    <th style={{ padding: '1rem 1.5rem', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', width: '60px' }}>Evidence</th>
+                    <th style={{ padding: '1rem 1.5rem', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.detectionLogs.animalType}</th>
+                    <th style={{ padding: '1rem 1.5rem', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.detectionLogs.riskLevel}</th>
+                    <th style={{ padding: '1rem 1.5rem', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.detectionLogs.location}</th>
+                    <th style={{ padding: '1rem 1.5rem', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.detectionLogs.dateTime}</th>
+                    <th style={{ padding: '1rem 1.5rem', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.detectionLogs.aiConfidence}</th>
+                    <th style={{ padding: '1rem 1.5rem', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', width: '60px' }}>{t.detectionLogs.evidence}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredLogs.map((log) => (
-                    <tr 
-                      key={log.id} 
-                      style={{ borderBottom: '1px solid var(--border-color)', transition: 'background-color 0.2s ease', cursor: 'pointer' }}
+                  {filteredLogs.map((log) => {
+                    const riskColor = log.risk === 'danger' ? '#ef4444' : log.risk === 'warning' ? '#f59e0b' : '#3b82f6';
+                    return (
+                    <tr
+                      key={log.id}
+                      style={{ borderBottom: '1px solid var(--border-color)', transition: 'background-color 0.15s ease', cursor: 'default', borderLeft: `3px solid ${riskColor}` }}
                       onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-primary)'}
                       onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
-                      <td style={{ padding: '1rem 1.5rem', fontWeight: '600', color: 'var(--text-primary)' }}>
+                      <td style={{ padding: '0.875rem 1.5rem', fontWeight: '600', color: 'var(--text-primary)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
                           <AnimalIcon type={log.type} />
                           {log.type}
                         </div>
                       </td>
-                      <td style={{ padding: '1rem 1.5rem' }}>
+                      <td style={{ padding: '0.875rem 1.5rem' }}>
                         <span className={`alert-badge alert-${log.risk}`}>
                           <span className="status-dot"></span>
-                          {log.risk === 'danger' ? 'HAZARD' : log.risk === 'info' ? 'MONITORING' : 'CONTAMINATION'}
+                          {log.risk === 'danger' ? t.detectionLogs.riskHazard : log.risk === 'info' ? t.detectionLogs.riskMonitoring : t.detectionLogs.riskContamination}
                         </span>
                       </td>
-                      <td style={{ padding: '1rem 1.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{log.location}</td>
-                      <td style={{ padding: '1rem 1.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                      <td style={{ padding: '0.875rem 1.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{log.location}</td>
+                      <td style={{ padding: '0.875rem 1.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                           <span style={{ color: 'var(--text-primary)', fontWeight: '500' }}>{log.date}</span>
                           <span style={{ fontSize: '0.75rem' }}>{log.time}</span>
                         </div>
                       </td>
-                      <td style={{ padding: '1rem 1.5rem' }}>
+                      <td style={{ padding: '0.875rem 1.5rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <div style={{ width: '60px', height: '6px', backgroundColor: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden' }}>
-                            <div style={{ height: '100%', width: log.confidence, backgroundColor: 'var(--accent-primary)', borderRadius: '3px' }}></div>
+                            <div style={{ height: '100%', width: log.confidence, backgroundColor: riskColor, borderRadius: '3px' }}></div>
                           </div>
-                          <span style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--text-primary)' }}>{log.confidence}</span>
+                          <span style={{ fontSize: '0.875rem', fontWeight: '600', color: riskColor }}>{log.confidence}</span>
                         </div>
                       </td>
                       <td style={{ padding: '0.5rem 1.5rem' }}>
@@ -286,7 +291,7 @@ export default function DetectionLogs() {
                         )}
                       </td>
                     </tr>
-                  ))}
+                  );})}
                   {filteredLogs.length === 0 && (
                     <tr>
                       <td colSpan="6" style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
@@ -308,9 +313,9 @@ export default function DetectionLogs() {
                             </circle>
                           </svg>
                           <div style={{ maxWidth: '300px' }}>
-                            <p style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', margin: '0 0 0.375rem 0' }}>No detections found</p>
+                            <p style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', margin: '0 0 0.375rem 0' }}>{t.detectionLogs.noDetectionsFound}</p>
                             <p style={{ fontSize: '0.825rem', margin: 0, lineHeight: 1.5 }}>
-                              {searchTerm ? `No results matching "${searchTerm}". Try a different keyword.` : activeFilter !== 'all' ? 'No entries match this filter. Try selecting a different category.' : 'Start the AI camera to begin real-time bio-hazard detection.'}
+                              {searchTerm ? t.detectionLogs.noResultsSearch.replace('{term}', searchTerm) : activeFilter !== 'all' ? t.detectionLogs.noResultsFilter : t.detectionLogs.startCamera}
                             </p>
                           </div>
                         </div>
@@ -325,8 +330,8 @@ export default function DetectionLogs() {
 
         {/* Footer Stats */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: 'var(--text-secondary)', padding: '0 0.25rem' }}>
-          <span>Showing {filteredLogs.length} of {totalCount} records</span>
-          <span>Last updated: {new Date().toLocaleTimeString()}</span>
+          <span>{t.detectionLogs.showing} {filteredLogs.length} {t.detectionLogs.of} {totalCount} {t.detectionLogs.records}</span>
+          <span>{t.detectionLogs.lastUpdated} {new Date().toLocaleTimeString()}</span>
         </div>
       </div>
 

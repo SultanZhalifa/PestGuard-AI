@@ -48,6 +48,7 @@ class ZoneWorker:
         self.last_detection_per_class = {}
         self.lock = threading.Lock()
         self.running = False
+        self._pending_logs: list = []
 
     def _open_capture(self):
         """Open the cv2.VideoCapture for this zone's source."""
@@ -130,6 +131,13 @@ class ZoneWorker:
 
                 retry_count = 0
 
+                # Normalize portrait video to landscape before inference
+                if self._is_video_file():
+                    h, w = frame.shape[:2]
+                    if h > w:
+                        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+                    frame = cv2.resize(frame, (640, 360))
+
                 annotated = self._process_frame(frame)
 
                 ok, buf = cv2.imencode(
@@ -177,7 +185,7 @@ class ZoneWorker:
             last = self.last_detection_per_class.get(class_name, 0.0)
             if now - last > DETECTION_COOLDOWN_SECONDS:
                 self.last_detection_per_class[class_name] = now
-                self._pending_log = (class_name, conf)
+                self._pending_logs.append((class_name, conf))
 
             x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
             draw_hud_bounding_box(annotated, x1, y1, x2, y2, class_name, conf)
@@ -186,10 +194,11 @@ class ZoneWorker:
         self.latest_annotated_frame = annotated
 
         # Log after drawing all bounding boxes (so snapshot includes all detections)
-        if hasattr(self, '_pending_log') and self._pending_log:
-            cls, cnf = self._pending_log
-            self._pending_log = None
-            self._log_detection(cls, cnf, annotated)
+        if self._pending_logs:
+            pending = self._pending_logs
+            self._pending_logs = []
+            for cls, cnf in pending:
+                self._log_detection(cls, cnf, annotated)
 
         return annotated
 
@@ -346,6 +355,17 @@ def toggle_main_camera(req: CameraState, auth: bool = Depends(verify_token)):
 
 
 # ─── Per-Zone Video Stream ───
+def _verify_stream_token(token: str):
+    """Verify token for streaming endpoints (can't use headers in img/video src)."""
+    from config import active_sessions
+    if not token:
+        raise HTTPException(status_code=401, detail="Missing auth token")
+    session = active_sessions.get(token)
+    if not session or time.time() > session.get("expires", 0):
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    return session
+
+
 def _zone_stream_generator(zone_id: str):
     while True:
         with _workers_lock:
@@ -356,11 +376,13 @@ def _zone_stream_generator(zone_id: str):
             yield (
                 b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + frame_bytes + b"\r\n"
             )
-        time.sleep(0.033)
+        else:
+            time.sleep(0.01)
 
 
 @router.get("/video_feed/{zone_id}")
-def video_feed_zone(zone_id: str):
+def video_feed_zone(zone_id: str, token: str = ""):
+    _verify_stream_token(token)
     return StreamingResponse(
         _zone_stream_generator(zone_id),
         media_type="multipart/x-mixed-replace; boundary=frame",
@@ -369,7 +391,8 @@ def video_feed_zone(zone_id: str):
 
 # ─── Backward-compatible Legacy Stream (Zone A) ───
 @router.get("/video_feed")
-def video_feed_legacy():
+def video_feed_legacy(token: str = ""):
+    _verify_stream_token(token)
     return StreamingResponse(
         _zone_stream_generator("zone-a"),
         media_type="multipart/x-mixed-replace; boundary=frame",

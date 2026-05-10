@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
+import { useT } from '../hooks/useT';
 
 const ROLE_OPTIONS = [
   { value: 'admin',    label: 'Admin' },
@@ -15,6 +16,7 @@ const ROLE_COLOR = {
 
 export default function UserManagement() {
   const { authToken, user: currentUser } = useWarehouse();
+  const t = useT();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -64,10 +66,10 @@ export default function UserManagement() {
   useEffect(() => { loadUsers(); }, [loadUsers]);
 
   const handleDelete = async (u) => {
-    if (!window.confirm(`Delete user "${u.username}"? This cannot be undone.`)) return;
+    if (!window.confirm(t.userManagement.deleteConfirm.replace('{username}', u.username))) return;
     try {
       await apiFetch(`/api/users/${u.id}`, { method: 'DELETE' });
-      showToast(`User ${u.username} deleted.`);
+      showToast(t.userManagement.userDeleted.replace('{username}', u.username));
       loadUsers();
     } catch (e) {
       showToast(`Error: ${e.message}`);
@@ -75,7 +77,7 @@ export default function UserManagement() {
   };
 
   const handleResetPassword = async (u) => {
-    if (!window.confirm(`Reset password for "${u.username}"? They will be forced to set a new one on next login.`)) return;
+    if (!window.confirm(t.userManagement.resetConfirm.replace('{username}', u.username))) return;
     try {
       const data = await apiFetch(`/api/users/${u.id}/reset-password`, { method: 'POST' });
       setResetResult({ username: u.username, temp_password: data.temp_password });
@@ -99,17 +101,17 @@ export default function UserManagement() {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
         <div>
-          <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>User Management</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Manage warehouse staff accounts, roles, and access.</p>
+          <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>{t.userManagement.title}</h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>{t.userManagement.subtitle}</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button onClick={() => setShowInvite(true)} style={btnSecondary}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-            Invite via Link
+            {t.userManagement.inviteViaLink}
           </button>
           <button onClick={() => setShowCreate(true)} style={btnPrimary}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add User
+            {t.userManagement.addUser}
           </button>
         </div>
       </div>
@@ -127,12 +129,12 @@ export default function UserManagement() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: 'var(--bg-tertiary)' }}>
-              <th style={th}>Username</th>
-              <th style={th}>Name</th>
-              <th style={th}>Email</th>
-              <th style={th}>Role</th>
-              <th style={th}>Status</th>
-              <th style={{ ...th, textAlign: 'right' }}>Actions</th>
+              <th style={th}>{t.userManagement.username}</th>
+              <th style={th}>{t.userManagement.name}</th>
+              <th style={th}>{t.userManagement.email}</th>
+              <th style={th}>{t.userManagement.role}</th>
+              <th style={th}>{t.userManagement.status}</th>
+              <th style={{ ...th, textAlign: 'right' }}>{t.userManagement.actions}</th>
             </tr>
           </thead>
           <tbody>
@@ -141,7 +143,7 @@ export default function UserManagement() {
                 <td colSpan={6} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.625rem' }}>
                     <span className="spinner-sm" />
-                    <span>Loading users…</span>
+                    <span>{t.userManagement.loadingUsers}</span>
                   </div>
                 </td>
               </tr>
@@ -157,8 +159,8 @@ export default function UserManagement() {
                       <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                     </svg>
                     <div>
-                      <p style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', margin: '0 0 0.375rem' }}>No users yet</p>
-                      <p style={{ fontSize: '0.8125rem', margin: 0, maxWidth: '320px' }}>Click <strong>Add User</strong> or <strong>Invite User</strong> above to get started.</p>
+                      <p style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', margin: '0 0 0.375rem' }}>{t.userManagement.noUsersYet}</p>
+                      <p style={{ fontSize: '0.8125rem', margin: 0, maxWidth: '320px' }}>{t.userManagement.noUsersHint}</p>
                     </div>
                   </div>
                 </td>
@@ -170,7 +172,7 @@ export default function UserManagement() {
                 <tr key={u.id} style={{ borderTop: '1px solid var(--border-color)' }}>
                   <td style={td}>
                     <span style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{u.username}</span>
-                    {isSelf && <span style={{ marginLeft: '0.5rem', fontSize: '0.7rem', padding: '0.125rem 0.5rem', borderRadius: '999px', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)', fontWeight: '600' }}>YOU</span>}
+                    {isSelf && <span style={{ marginLeft: '0.5rem', fontSize: '0.7rem', padding: '0.125rem 0.5rem', borderRadius: '999px', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)', fontWeight: '600' }}>{t.userManagement.you}</span>}
                   </td>
                   <td style={td}>{u.name}</td>
                   <td style={{ ...td, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{u.email}</td>
@@ -183,21 +185,21 @@ export default function UserManagement() {
                   </td>
                   <td style={td}>
                     {u.must_change_password ? (
-                      <span style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: '600' }}>Pending password change</span>
+                      <span style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: '600' }}>{t.userManagement.pendingPasswordChange}</span>
                     ) : (
-                      <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: '600' }}>Active</span>
+                      <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: '600' }}>{t.userManagement.active}</span>
                     )}
                   </td>
                   <td style={{ ...td, textAlign: 'right' }}>
                     <div style={{ display: 'inline-flex', gap: '0.5rem' }}>
-                      <button onClick={() => setEditingUser(u)} style={btnGhost} title="Edit">Edit</button>
-                      <button onClick={() => handleResetPassword(u)} style={btnGhost} title="Reset Password">Reset PW</button>
+                      <button onClick={() => setEditingUser(u)} style={btnGhost} title={t.userManagement.edit}>{t.userManagement.edit}</button>
+                      <button onClick={() => handleResetPassword(u)} style={btnGhost} title="Reset Password">{t.userManagement.resetPw}</button>
                       <button
                         onClick={() => handleDelete(u)}
                         disabled={isSelf}
                         style={{ ...btnGhostDanger, opacity: isSelf ? 0.4 : 1, cursor: isSelf ? 'not-allowed' : 'pointer' }}
-                        title={isSelf ? "You can't delete your own account" : "Delete"}
-                      >Delete</button>
+                        title={isSelf ? t.userManagement.cantDeleteSelf : t.userManagement.delete}
+                      >{t.userManagement.delete}</button>
                     </div>
                   </td>
                 </tr>
@@ -210,19 +212,19 @@ export default function UserManagement() {
       {/* Reset password result modal */}
       {resetResult && (
         <Modal onClose={() => { setResetResult(null); }}>
-          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>Temporary password generated</h3>
+          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>{t.userManagement.tempPasswordGenerated}</h3>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-            Share this temporary password with <strong>{resetResult.username}</strong>. They will be required to change it on next login.
+            {t.userManagement.tempPasswordDesc.replace('{username}', resetResult.username)}
           </p>
           <div style={{ padding: '1rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
             <code style={{ fontFamily: '"Fira Code", monospace', fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '0.05em' }}>{resetResult.temp_password}</code>
             <button
-              onClick={() => { navigator.clipboard.writeText(resetResult.temp_password); showToast('Copied!'); }}
+              onClick={() => { navigator.clipboard.writeText(resetResult.temp_password); showToast(t.userManagement.copied); }}
               style={btnGhost}
-            >Copy</button>
+            >{t.userManagement.copy}</button>
           </div>
           <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-            <button onClick={() => setResetResult(null)} style={btnPrimary}>Done</button>
+            <button onClick={() => setResetResult(null)} style={btnPrimary}>{t.userManagement.done}</button>
           </div>
         </Modal>
       )}
@@ -230,19 +232,19 @@ export default function UserManagement() {
       {/* Invite result modal */}
       {inviteResult && (
         <Modal onClose={() => setInviteResult(null)}>
-          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>Invitation link generated</h3>
+          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>{t.userManagement.inviteLinkGenerated}</h3>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-            Share this link with the new user. It is valid for 3 days.
+            {t.userManagement.inviteLinkDesc}
           </p>
           <div style={{ padding: '1rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
             <code style={{ fontFamily: '"Fira Code", monospace', fontSize: '0.8rem', color: 'var(--text-primary)', wordBreak: 'break-all' }}>{inviteResult.invite_link}</code>
             <button
-              onClick={() => { navigator.clipboard.writeText(inviteResult.invite_link); showToast('Copied!'); }}
+              onClick={() => { navigator.clipboard.writeText(inviteResult.invite_link); showToast(t.userManagement.copied); }}
               style={btnGhost}
-            >Copy</button>
+            >{t.userManagement.copy}</button>
           </div>
           <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-            <button onClick={() => setInviteResult(null)} style={btnPrimary}>Done</button>
+            <button onClick={() => setInviteResult(null)} style={btnPrimary}>{t.userManagement.done}</button>
           </div>
         </Modal>
       )}
@@ -254,7 +256,7 @@ export default function UserManagement() {
           onCreate={async (form) => {
             try {
               await apiFetch('/api/users', { method: 'POST', body: JSON.stringify(form) });
-              showToast(`User ${form.username} created.`);
+              showToast(t.userManagement.userCreated.replace('{username}', form.username));
               setShowCreate(false);
               loadUsers();
             } catch (e) {
@@ -289,7 +291,7 @@ export default function UserManagement() {
           onSave={async (patch) => {
             try {
               await apiFetch(`/api/users/${editingUser.id}`, { method: 'PATCH', body: JSON.stringify(patch) });
-              showToast('User updated.');
+              showToast(t.userManagement.userUpdated);
               setEditingUser(null);
               loadUsers();
             } catch (e) {
@@ -320,6 +322,7 @@ function Modal({ children, onClose }) {
 }
 
 function CreateUserModal({ onClose, onCreate }) {
+  const t = useT();
   const [form, setForm] = useState({ username: '', name: '', email: '', role: 'operator', password: '' });
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState('');
@@ -339,17 +342,17 @@ function CreateUserModal({ onClose, onCreate }) {
 
   return (
     <Modal onClose={onClose}>
-      <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>Add new user</h3>
+      <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>{t.userManagement.addNewUser}</h3>
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <Field label="Username" value={form.username} onChange={v => setForm({ ...form, username: v })} required />
-        <Field label="Full Name" value={form.name} onChange={v => setForm({ ...form, name: v })} required />
-        <Field label="Email" type="email" value={form.email} onChange={v => setForm({ ...form, email: v })} required />
-        <SelectField label="Role" value={form.role} onChange={v => setForm({ ...form, role: v })} options={ROLE_OPTIONS} />
-        <Field label="Initial Password" type="password" value={form.password} onChange={v => setForm({ ...form, password: v })} required />
+        <Field label={t.userManagement.username} value={form.username} onChange={v => setForm({ ...form, username: v })} required />
+        <Field label={t.userManagement.fullName} value={form.name} onChange={v => setForm({ ...form, name: v })} required />
+        <Field label={t.userManagement.email} type="email" value={form.email} onChange={v => setForm({ ...form, email: v })} required />
+        <SelectField label={t.userManagement.role} value={form.role} onChange={v => setForm({ ...form, role: v })} options={ROLE_OPTIONS} />
+        <Field label={t.userManagement.initialPassword} type="password" value={form.password} onChange={v => setForm({ ...form, password: v })} required />
         {err && <div style={{ padding: '0.75rem', borderRadius: '8px', backgroundColor: 'var(--alert-danger-bg)', color: 'var(--alert-danger)', fontSize: '0.85rem' }}>{err}</div>}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
-          <button type="button" onClick={onClose} style={btnGhost}>Cancel</button>
-          <button type="submit" disabled={submitting} style={btnPrimary}>{submitting ? 'Creating…' : 'Create user'}</button>
+          <button type="button" onClick={onClose} style={btnGhost}>{t.userManagement.cancel}</button>
+          <button type="submit" disabled={submitting} style={btnPrimary}>{submitting ? t.userManagement.creating : t.userManagement.createUser}</button>
         </div>
       </form>
     </Modal>
@@ -357,6 +360,7 @@ function CreateUserModal({ onClose, onCreate }) {
 }
 
 function InviteUserModal({ onClose, onInvite }) {
+  const t = useT();
   const [form, setForm] = useState({ username: '', email: '', role: 'operator' });
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState('');
@@ -376,18 +380,18 @@ function InviteUserModal({ onClose, onInvite }) {
 
   return (
     <Modal onClose={onClose}>
-      <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>Invite via link</h3>
+      <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>{t.userManagement.inviteViaLinkTitle}</h3>
       <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-        Generate a one-time setup link. The user will pick their own password when accepting.
+        {t.userManagement.inviteViaLinkDesc}
       </p>
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <Field label="Username" value={form.username} onChange={v => setForm({ ...form, username: v })} required />
-        <Field label="Email" type="email" value={form.email} onChange={v => setForm({ ...form, email: v })} required />
-        <SelectField label="Role" value={form.role} onChange={v => setForm({ ...form, role: v })} options={ROLE_OPTIONS} />
+        <Field label={t.userManagement.username} value={form.username} onChange={v => setForm({ ...form, username: v })} required />
+        <Field label={t.userManagement.email} type="email" value={form.email} onChange={v => setForm({ ...form, email: v })} required />
+        <SelectField label={t.userManagement.role} value={form.role} onChange={v => setForm({ ...form, role: v })} options={ROLE_OPTIONS} />
         {err && <div style={{ padding: '0.75rem', borderRadius: '8px', backgroundColor: 'var(--alert-danger-bg)', color: 'var(--alert-danger)', fontSize: '0.85rem' }}>{err}</div>}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
-          <button type="button" onClick={onClose} style={btnGhost}>Cancel</button>
-          <button type="submit" disabled={submitting} style={btnPrimary}>{submitting ? 'Generating…' : 'Generate link'}</button>
+          <button type="button" onClick={onClose} style={btnGhost}>{t.userManagement.cancel}</button>
+          <button type="submit" disabled={submitting} style={btnPrimary}>{submitting ? t.userManagement.generating : t.userManagement.generateLink}</button>
         </div>
       </form>
     </Modal>
@@ -395,6 +399,7 @@ function InviteUserModal({ onClose, onInvite }) {
 }
 
 function EditUserModal({ user, isSelf, onClose, onSave }) {
+  const t = useT();
   const [form, setForm] = useState({ name: user.name, email: user.email, role: user.role });
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState('');
@@ -408,7 +413,7 @@ function EditUserModal({ user, isSelf, onClose, onSave }) {
     if (form.email !== user.email) patch.email = form.email;
     if (form.role !== user.role) patch.role = form.role;
     if (Object.keys(patch).length === 0) {
-      setErr('No changes to save.');
+      setErr(t.userManagement.noChanges);
       setSubmitting(false);
       return;
     }
@@ -423,15 +428,15 @@ function EditUserModal({ user, isSelf, onClose, onSave }) {
 
   return (
     <Modal onClose={onClose}>
-      <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>Edit user — {user.username}</h3>
+      <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>{t.userManagement.editUser} — {user.username}</h3>
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <Field label="Full Name" value={form.name} onChange={v => setForm({ ...form, name: v })} required />
-        <Field label="Email" type="email" value={form.email} onChange={v => setForm({ ...form, email: v })} required />
-        <SelectField label="Role" value={form.role} onChange={v => setForm({ ...form, role: v })} options={ROLE_OPTIONS} disabled={isSelf} hint={isSelf ? "You can't change your own role." : null} />
+        <Field label={t.userManagement.fullName} value={form.name} onChange={v => setForm({ ...form, name: v })} required />
+        <Field label={t.userManagement.email} type="email" value={form.email} onChange={v => setForm({ ...form, email: v })} required />
+        <SelectField label={t.userManagement.role} value={form.role} onChange={v => setForm({ ...form, role: v })} options={ROLE_OPTIONS} disabled={isSelf} hint={isSelf ? t.userManagement.cantChangeOwnRole : null} />
         {err && <div style={{ padding: '0.75rem', borderRadius: '8px', backgroundColor: 'var(--alert-danger-bg)', color: 'var(--alert-danger)', fontSize: '0.85rem' }}>{err}</div>}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
-          <button type="button" onClick={onClose} style={btnGhost}>Cancel</button>
-          <button type="submit" disabled={submitting} style={btnPrimary}>{submitting ? 'Saving…' : 'Save changes'}</button>
+          <button type="button" onClick={onClose} style={btnGhost}>{t.userManagement.cancel}</button>
+          <button type="submit" disabled={submitting} style={btnPrimary}>{submitting ? t.userManagement.savingChanges : t.userManagement.saveChanges}</button>
         </div>
       </form>
     </Modal>

@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
 import ZoneDetailModal from './ZoneDetailModal';
+import { useT } from '../hooks/useT';
 
 export default function CameraGrid() {
   const { authToken } = useWarehouse();
+  const t = useT();
   const [zones, setZones] = useState([]);
   const [pendingZones, setPendingZones] = useState({}); // zone_id -> bool (toggle in flight)
   const [selectedZoneId, setSelectedZoneId] = useState(null);
@@ -129,7 +131,7 @@ export default function CameraGrid() {
               {isLive ? (
                 <img
                   key={`${zone.id}-${zone.status}`}
-                  src={`/api/video_feed/${zone.id}`}
+                  src={`/api/video_feed/${zone.id}?token=${authToken}`}
                   alt={zone.name}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
@@ -139,7 +141,7 @@ export default function CameraGrid() {
                     <path d="M16.5 7.5V6a2 2 0 0 0-2-2h-5a2 2 0 0 0-2 2v0"/><path d="M2 2l20 20"/><path d="M23 7l-7 5"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2" style={{ opacity: 0.3 }}/>
                   </svg>
                   <span style={{ fontSize: '0.7rem', fontWeight: '600', letterSpacing: '0.1em' }}>
-                    {canControl ? 'NO SIGNAL' : 'NO SOURCE'}
+                    {canControl ? t.cameraGrid.noSignal : t.cameraGrid.noSource}
                   </span>
                 </div>
               )}
@@ -183,14 +185,17 @@ export default function CameraGrid() {
                 <span style={{ fontSize: '0.6rem', fontWeight: '600', color: '#ccc' }}>{zone.name}</span>
               </div>
 
-              {/* Detection count badge */}
+              {/* Detection count badge — color by last risk */}
               {zone.detection_count > 0 && (
                 <div style={{
                   position: 'absolute', bottom: '0.5rem', right: '0.5rem',
-                  backgroundColor: 'rgba(239,68,68,0.9)', padding: '0.15rem 0.5rem',
+                  backgroundColor: zone.last_risk === 'danger' ? 'rgba(239,68,68,0.92)'
+                    : zone.last_risk === 'warning' ? 'rgba(245,158,11,0.92)'
+                    : 'rgba(59,130,246,0.92)',
+                  padding: '0.15rem 0.5rem',
                   borderRadius: '10px', fontSize: '0.6rem', fontWeight: '700', color: '#fff',
                 }}>
-                  {zone.detection_count} detections
+                  {zone.detection_count} {t.cameraGrid.detections}
                 </div>
               )}
             </div>
@@ -200,7 +205,7 @@ export default function CameraGrid() {
               <div>
                 <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)' }}>{zone.location}</p>
                 <p style={{ margin: '0.15rem 0 0', fontSize: '0.65rem', color: 'var(--text-secondary)' }}>
-                  {zone.last_detection ? `Last: ${zone.last_detection}` : 'No detections yet'}
+                  {zone.last_detection ? `${t.cameraGrid.last} ${zone.last_detection}` : t.cameraGrid.noDetections}
                 </p>
               </div>
               {canControl && (
@@ -216,7 +221,7 @@ export default function CameraGrid() {
                     opacity: isPending ? 0.6 : 1,
                     transition: 'all 0.2s ease',
                   }}>
-                  {isPending ? '...' : (isLive ? 'STOP' : 'START')}
+                  {isPending ? '...' : (isLive ? t.cameraGrid.stop : t.cameraGrid.start)}
                 </button>
               )}
             </div>

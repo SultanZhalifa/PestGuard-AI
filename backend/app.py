@@ -20,12 +20,13 @@ Architecture:
 """
 
 import asyncio
+import time
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import CORS_ORIGINS
+from config import CORS_ORIGINS, active_sessions
 from database import init_db, load_settings_cache
 from services.websocket_manager import manager
 import services.websocket_manager as ws_module
@@ -102,6 +103,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ─── Security Headers Middleware ───
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    # Don't cache API responses (except static/stream endpoints)
+    if not request.url.path.startswith(("/api/video_feed", "/api/snapshots")):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+    return response
+
 # ─── Register Route Modules ───
 app.include_router(auth_router)
 app.include_router(logs_router)
@@ -119,6 +134,16 @@ set_inference_time_getter(get_inference_time)
 # ─── WebSocket Endpoint ───
 @app.websocket("/api/ws/alerts")
 async def websocket_endpoint(websocket: WebSocket):
+    # Security: verify token from query param (WebSocket can't send headers)
+    token = websocket.query_params.get("token")
+    if not token:
+        await websocket.close(code=4001, reason="Missing auth token")
+        return
+    session = active_sessions.get(token)
+    if not session or time.time() > session.get("expires", 0):
+        await websocket.close(code=4001, reason="Invalid or expired token")
+        return
+
     await manager.connect(websocket)
     try:
         while True:

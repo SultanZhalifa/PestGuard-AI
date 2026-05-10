@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWarehouse } from '../context/WarehouseContext';
+import { useT } from '../hooks/useT';
 
 export default function Login() {
   const navigate = useNavigate();
   const { login: setAuthToken, authToken } = useWarehouse();
+  const t = useT();
   const [mode, setMode] = useState('login'); // 'login' | 'forgot' | 'reset'
   const [username, setUsername] = useState('');
   const [recoveryEmail, setRecoveryEmail] = useState('');
@@ -39,7 +41,7 @@ export default function Login() {
       if (mode === 'forgot') {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(recoveryEmail)) {
-          setError('Please enter a valid email address.');
+          setError(t.login.invalidEmail);
           setIsLoading(false);
           return;
         }
@@ -50,9 +52,9 @@ export default function Login() {
         const data = await res.json();
         if (res.ok) {
           setOtpCode(data.otp_code || '');
-          setSuccessMsg('Reset code generated. Enter it below to set your new password.');
+          setSuccessMsg(t.login.resetCodeGenerated);
           setMode('reset');
-        } else { setError(data.detail || 'Failed to send reset code.'); }
+        } else { setError(data.detail || t.login.sendCodeFailed); }
         setIsLoading(false);
         return;
       }
@@ -67,14 +69,14 @@ export default function Login() {
           setSuccessMsg(data.message);
           setResetCode(''); setNewPassword(''); setOtpCode('');
           setMode('login');
-        } else { setError(data.detail || 'Reset failed.'); }
+        } else { setError(data.detail || t.login.resetFailed); }
         setIsLoading(false);
         return;
       }
 
       // Login
       if (!username.trim()) {
-        setError('Please enter your username.');
+        setError(t.login.enterUsername);
         setIsLoading(false);
         return;
       }
@@ -93,9 +95,9 @@ export default function Login() {
         }
       } else {
         const errData = await res.json();
-        setError(errData.detail || 'Invalid username or password.');
+        setError(errData.detail || t.login.invalidCredentials);
       }
-    } catch { setError('Cannot connect to server. Please ensure the backend is running.'); }
+    } catch { setError(t.login.serverError); }
     setIsLoading(false);
   };
 
@@ -108,23 +110,23 @@ export default function Login() {
           {/* Title */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginBottom: '2.5rem' }}>
             <div style={{ textAlign: 'center' }}>
-              <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>SmartWarehouse</span>
-              <span style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--text-secondary)' }}>PT. Kawan Lama Group</span>
+              <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>{t.login.brand}</span>
+              <span style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--text-secondary)' }}>{t.login.brandSub}</span>
             </div>
           </div>
 
           <div className="login-form-header">
             {mode !== 'login' && (
               <h2>
-                {mode === 'forgot' ? 'Reset password' : 'Enter verification code'}
+                {mode === 'forgot' ? t.login.resetTitle : t.login.verifyTitle}
               </h2>
             )}
             <p>
               {mode === 'login'
-                ? 'Sign in to access the monitoring dashboard.'
+                ? t.login.signInDesc
                 : mode === 'forgot'
-                ? 'Enter your registered recovery email to receive a reset code.'
-                : 'Enter the code and your new password.'}
+                ? t.login.resetDesc
+                : t.login.verifyDesc}
             </p>
           </div>
 
@@ -153,7 +155,7 @@ export default function Login() {
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
               </svg>
               <div>
-                <div style={{ fontSize: '0.7rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem', opacity: 0.7 }}>Verification Code</div>
+                <div style={{ fontSize: '0.7rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem', opacity: 0.7 }}>{t.login.verificationCode}</div>
                 <span style={{ fontFamily: '"Fira Code", monospace', fontWeight: '800', fontSize: '1.25rem', letterSpacing: '0.2em' }}>{otpCode}</span>
               </div>
             </div>
@@ -163,7 +165,7 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="login-form">
             {mode === 'login' && (
               <div className="login-field">
-                <label htmlFor="login-username">Username</label>
+                <label htmlFor="login-username">{t.login.usernameLabel}</label>
                 <div className="login-input-wrap">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
@@ -171,7 +173,7 @@ export default function Login() {
                   <input
                     id="login-username"
                     type="text"
-                    placeholder="e.g. admin"
+                    placeholder={t.login.usernamePlaceholder}
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
@@ -185,7 +187,7 @@ export default function Login() {
 
             {mode === 'forgot' && (
               <div className="login-field">
-                <label htmlFor="login-recovery-email">Recovery Email</label>
+                <label htmlFor="login-recovery-email">{t.login.recoveryEmailLabel}</label>
                 <div className="login-input-wrap">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
@@ -193,7 +195,7 @@ export default function Login() {
                   <input
                     id="login-recovery-email"
                     type="email"
-                    placeholder="email@kawanlama.com"
+                    placeholder={t.login.recoveryEmailPlaceholder}
                     value={recoveryEmail}
                     onChange={(e) => setRecoveryEmail(e.target.value)}
                     required
@@ -206,13 +208,13 @@ export default function Login() {
             {mode === 'login' && (
               <div className="login-field">
                 <div className="login-field-header">
-                  <label htmlFor="login-password">Password</label>
+                  <label htmlFor="login-password">{t.login.passwordLabel}</label>
                   <button
                     type="button"
                     className="login-link"
                     onClick={() => { setMode('forgot'); setError(''); setSuccessMsg(''); }}
                   >
-                    Forgot password?
+                    {t.login.forgotPassword}
                   </button>
                 </div>
                 <div className="login-input-wrap">
@@ -222,7 +224,7 @@ export default function Login() {
                   <input
                     id="login-password"
                     type={showPw ? 'text' : 'password'}
-                    placeholder="••••••••"
+                    placeholder={t.login.passwordPlaceholder}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -242,7 +244,7 @@ export default function Login() {
             {mode === 'reset' && (
               <>
                 <div className="login-field">
-                  <label htmlFor="reset-code">Verification Code</label>
+                  <label htmlFor="reset-code">{t.login.verificationCodeLabel}</label>
                   <div className="login-input-wrap">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -260,7 +262,7 @@ export default function Login() {
                   </div>
                 </div>
                 <div className="login-field">
-                  <label htmlFor="reset-newpw">New Password</label>
+                  <label htmlFor="reset-newpw">{t.login.newPasswordLabel}</label>
                   <div className="login-input-wrap">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -268,7 +270,7 @@ export default function Login() {
                     <input
                       id="reset-newpw"
                       type="password"
-                      placeholder="Min 6 characters"
+                      placeholder={t.login.newPasswordPlaceholder}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
@@ -283,7 +285,7 @@ export default function Login() {
               {isLoading ? (
                 <div className="login-spinner" />
               ) : (
-                mode === 'login' ? 'Sign in' : mode === 'forgot' ? 'Send reset code' : 'Update password'
+                mode === 'login' ? t.login.signIn : mode === 'forgot' ? t.login.sendResetCode : t.login.updatePassword
               )}
             </button>
 
@@ -297,14 +299,14 @@ export default function Login() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
                 </svg>
-                Back to sign in
+                {t.login.backToSignIn}
               </button>
             )}
           </form>
 
           {/* Footer */}
           <p className="login-footer">
-            Authorized personnel only. Contact IT administrator for access.
+            {t.login.footer}
           </p>
         </div>
       </div>

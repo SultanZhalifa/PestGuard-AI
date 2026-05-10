@@ -10,7 +10,7 @@ from typing import Dict
 from fastapi import APIRouter, Depends
 
 from config import verify_token, require_role, APP_SETTINGS, DEFAULT_THRESHOLD
-from database import get_db, load_settings_cache
+from database import get_db, load_settings_cache  # load_settings_cache used after writes
 
 router = APIRouter(prefix="/api", tags=["Settings"])
 
@@ -18,16 +18,20 @@ router = APIRouter(prefix="/api", tags=["Settings"])
 # ─── Get Settings (any authenticated user) ───
 @router.get("/settings")
 def get_settings(session: dict = Depends(verify_token)):
-    load_settings_cache()
     return APP_SETTINGS
 
 
 # ─── Update Settings (admin or manager only) ───
+ALLOWED_SETTINGS_KEYS = {"cameraUrl", "threshold", "notifications", "darkMode", "cameraZone"}
+
+
 @router.post("/settings")
 def update_settings(settings: Dict, session: dict = Depends(require_role("admin", "manager"))):
     with get_db() as conn:
         cursor = conn.cursor()
         for k, v in settings.items():
+            if k not in ALLOWED_SETTINGS_KEYS:
+                continue  # Security: ignore unknown keys
             val_str = "true" if v is True else "false" if v is False else str(v)
             cursor.execute(
                 "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",

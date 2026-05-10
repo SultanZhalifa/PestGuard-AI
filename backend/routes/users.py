@@ -214,8 +214,11 @@ def admin_reset_password(user_id: int, session: dict = Depends(require_role("adm
         )
 
     _revoke_user_sessions(user_id)
+
+    # Security: print temp password to server console only — never in HTTP response
+    print(f"[SECURITY] Temp password for user {row[0]} (id={user_id}): {temp_password}")
+
     return {
         "status": "success",
-        "message": "Password reset successfully. User must change it on next login.",
-        "temp_password": temp_password,
+        "message": "Password reset successfully. Check server console for the temporary password.",
     }

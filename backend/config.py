@@ -22,7 +22,9 @@ DB_PATH = os.getenv("DB_PATH", str(BASE_DIR / "warehouse.db"))
 
 # ─── Security ───
 SECRET_KEY = os.getenv("SECRET_KEY", "smartwarehouse-dev-key-change-in-production")
-CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",")]
+CORS_ORIGINS = [o.strip() for o in os.getenv(
+    "CORS_ORIGINS", "http://localhost:5173,http://localhost:3000"
+).split(",")]
 
 # ─── AI Detection Scope (Case 1: Bio-Hazard & Pest Detection) ───
 TRACKED_CLASSES = {"Snake", "Cat", "Gecko", "Lizard"}
@@ -81,7 +83,8 @@ def record_attempt(rate_limiter: dict, client_ip: str):
 
 
 # ─── Auth Guards (Dependencies) ───
-def verify_token(authorization: Optional[str] = Header(None)):
+def verify_token(authorization: Optional[str] = Header(None),
+                 allow_password_change: bool = False):
     """FastAPI dependency to verify Bearer token in request headers."""
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -92,6 +95,14 @@ def verify_token(authorization: Optional[str] = Header(None)):
     if time.time() > session["expires"]:
         del active_sessions[token]
         raise HTTPException(status_code=401, detail="Session expired. Please log in again.")
+
+    # Security: block API access until default password is changed
+    if session.get("must_change_password") and not allow_password_change:
+        raise HTTPException(
+            status_code=403,
+            detail="You must change your password before accessing the system."
+        )
+
     return session
 
 
@@ -106,3 +117,21 @@ def require_role(*allowed_roles: str):
             )
         return session
     return checker
+
+
+# ─── Rate Limiter Cleanup (prevents memory leak) ───
+import threading
+
+
+def _cleanup_rate_limiters():
+    """Periodically purge stale IPs from all rate limiters."""
+    while True:
+        time.sleep(300)  # Every 5 minutes
+        now = time.time()
+        for limiter in [login_rate_limiter, forgot_pw_rate_limiter, invite_rate_limiter]:
+            stale_keys = [k for k, v in list(limiter.items()) if all(now - t > 120 for t in v)]
+            for k in stale_keys:
+                del limiter[k]
+
+
+threading.Thread(target=_cleanup_rate_limiters, daemon=True).start()

@@ -11,6 +11,8 @@ import secrets
 import random
 import string
 
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Header
 from pydantic import BaseModel
 
@@ -27,6 +29,16 @@ from database import get_db
 invite_codes = {}
 
 router = APIRouter(prefix="/api", tags=["Authentication"])
+
+
+def _revoke_user_sessions(user_id: int):
+    """Invalidate all active sessions for a given user_id."""
+    tokens_to_remove = [
+        tok for tok, sess in active_sessions.items()
+        if sess.get("user_id") == user_id
+    ]
+    for tok in tokens_to_remove:
+        del active_sessions[tok]
 
 
 # ─── Request Models ───
@@ -86,9 +98,51 @@ def _verify_password(plain: str, stored_hash: str, salt: str) -> bool:
         return hashlib.sha256((plain + salt).encode()).hexdigest() == stored_hash
 
 
+# ─── Input Validation ───
+import re
+
+_USERNAME_RE = re.compile(r'^[a-zA-Z0-9_.-]{3,30}$')
+_EMAIL_RE = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+
+
+def _validate_username(username: str):
+    """Validate username format: 3-30 chars, alphanumeric/underscore/dot/dash only."""
+    if not _USERNAME_RE.match(username):
+        raise HTTPException(
+            status_code=400,
+            detail="Username must be 3-30 characters (letters, numbers, underscore, dot, dash)."
+        )
+
+
+def _validate_password(password: str):
+    """Validate password length (min 6, max 128 to prevent bcrypt DoS)."""
+    if len(password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
+    if len(password) > 128:
+        raise HTTPException(status_code=400, detail="Password must be at most 128 characters.")
+
+
+def _validate_email(email: str):
+    """Basic email format validation."""
+    if not _EMAIL_RE.match(email):
+        raise HTTPException(status_code=400, detail="Invalid email format.")
+
+
+def _sanitize_name(name: str) -> str:
+    """Strip HTML tags and limit length."""
+    import re as _re
+    clean = _re.sub(r'<[^>]+>', '', name).strip()
+    if len(clean) > 100:
+        clean = clean[:100]
+    if not clean:
+        raise HTTPException(status_code=400, detail="Name cannot be empty.")
+    return clean
+
+
 # ─── Login ───
 @router.post("/login")
 def login(request: LoginRequest, req: Request):
+    _validate_username(request.username)
     client_ip = req.client.host if req.client else "unknown"
     check_rate_limit(login_rate_limiter, client_ip)
 
@@ -130,6 +184,7 @@ def login(request: LoginRequest, req: Request):
         "user_id": user_id,
         "username": request.username.lower(),
         "role": role,
+        "must_change_password": bool(must_change),
         "expires": time.time() + 86400,  # 24h
     }
     return {
@@ -145,9 +200,12 @@ def login(request: LoginRequest, req: Request):
 
 # ─── Change Password ───
 @router.post("/change-password")
-def change_password(request: ChangePasswordRequest, session: dict = Depends(verify_token)):
-    if len(request.new_password) < 6:
-        raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
+def change_password(request: ChangePasswordRequest,
+                    authorization: Optional[str] = Header(None)):
+    # Security: allow this endpoint even when must_change_password is set
+    from config import verify_token as _verify
+    session = _verify(authorization, allow_password_change=True)
+    _validate_password(request.new_password)
 
     user_id = session.get("user_id")
     with get_db() as conn:
@@ -169,6 +227,9 @@ def change_password(request: ChangePasswordRequest, session: dict = Depends(veri
             (new_hash, new_salt, user_id)
         )
 
+    # Security: revoke all sessions for this user so stolen tokens can't persist
+    _revoke_user_sessions(user_id)
+
     return {"status": "success", "message": "Password changed successfully."}
 
 
@@ -176,6 +237,9 @@ def change_password(request: ChangePasswordRequest, session: dict = Depends(veri
 @router.post("/invite-user")
 def invite_user(request: InviteRequest, req: Request,
                 session: dict = Depends(require_role("admin"))):
+    _validate_username(request.username)
+    _validate_email(request.email)
+
     # Check if username or email already exists
     with get_db() as conn:
         cursor = conn.cursor()
@@ -212,18 +276,19 @@ def invite_user(request: InviteRequest, req: Request,
 def accept_invite(request: AcceptInviteRequest, req: Request):
     client_ip = req.client.host if req.client else "unknown"
     check_rate_limit(invite_rate_limiter, client_ip, max_attempts=5, window_seconds=120)
-    record_attempt(invite_rate_limiter, client_ip)
 
     invite = invite_codes.get(request.token)
     if not invite:
+        record_attempt(invite_rate_limiter, client_ip)
         raise HTTPException(status_code=400, detail="Invalid or expired invitation token.")
 
     if time.time() > invite["expires"]:
+        record_attempt(invite_rate_limiter, client_ip)
         del invite_codes[request.token]
         raise HTTPException(status_code=400, detail="Invitation has expired.")
 
-    if len(request.password) < 6:
-        raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
+    _validate_password(request.password)
+    request.name = _sanitize_name(request.name)
 
     pw_hash, salt = _hash_password(request.password)
 
@@ -273,15 +338,19 @@ def forgot_password(request: ForgotPasswordRequest, req: Request):
     check_rate_limit(forgot_pw_rate_limiter, client_ip, max_attempts=3, window_seconds=120)
     record_attempt(forgot_pw_rate_limiter, client_ip)
 
+    # Security: always return same response to prevent user enumeration
+    generic_response = {
+        "status": "success",
+        "message": "If an account with that email exists, a reset code has been generated. Check server console.",
+    }
+
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT id FROM users WHERE email=?", (request.email,))
         user = cursor.fetchone()
 
     if not user:
-        raise HTTPException(
-            status_code=404, detail="No account found with that email address."
-        )
+        return generic_response  # Don't reveal that email doesn't exist
 
     code = "".join(random.choices(string.digits, k=6))
     password_reset_codes[request.email] = {
@@ -290,11 +359,10 @@ def forgot_password(request: ForgotPasswordRequest, req: Request):
         "attempts": 0,
     }
 
-    return {
-        "status": "success",
-        "message": f"Reset code generated for {request.email}.",
-        "otp_code": code,
-    }
+    # Security: OTP printed to server console only — NEVER returned in HTTP response
+    print(f"[SECURITY] Password reset OTP for {request.email}: {code}")
+
+    return generic_response
 
 
 # ─── Reset Password ───

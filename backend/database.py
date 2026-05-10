@@ -90,18 +90,21 @@ def init_db():
         )
 
         # ── Seed Default Users (idempotent: only inserts users that don't exist) ──
+        # Security: generate random passwords instead of hardcoded ones
         seed_users = [
-            ("admin",    "admin123",    "admin",   "IT Administrator",  "admin@kawanlama.com"),
-            ("manager",  "manager123",  "manager", "Warehouse Manager", "manager@kawanlama.com"),
-            ("operator", "operator123", "operator", "Shift Operator",   "operator@kawanlama.com"),
+            ("admin",    "admin",   "IT Administrator",  "admin@kawanlama.com"),
+            ("manager",  "manager", "Warehouse Manager", "manager@kawanlama.com"),
+            ("operator", "operator", "Shift Operator",   "operator@kawanlama.com"),
         ]
-        for username, plain_pw, role, name, email in seed_users:
+        seeded_any = False
+        for username, role, name, email in seed_users:
             cursor.execute(
                 "SELECT id FROM users WHERE username = ? COLLATE NOCASE",
                 (username,)
             )
             if cursor.fetchone():
                 continue
+            plain_pw = secrets.token_urlsafe(10)  # Random 10-char password
             pw_hash, salt = _hash_password(plain_pw)
             try:
                 cursor.execute(
@@ -109,9 +112,13 @@ def init_db():
                     "VALUES (?, ?, ?, ?, ?, ?, 1)",
                     (username, email, pw_hash, salt, name, role)
                 )
+                print(f"[SETUP] Created user '{username}' (role={role}) — password: {plain_pw}")
+                seeded_any = True
             except sqlite3.IntegrityError:
                 # Email already taken (e.g., legacy row with this email but different username)
                 pass
+        if seeded_any:
+            print("[SETUP] WARNING: Save these passwords -- they won't be shown again!")
 
         # ── Seed Default Settings ──
         cursor.execute("SELECT COUNT(*) FROM settings")

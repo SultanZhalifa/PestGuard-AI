@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
+import { useT } from '../hooks/useT';
 
 export default function Settings() {
-  const { authToken, darkMode, toggleDarkMode, setLogs } = useWarehouse();
+  const { authToken, darkMode, toggleDarkMode, setLogs, language, changeLanguage } = useWarehouse();
+  const t = useT();
   
   const [cameraUrl, setCameraUrl] = useState('0');
   const [cameraZone, setCameraZone] = useState('Zone A');
@@ -36,7 +38,7 @@ export default function Settings() {
   const handleSave = async () => {
     // Validate camera URL
     if (cameraUrl !== '0' && cameraUrl !== '1' && !cameraUrl.match(/^(rtsp|http|https):\/\//) && !cameraUrl.match(/\.(mp4|avi|mov|mkv)$/i)) {
-      setToastMsg('Warning: Camera source must be 0, 1, an RTSP/HTTP URL, or a video file path.');
+      setToastMsg(t.settings.invalidCamera);
       setTimeout(() => setToastMsg(''), 5000);
       return;
     }
@@ -56,15 +58,15 @@ export default function Settings() {
 
       if (response.ok) {
         const data = await response.json();
-        setToastMsg(data.message || 'Settings saved successfully.');
+        setToastMsg(data.message || t.settings.saveSuccess);
         setTimeout(() => setToastMsg(''), 4000);
       } else {
-        setToastMsg('Error: Failed to save settings. Please try again.');
+        setToastMsg(t.settings.saveFailed);
         setTimeout(() => setToastMsg(''), 4000);
       }
     } catch (err) {
       console.error("Failed to save settings", err);
-      setToastMsg('Error: Server unreachable. Please check your connection.');
+      setToastMsg(t.settings.serverUnreachable);
       setTimeout(() => setToastMsg(''), 4000);
     } finally {
       setIsSaving(false);
@@ -118,8 +120,8 @@ export default function Settings() {
       )}
 
       <div style={{ marginBottom: '2.5rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>Settings</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Manage your system preferences and global configurations.</p>
+        <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>{t.settings.title}</h1>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>{t.settings.subtitle}</p>
       </div>
 
       <div style={{ 
@@ -136,13 +138,13 @@ export default function Settings() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </div>
             <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>
-              System Configuration
+              {t.settings.systemConfig}
             </h3>
           </div>
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.75rem', paddingLeft: '1rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Camera Source URL</label>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{t.settings.cameraSourceUrl}</label>
               <input 
                 type="text" 
                 value={cameraUrl}
@@ -157,12 +159,12 @@ export default function Settings() {
                 onBlur={(e) => { e.target.style.borderColor = 'var(--border-color)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.02)'; }}
               />
               <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem', opacity: 0.8 }}>
-                Use <code style={{ backgroundColor: 'var(--bg-tertiary)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.7rem' }}>0</code> for default webcam, or paste an RTSP/HTTP stream URL or local <code style={{ backgroundColor: 'var(--bg-tertiary)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.7rem' }}>.mp4</code> file path.
+                {t.settings.cameraSourceHint.split('{zero}')[0]}<code style={{ backgroundColor: 'var(--bg-tertiary)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.7rem' }}>0</code>{t.settings.cameraSourceHint.split('{zero}')[1].split('{mp4}')[0]}<code style={{ backgroundColor: 'var(--bg-tertiary)', padding: '0.125rem 0.375rem', borderRadius: 4, fontSize: '0.7rem' }}>.mp4</code>{t.settings.cameraSourceHint.split('{mp4}')[1]}
               </p>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Camera Zone</label>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{t.settings.cameraZone}</label>
               <select
                 value={cameraZone}
                 onChange={(e) => setCameraZone(e.target.value)}
@@ -181,29 +183,40 @@ export default function Settings() {
                 <option value="Zone D">Zone D</option>
               </select>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem', opacity: 0.8 }}>
-                Assign this camera feed to a warehouse zone. Detections will be logged to the selected zone.
+                {t.settings.cameraZoneHint}
               </p>
             </div>
 
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>
-                  AI Confidence Threshold
+                  {t.settings.aiThreshold}
                 </label>
-                <span style={{ backgroundColor: 'var(--bg-primary)', padding: '0.25rem 0.75rem', borderRadius: '20px', fontSize: '0.875rem', fontWeight: '700', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>
+                <span style={{
+                  padding: '0.25rem 0.75rem', borderRadius: '20px', fontSize: '0.875rem', fontWeight: '700',
+                  border: '1px solid',
+                  backgroundColor: threshold < 50 ? 'rgba(34,197,94,0.1)' : threshold < 75 ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)',
+                  color: threshold < 50 ? '#16a34a' : threshold < 75 ? '#d97706' : '#dc2626',
+                  borderColor: threshold < 50 ? 'rgba(34,197,94,0.3)' : threshold < 75 ? 'rgba(245,158,11,0.3)' : 'rgba(239,68,68,0.3)',
+                }}>
                   {threshold}%
                 </span>
               </div>
-              <input 
-                type="range" 
-                min="30" max="95" 
+              <input
+                type="range"
+                min="30" max="95"
                 value={threshold}
-                onChange={(e) => setThreshold(e.target.value)}
-                style={{ width: '100%', cursor: 'pointer', accentColor: 'var(--accent-primary)', height: '6px', borderRadius: '4px' }} 
+                onChange={(e) => setThreshold(Number(e.target.value))}
+                style={{ width: '100%', cursor: 'pointer', height: '6px', borderRadius: '4px',
+                  accentColor: threshold < 50 ? '#22c55e' : threshold < 75 ? '#f59e0b' : '#ef4444',
+                }}
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem', fontWeight: '500' }}>
-                <span>Sensitive (30%)</span>
-                <span>Strict (95%)</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: '500' }}>
+                <span style={{ color: '#16a34a' }}>{t.settings.sensitiveLow}</span>
+                <span style={{ color: threshold < 50 ? '#16a34a' : threshold < 75 ? '#d97706' : '#dc2626', fontWeight: '700' }}>
+                  {threshold < 50 ? t.settings.highSensitivity : threshold < 75 ? t.settings.balanced : t.settings.strict}
+                </span>
+                <span style={{ color: '#dc2626' }}>{t.settings.sensitiveHigh}</span>
               </div>
             </div>
           </div>
@@ -218,38 +231,81 @@ export default function Settings() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
             </div>
             <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>
-              Preferences
+              {t.settings.preferences}
             </h3>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingLeft: '1rem' }}>
             
-            {/* Toggle 1 */}
-            <div 
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', padding: '0.5rem 0' }}
-              onClick={() => setNotifications(!notifications)}
+            {/* Push Notifications toggle */}
+            {[
+              {
+                label: t.settings.pushNotifications,
+                desc: t.settings.pushNotificationsDesc,
+                value: notifications,
+                toggle: () => setNotifications(v => !v),
+                color: '#22c55e',
+              },
+              {
+                label: t.settings.darkModeLabel,
+                desc: t.settings.darkModeDesc,
+                value: darkMode,
+                toggle: toggleDarkMode,
+                color: '#6366f1',
+              },
+            ].map(({ label, desc, value, toggle, color }) => (
+              <div
+                key={label}
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', transition: 'border-color 0.2s' }}
+                onClick={toggle}
+                onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--text-secondary)'}
+                onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
+              >
+                <div>
+                  <p style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>{label}</p>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>{desc}</p>
+                </div>
+                <div style={{
+                  width: '50px', height: '28px', flexShrink: 0, marginLeft: '1rem',
+                  backgroundColor: value ? color : 'var(--border-color)',
+                  borderRadius: '20px', position: 'relative', transition: 'background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+                }}>
+                  <div style={{
+                    width: '24px', height: '24px', backgroundColor: 'white', borderRadius: '50%',
+                    position: 'absolute', top: '2px', left: value ? '24px' : '2px',
+                    transition: 'left 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                    boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                  }} />
+                </div>
+              </div>
+            ))}
+
+            {/* Language selector */}
+            <div
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}
             >
               <div>
-                <p style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>Push Notifications</p>
-                <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>Receive alerts when critical hazards are detected.</p>
+                <p style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>{t.settings.language}</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>{t.settings.languageDesc}</p>
               </div>
-              <div 
-                style={{
-                  width: '50px', height: '28px', backgroundColor: notifications ? 'var(--accent-primary)' : 'var(--border-color)',
-                  borderRadius: '20px', position: 'relative', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-                }}
-              >
-                <div style={{
-                  width: '24px', height: '24px', backgroundColor: 'white', borderRadius: '50%',
-                  position: 'absolute', top: '2px', left: notifications ? '24px' : '2px',
-                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', 
-                  boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-                }}></div>
+              <div style={{ display: 'flex', gap: '0.5rem', marginLeft: '1rem', flexShrink: 0 }}>
+                {['en', 'id'].map(lang => (
+                  <button
+                    key={lang}
+                    onClick={() => changeLanguage(lang)}
+                    style={{
+                      padding: '0.4rem 0.9rem', borderRadius: '8px', fontWeight: '600', fontSize: '0.85rem',
+                      backgroundColor: language === lang ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
+                      color: language === lang ? 'var(--bg-primary)' : 'var(--text-secondary)',
+                      border: `1px solid ${language === lang ? 'var(--accent-primary)' : 'var(--border-color)'}`,
+                      cursor: 'pointer', transition: 'all 0.2s ease',
+                    }}
+                  >
+                    {lang === 'en' ? '🇬🇧 EN' : '🇮🇩 ID'}
+                  </button>
+                ))}
               </div>
             </div>
-
-
-
           </div>
         </div>
 
@@ -272,7 +328,7 @@ export default function Settings() {
             {isSaving && (
               <span style={{ display: 'inline-block', width: '18px', height: '18px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'currentColor', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
             )}
-            {isSaving ? 'Saving...' : 'Save Settings'}
+            {isSaving ? t.settings.saving : t.settings.saveSettings}
           </button>
         </div>
 
@@ -289,7 +345,7 @@ export default function Settings() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
           </div>
           <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>
-            System Architecture
+            {t.settings.systemArchitecture}
           </h3>
         </div>
 

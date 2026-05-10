@@ -1,14 +1,16 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWarehouse } from '../context/WarehouseContext';
+import { useT } from '../hooks/useT';
 
 /* All commands; some are role-gated and filtered before render. */
-function buildCommands({ navigate, logout, hasRole }) {
+function buildCommands({ navigate, logout, hasRole, t }) {
+  const cp = t.commandPalette;
   const cmds = [
     {
       id: 'nav-live',
-      label: 'Go to Live Monitor',
-      sub: 'Real-time camera feeds and alerts',
+      label: cp.goToLiveMonitor,
+      sub: cp.goToLiveMonitorSub,
       keywords: 'live monitor camera video feed zone',
       icon: (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12h4l2-9 5 18 3-9h6"/></svg>
@@ -17,8 +19,8 @@ function buildCommands({ navigate, logout, hasRole }) {
     },
     {
       id: 'nav-logs',
-      label: 'Go to Detection Logs',
-      sub: 'Browse, filter, and export detection events',
+      label: cp.goToDetectionLogs,
+      sub: cp.goToDetectionLogsSub,
       keywords: 'logs detection history records csv export',
       icon: (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
@@ -27,8 +29,8 @@ function buildCommands({ navigate, logout, hasRole }) {
     },
     {
       id: 'nav-analysis',
-      label: 'Go to Risk Analysis',
-      sub: 'Charts, heatmap, executive summary',
+      label: cp.goToRiskAnalysis,
+      sub: cp.goToRiskAnalysisSub,
       keywords: 'risk analysis charts heatmap report pdf',
       requireRoles: ['admin', 'manager'],
       icon: (
@@ -38,8 +40,8 @@ function buildCommands({ navigate, logout, hasRole }) {
     },
     {
       id: 'nav-ai-perf',
-      label: 'Go to AI Performance',
-      sub: 'Model metrics, training curves, inference speed',
+      label: cp.goToAiPerformance,
+      sub: cp.goToAiPerformanceSub,
       keywords: 'ai performance model yolo accuracy map metrics',
       requireRoles: ['admin', 'manager'],
       icon: (
@@ -49,8 +51,8 @@ function buildCommands({ navigate, logout, hasRole }) {
     },
     {
       id: 'nav-users',
-      label: 'Go to User Management',
-      sub: 'Manage admins, managers, operators',
+      label: cp.goToUserManagement,
+      sub: cp.goToUserManagementSub,
       keywords: 'users management admin role rbac people team',
       requireRoles: ['admin'],
       icon: (
@@ -60,8 +62,8 @@ function buildCommands({ navigate, logout, hasRole }) {
     },
     {
       id: 'nav-settings',
-      label: 'Go to Settings',
-      sub: 'System configuration and preferences',
+      label: cp.goToSettings,
+      sub: cp.goToSettingsSub,
       keywords: 'settings preferences config threshold theme dark',
       requireRoles: ['admin', 'manager'],
       icon: (
@@ -71,8 +73,8 @@ function buildCommands({ navigate, logout, hasRole }) {
     },
     {
       id: 'action-toggle-theme',
-      label: 'Toggle Dark Mode',
-      sub: 'Switch between light and dark themes',
+      label: cp.toggleDarkMode,
+      sub: cp.toggleDarkModeSub,
       keywords: 'theme dark light mode appearance display',
       icon: (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -81,8 +83,8 @@ function buildCommands({ navigate, logout, hasRole }) {
     },
     {
       id: 'action-signout',
-      label: 'Sign Out',
-      sub: 'End your current session',
+      label: cp.signOut,
+      sub: cp.signOutSub,
       keywords: 'logout signout exit quit leave',
       icon: (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -103,10 +105,11 @@ export default function CommandPalette() {
 
   const navigate = useNavigate();
   const { logout, hasRole, authToken } = useWarehouse();
+  const t = useT();
 
   const commands = useMemo(
-    () => buildCommands({ navigate, logout, hasRole }),
-    [navigate, logout, hasRole]
+    () => buildCommands({ navigate, logout, hasRole, t }),
+    [navigate, logout, hasRole, t]
   );
 
   const filtered = useMemo(() => {
@@ -184,7 +187,7 @@ export default function CommandPalette() {
           ref={inputRef}
           className="cmdk-input"
           type="text"
-          placeholder="Type a command or search…"
+          placeholder={t.commandPalette.placeholder}
           value={query}
           onChange={e => { setQuery(e.target.value); setActiveIndex(0); }}
           onKeyDown={handleKeyDown}
@@ -193,7 +196,7 @@ export default function CommandPalette() {
 
         <div ref={listRef} className="cmdk-list custom-scrollbar">
           {filtered.length === 0 ? (
-            <div className="cmdk-empty">No commands match "{query}"</div>
+            <div className="cmdk-empty">{t.commandPalette.noMatch.replace('{query}', query)}</div>
           ) : (
             filtered.map((cmd, idx) => (
               <div
@@ -214,10 +217,10 @@ export default function CommandPalette() {
         </div>
 
         <div className="cmdk-footer">
-          <span><kbd className="cmdk-shortcut">↑↓</kbd> Navigate</span>
-          <span><kbd className="cmdk-shortcut">↵</kbd> Select</span>
-          <span><kbd className="cmdk-shortcut">Esc</kbd> Close</span>
-          <span style={{ marginLeft: 'auto' }}>{filtered.length} command{filtered.length === 1 ? '' : 's'}</span>
+          <span><kbd className="cmdk-shortcut">↑↓</kbd> {t.commandPalette.navigate}</span>
+          <span><kbd className="cmdk-shortcut">↵</kbd> {t.commandPalette.select}</span>
+          <span><kbd className="cmdk-shortcut">Esc</kbd> {t.commandPalette.close}</span>
+          <span style={{ marginLeft: 'auto' }}>{filtered.length} {filtered.length === 1 ? t.commandPalette.command : t.commandPalette.commands}</span>
         </div>
       </div>
     </div>

@@ -72,11 +72,54 @@ backend/
 | **Frontend** | React 19, Vite 8, React Router DOM 7, Recharts 3, Vanilla CSS |
 | **Backend** | Python 3.12, FastAPI, Uvicorn, Pydantic |
 | **AI/Vision** | YOLO11-Nano (Ultralytics), OpenCV 4, NumPy |
-| **Security** | bcrypt (password hashing), python-dotenv (env vars), rate limiting |
+| **Security** | bcrypt hashing, security headers, input validation, rate limiting, SSRF protection, session management |
 | **Database** | SQLite3 with WAL mode (thread-safe) |
 | **Real-time** | WebSocket (bi-directional) with exponential backoff |
 | **Testing** | pytest, httpx, FastAPI TestClient |
 | **Export** | jsPDF, html2canvas, CSV streaming |
+
+---
+
+## Security
+
+This project implements **defense-in-depth** security across all layers:
+
+### Authentication & Session Management
+- **bcrypt password hashing** with automatic SHA-256 legacy migration
+- **Forced password change** on first login for all default accounts
+- **Random-generated default passwords** — no hardcoded credentials
+- **Session revocation** on password change (all active tokens invalidated)
+- **24-hour token expiry** with server-side session validation
+- **Rate limiting** on login, forgot-password, and invite endpoints
+
+### API Security
+- **Authenticated WebSocket** — requires `?token=` query parameter
+- **Authenticated video feeds** — requires `?token=` query parameter  
+- **Authenticated snapshots** — requires `?token=` query parameter
+- **Settings key whitelist** — only allowed configuration keys accepted
+- **Input validation** — username regex, password length caps (anti-bcrypt DoS), email format validation, HTML sanitization
+- **LIKE wildcard escaping** — prevents SQL pattern injection in log queries
+- **Log limit cap** (max 1000) — prevents memory/bandwidth DoS
+
+### Network & Transport
+- **CORS restricted** to localhost origins by default (configurable via `.env`)
+- **SSRF protection** — camera source URLs validated against protocol/network blocklist
+- **Directory traversal protection** — snapshot filename validation
+
+### HTTP Security Headers
+| Header | Value |
+|--------|-------|
+| `X-Content-Type-Options` | `nosniff` |
+| `X-Frame-Options` | `DENY` |
+| `X-XSS-Protection` | `1; mode=block` |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` |
+| `Cache-Control` | `no-store, no-cache, must-revalidate` |
+
+### Operational Security
+- **Rate limiter memory cleanup** — daemon thread prevents IP accumulation
+- **No sensitive data in responses** — OTP codes and temp passwords logged to server console only
+- **User enumeration prevention** — forgot-password returns identical responses
 
 ---
 
@@ -132,9 +175,9 @@ The system seeds 3 users on first run with role-based access (RBAC):
 | `manager` | Manager | Settings, Live Monitor, Logs, Analytics |
 | `operator` | Operator | Live Monitor, Logs (read-only) |
 
-> **Default passwords** are seeded on first DB initialization. Check `backend/database.py` for the seed values, or contact the project owner.
+> **Default passwords** are randomly generated on first run and printed to the server console **once**. Save them immediately.
 >
-> **Important:** All users are required to change their password on first login. Change defaults immediately after deployment.
+> All users are **forced to change their password on first login** before accessing the system.
 
 ### AI Model Weights
 
@@ -222,9 +265,10 @@ We trained a custom YOLO11 model (`warehouse_pest.pt`) on curated datasets from 
 | `GET` | `/api/status` | Bearer | System status |
 | `POST` | `/api/cameras/{zone_id}/toggle` | Bearer | Start/stop zone camera |
 | `GET` | `/api/cameras/{zone_id}/snapshot` | Bearer | Capture zone frame |
-| `GET` | `/api/video_feed/{zone_id}` | - | Per-zone MJPEG stream |
-| `GET` | `/api/video_feed` | - | Legacy Zone A stream |
-| `WS` | `/api/ws/alerts` | - | Real-time alert notifications |
+| `GET` | `/api/video_feed/{zone_id}` | Token (query) | Per-zone MJPEG stream |
+| `GET` | `/api/video_feed` | Token (query) | Legacy Zone A stream |
+| `WS` | `/api/ws/alerts` | Token (query) | Real-time alert notifications |
+| `GET` | `/api/snapshots/{filename}` | Token (query) | Detection snapshot images |
 | `GET` | `/api/health` | - | System health check (Docker) |
 | `GET` | `/api/model-info` | - | AI model metadata, training metrics & mAP |
 | `GET` | `/api/training-artifacts/{name}` | - | Training images (confusion matrix, etc.) |
