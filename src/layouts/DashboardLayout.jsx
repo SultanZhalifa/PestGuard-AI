@@ -127,10 +127,14 @@ export default function DashboardLayout() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             {t.nav.detectionLogs}
           </NavLink>
-          <NavLink to="/ask-ai" className={({ isActive }) => isActive ? "nav-link active" : "nav-link inactive"} style={{ position: 'relative' }}>
-            <img src="/ask ai.svg" alt="Ask AI" style={{ width: 18, height: 18, objectFit: 'contain', borderRadius: 4, flexShrink: 0 }} />
-            Ask AI
-            <span style={{ fontSize: '0.55rem', fontWeight: '800', backgroundColor: '#3b82f6', color: '#fff', padding: '0.1rem 0.35rem', borderRadius: '99px', marginLeft: 'auto', letterSpacing: '0.03em' }}>NEW</span>
+          <NavLink to="/ask-ai" style={{ position: 'relative' }} className={({ isActive }) => isActive ? "nav-link active" : "nav-link inactive"}>
+            {({ isActive }) => (
+              <>
+                <img src="/ask ai.svg" alt="Ask AI" style={{ width: 18, height: 18, objectFit: 'contain', borderRadius: 4, flexShrink: 0, filter: isActive ? 'brightness(0) invert(1)' : 'none' }} />
+                Ask AI
+                <span style={{ fontSize: '0.55rem', fontWeight: '800', backgroundColor: '#3b82f6', color: '#fff', padding: '0.1rem 0.35rem', borderRadius: '99px', marginLeft: 'auto', letterSpacing: '0.03em' }}>NEW</span>
+              </>
+            )}
           </NavLink>
 
           {/* Analytics — only admin/manager */}
