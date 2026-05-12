@@ -212,7 +212,6 @@ export default function Settings() {
       <DangerZone
         authToken={authToken}
         setLogs={setLogs}
-        setToastMsg={setToastMsg}
         onResetSuccess={() => { setCameraUrl('0'); setThreshold(50); setNotifications(true); }}
       />
 

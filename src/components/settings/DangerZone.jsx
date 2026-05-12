@@ -1,18 +1,19 @@
 import React from 'react';
+import { useToast } from '../ToastNotification';
 
 /**
  * DangerZone — destructive actions: clear logs, reset settings
  */
-export default function DangerZone({ authToken, setLogs, setToastMsg, onResetSuccess }) {
+export default function DangerZone({ authToken, setLogs, onResetSuccess }) {
+  const { addToast } = useToast();
   const handleClearLogs = async () => {
     if (!confirm('Are you sure?\n\nThis will permanently delete ALL detection logs from the database. This action cannot be undone.')) return;
     try {
       const res = await fetch('/api/logs', { method: 'DELETE', headers: { Authorization: `Bearer ${authToken}` } });
       const data = await res.json();
-      if (res.ok) { setLogs([]); setToastMsg(data.message || 'All logs cleared successfully.'); }
-      else setToastMsg('Error: ' + (data.detail || 'Failed to clear logs.'));
-    } catch { setToastMsg('Error: Server error. Could not clear logs.'); }
-    setTimeout(() => setToastMsg(''), 4000);
+      if (res.ok) { setLogs([]); addToast(data.message || 'All logs cleared successfully.', 'success'); }
+      else addToast('Error: ' + (data.detail || 'Failed to clear logs.'), 'error');
+    } catch { addToast('Error: Server error. Could not clear logs.', 'error'); }
   };
 
   const handleResetSettings = async () => {
@@ -20,10 +21,9 @@ export default function DangerZone({ authToken, setLogs, setToastMsg, onResetSuc
     try {
       const res = await fetch('/api/settings/reset', { method: 'POST', headers: { Authorization: `Bearer ${authToken}` } });
       const data = await res.json();
-      if (res.ok) { onResetSuccess(); setToastMsg(data.message || 'Settings restored to defaults.'); }
-      else setToastMsg('Error: ' + (data.detail || 'Failed to reset settings.'));
-    } catch { setToastMsg('Error: Server error. Could not reset settings.'); }
-    setTimeout(() => setToastMsg(''), 4000);
+      if (res.ok) { onResetSuccess(); addToast(data.message || 'Settings restored to defaults.', 'success'); }
+      else addToast('Error: ' + (data.detail || 'Failed to reset settings.'), 'error');
+    } catch { addToast('Error: Server error. Could not reset settings.', 'error'); }
   };
 
   const actions = [
