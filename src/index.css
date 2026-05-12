@@ -1265,9 +1265,6 @@ body.dark-mode .login-submit {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 160px);
-  position: sticky;
-  top: 1rem;
 }
 
 .alerts-header {

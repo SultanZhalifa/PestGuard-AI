@@ -119,21 +119,21 @@ export default function LiveMonitor() {
         t={t}
       />
 
-      <div className="grid-layout">
-        {/* Left: Video + Multi-zone grid */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        {/* Top Row: Video Feed & Alerts */}
+        <div className="grid-layout" style={{ alignItems: 'stretch' }}>
           <VideoFeedPanel
             isCameraOn={isCameraOn}
             status={status}
             onToggle={toggleCamera}
             t={t}
           />
-          <CameraGrid />
+          <AlertsPanel logs={logs} t={t} />
         </div>
 
-        {/* Right: Alerts & Environment */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <AlertsPanel logs={logs} t={t} />
+        {/* Bottom Row: Multi-zone grid & Environment */}
+        <div className="grid-layout" style={{ alignItems: 'start' }}>
+          <CameraGrid />
           <EnvironmentPanel />
         </div>
       </div>
