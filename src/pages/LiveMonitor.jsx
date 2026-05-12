@@ -5,6 +5,7 @@ import CameraGrid from '../components/CameraGrid';
 import StatCards from '../components/monitor/StatCards';
 import VideoFeedPanel from '../components/monitor/VideoFeedPanel';
 import AlertsPanel from '../components/monitor/AlertsPanel';
+import EnvironmentPanel from '../components/monitor/EnvironmentPanel';
 import { useT } from '../hooks/useT';
 import api from '../lib/apiClient';
 
@@ -130,8 +131,11 @@ export default function LiveMonitor() {
           <CameraGrid />
         </div>
 
-        {/* Right: Alerts */}
-        <AlertsPanel logs={logs} t={t} />
+        {/* Right: Alerts & Environment */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <AlertsPanel logs={logs} t={t} />
+          <EnvironmentPanel />
+        </div>
       </div>
     </div>
   );
