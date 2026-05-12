@@ -23,8 +23,11 @@ import asyncio
 import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+from pydantic import ValidationError
 
 from config import CORS_ORIGINS, active_sessions
 from database import init_db, load_settings_cache
@@ -117,6 +120,41 @@ async def add_security_headers(request, call_next):
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
     return response
 
+
+# ─── Global Exception Handlers ───
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Return clean 422 with field-level details."""
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": "Validation error",
+            "errors": exc.errors(),
+        },
+    )
+
+
+@app.exception_handler(ValidationError)
+async def pydantic_exception_handler(request: Request, exc: ValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={"detail": "Data validation error", "errors": exc.errors()},
+    )
+
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    """Catch-all — prevents stack traces leaking to clients in production."""
+    import logging
+    logging.getLogger("uvicorn.error").error(
+        "Unhandled exception on %s %s: %s",
+        request.method, request.url.path, exc, exc_info=True
+    )
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "An internal server error occurred."},
+    )
+
 # ─── Register Route Modules ───
 app.include_router(auth_router)
 app.include_router(logs_router)
@@ -146,9 +184,24 @@ async def websocket_endpoint(websocket: WebSocket):
 
     await manager.connect(websocket)
     try:
-        while True:
-            await websocket.receive_text()
+        # Heartbeat: ping every 25s to prevent idle proxy drops
+        async def _heartbeat():
+            while True:
+                await asyncio.sleep(25)
+                try:
+                    await websocket.send_text('{"type":"ping"}')
+                except Exception:
+                    break
+
+        heartbeat_task = asyncio.create_task(_heartbeat())
+        try:
+            while True:
+                await websocket.receive_text()
+        finally:
+            heartbeat_task.cancel()
     except WebSocketDisconnect:
+        pass
+    finally:
         manager.disconnect(websocket)
 
 

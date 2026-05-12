@@ -7,6 +7,7 @@ and shared in-memory state for the application.
 
 import os
 import time
+import threading
 from pathlib import Path
 from collections import defaultdict
 from typing import Optional
@@ -49,9 +50,53 @@ DETECTION_COOLDOWN_SECONDS = 10.0
 TTS_COOLDOWN_SECONDS = 8.0
 DEFAULT_THRESHOLD = int(os.getenv("DEFAULT_THRESHOLD", "50"))
 
-# ─── In-Memory Stores ───
-active_sessions = {}            # token -> { username, role, expires }
-password_reset_codes = {}       # email -> { code, expires, attempts }
+# ─── In-Memory Stores (thread-safe) ───
+_sessions_lock = threading.RLock()
+_reset_codes_lock = threading.RLock()
+
+active_sessions: dict = {}          # token -> { username, role, expires }
+password_reset_codes: dict = {}     # email -> { code, expires, attempts }
+
+
+# ─── Thread-safe session helpers ───
+def get_session(token: str) -> Optional[dict]:
+    with _sessions_lock:
+        return active_sessions.get(token)
+
+
+def set_session(token: str, data: dict):
+    with _sessions_lock:
+        active_sessions[token] = data
+
+
+def delete_session(token: str):
+    with _sessions_lock:
+        active_sessions.pop(token, None)
+
+
+def delete_all_user_sessions(username: str):
+    """Revoke all active sessions for a given user (e.g. on password change)."""
+    with _sessions_lock:
+        to_delete = [t for t, s in active_sessions.items() if s.get('username') == username]
+        for t in to_delete:
+            del active_sessions[t]
+
+
+# ─── Thread-safe reset code helpers ───
+def get_reset_code(email: str) -> Optional[dict]:
+    with _reset_codes_lock:
+        return password_reset_codes.get(email)
+
+
+def set_reset_code(email: str, data: dict):
+    with _reset_codes_lock:
+        password_reset_codes[email] = data
+
+
+def delete_reset_code(email: str):
+    with _reset_codes_lock:
+        password_reset_codes.pop(email, None)
+
 
 # Separate rate limiters per endpoint type (prevents cross-contamination)
 login_rate_limiter = defaultdict(list)       # ip -> [timestamps]
@@ -88,12 +133,12 @@ def verify_token(authorization: Optional[str] = Header(None),
     """FastAPI dependency to verify Bearer token in request headers."""
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Unauthorized")
-    token = authorization.replace("Bearer ", "")
-    session = active_sessions.get(token)
+    token = authorization.replace("Bearer ", "", 1)
+    session = get_session(token)
     if not session:
         raise HTTPException(status_code=401, detail="Invalid or expired session.")
     if time.time() > session["expires"]:
-        del active_sessions[token]
+        delete_session(token)
         raise HTTPException(status_code=401, detail="Session expired. Please log in again.")
 
     # Security: block API access until default password is changed
@@ -120,18 +165,26 @@ def require_role(*allowed_roles: str):
 
 
 # ─── Rate Limiter Cleanup (prevents memory leak) ───
-import threading
-
-
 def _cleanup_rate_limiters():
-    """Periodically purge stale IPs from all rate limiters."""
+    """Periodically purge stale IPs from all rate limiters and expired sessions."""
     while True:
         time.sleep(300)  # Every 5 minutes
         now = time.time()
+        # Clean rate limiters
         for limiter in [login_rate_limiter, forgot_pw_rate_limiter, invite_rate_limiter]:
             stale_keys = [k for k, v in list(limiter.items()) if all(now - t > 120 for t in v)]
             for k in stale_keys:
                 del limiter[k]
+        # Clean expired sessions
+        with _sessions_lock:
+            expired = [t for t, s in list(active_sessions.items()) if now > s.get('expires', 0)]
+            for t in expired:
+                del active_sessions[t]
+        # Clean expired reset codes
+        with _reset_codes_lock:
+            expired_codes = [e for e, d in list(password_reset_codes.items()) if now > d.get('expires', 0)]
+            for e in expired_codes:
+                del password_reset_codes[e]
 
 
 threading.Thread(target=_cleanup_rate_limiters, daemon=True).start()

@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import api from '../lib/apiClient';
 
 const WarehouseContext = createContext();
 
@@ -104,10 +105,7 @@ export function WarehouseProvider({ children }) {
   useEffect(() => {
     if (!authToken) return;
 
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsHost = window.location.hostname;
-    const wsPort = window.location.port === '5173' ? '8000' : window.location.port;
-    const wsUrl = `${wsProtocol}//${wsHost}:${wsPort}/api/ws/alerts?token=${authToken}`;
+    const wsUrl = api.wsUrl('/ws/alerts');
 
     let ws;
     let reconnectTimer;
@@ -122,6 +120,9 @@ export function WarehouseProvider({ children }) {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
+          // Ignore server heartbeat pings
+          if (data.type === 'ping') return;
+
           const alertId = data.id || Date.now() + Math.random();
           const newAlert = { ...data, id: alertId };
 
@@ -157,28 +158,14 @@ export function WarehouseProvider({ children }) {
   useEffect(() => {
     if (!authToken) return;
 
-    fetch('/api/logs', {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Unauthorized');
-        return res.json();
-      })
+    api.getJson('/logs')
       .then(data => {
         setLogs(data);
         setLogsLoaded(true);
       })
-      .catch(() => {
-        setLogsLoaded(true);
-      });
+      .catch(() => setLogsLoaded(true));
 
-    fetch('/api/settings', {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Settings unavailable');
-        return res.json();
-      })
+    api.getJson('/settings')
       .then(data => {
         if (data && data.darkMode !== undefined) {
           setDarkMode(data.darkMode);

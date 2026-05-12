@@ -61,3 +61,14 @@ backend/tests/__pycache__/
 
 # Snapshots downloaded by user
 backend/snapshots/
+
+# Server logs
+backend/server.log
+
+# Unused/extra model weights (keep only active model: warehouse_pest.pt)
+backend/yolo11m.pt
+backend/yolo26n.pt
+backend/yolo11n.pt
+
+# Scripts output
+backend/scripts/__pycache__/
