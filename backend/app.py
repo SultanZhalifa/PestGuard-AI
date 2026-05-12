@@ -44,6 +44,7 @@ from routes.camera import router as camera_router, start_video_thread, get_infer
 from routes.zones import router as zones_router, init_camera_zones
 from routes.model_info import router as model_info_router
 from routes.users import router as users_router
+from routes.chat import router as chat_router
 from services.snapshot_retention import start_retention_thread
 
 
@@ -164,6 +165,7 @@ app.include_router(camera_router)
 app.include_router(zones_router)
 app.include_router(model_info_router)
 app.include_router(users_router)
+app.include_router(chat_router)
 
 # ─── Wire cross-module dependencies ───
 set_inference_time_getter(get_inference_time)

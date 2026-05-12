@@ -9,6 +9,7 @@ import AcceptInvite from './pages/AcceptInvite';
 import ChangePassword from './pages/ChangePassword';
 import UserManagement from './pages/UserManagement';
 import AIPerformance from './pages/AIPerformance';
+import AskAI from './pages/AskAI';
 import RequireRole from './components/RequireRole';
 import { WarehouseProvider } from './context/WarehouseContext';
 import { ToastProvider } from './components/ToastNotification';
@@ -61,6 +62,7 @@ function App() {
                   </RequireRole>
                 }
               />
+              <Route path="ask-ai" element={<AskAI />} />
             </Route>
 
             {/* Fallback */}

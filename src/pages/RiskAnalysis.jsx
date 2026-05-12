@@ -4,128 +4,51 @@ import { useWarehouse } from '../context/WarehouseContext';
 import WarehouseZoneMap from '../components/WarehouseZoneMap';
 import { useToast } from '../components/ToastNotification';
 import { useT } from '../hooks/useT';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
+import ReportGenerator from '../components/ReportGenerator';
+import PeakHoursChart from '../components/analytics/PeakHoursChart';
+import api from '../lib/apiClient';
 
 export default function RiskAnalysis() {
-  const { authToken, logs: recentLogs } = useWarehouse();
+  const { logs: recentLogs } = useWarehouse();
   const { addToast } = useToast();
   const t = useT();
+  const [reportToast, setReportToast] = useState('');
+  const [reportToastType, setReportToastType] = useState('info');
   const [trendData, setTrendData] = useState([]);
   const [distributionData, setDistributionData] = useState([]);
   const [zoneData, setZoneData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
-  const [exporting, setExporting] = useState(false);
   const [activeRange, setActiveRange] = useState('weekly');
   const [trendLoading, setTrendLoading] = useState(false);
   const reportRef = useRef(null);
 
   const fetchAnalytics = (range = 'weekly', isInitial = false) => {
-    if (!authToken) return;
     if (!isInitial) setTrendLoading(true);
-
     let retries = 0;
     const maxRetries = 3;
-
     const doFetch = () => {
-      fetch(`/api/analytics?time_range=${range}`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      })
-        .then(res => {
-          if (!res.ok) throw new Error('Server error');
-          return res.json();
-        })
+      api.get(`/analytics?time_range=${range}`)
+        .then(res => { if (!res.ok) throw new Error('Server error'); return res.json(); })
         .then(data => {
           if (data.detail) throw new Error(data.detail);
           setTrendData(data.trend);
           setDistributionData(data.distribution);
           setZoneData(data.zone_activity);
-          setLoading(false);
-          setTrendLoading(false);
-          setFetchError(false);
+          setLoading(false); setTrendLoading(false); setFetchError(false);
         })
         .catch(err => {
-          console.error("Error fetching analytics:", err);
           retries++;
-          if (retries < maxRetries) {
-            const delay = Math.pow(2, retries) * 1000;
-            setTimeout(doFetch, delay);
-          } else {
-            setLoading(false);
-            setTrendLoading(false);
-            setFetchError(true);
-          }
+          if (retries < maxRetries) setTimeout(doFetch, Math.pow(2, retries) * 1000);
+          else { setLoading(false); setTrendLoading(false); setFetchError(true); }
         });
     };
-
     doFetch();
   };
 
-  useEffect(() => {
-    fetchAnalytics('weekly', true);
-  }, [authToken]);
+  useEffect(() => { fetchAnalytics('weekly', true); }, []);
 
-  const handleRangeChange = (range) => {
-    setActiveRange(range);
-    fetchAnalytics(range);
-  };
-
-  const handleExportPDF = async () => {
-    if (!reportRef.current) return;
-    setExporting(true);
-    try {
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 1.5,
-        useCORS: true,
-        backgroundColor: '#111111',
-        logging: false,
-      });
-      const imgData = canvas.toDataURL('image/jpeg', 0.85);
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      if (pdfHeight > pageHeight) {
-        let position = 0;
-        let remaining = canvas.height;
-        const pageCanvasHeight = (pageHeight * canvas.width) / pdfWidth;
-        
-        while (remaining > 0) {
-          const sliceHeight = Math.min(remaining, pageCanvasHeight);
-          const pageCanvas = document.createElement('canvas');
-          pageCanvas.width = canvas.width;
-          pageCanvas.height = sliceHeight;
-          const ctx = pageCanvas.getContext('2d');
-          ctx.drawImage(canvas, 0, position, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
-          
-          const pageImg = pageCanvas.toDataURL('image/jpeg', 0.85);
-          const slicePdfH = (sliceHeight * pdfWidth) / canvas.width;
-          
-          if (position > 0) pdf.addPage();
-          pdf.addImage(pageImg, 'JPEG', 0, 0, pdfWidth, slicePdfH);
-          
-          position += sliceHeight;
-          remaining -= sliceHeight;
-        }
-      } else {
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-      }
-      
-      // Use data URI to download with proper filename
-      const pdfBase64 = pdf.output('datauristring');
-      const a = document.createElement('a');
-      a.href = pdfBase64;
-      a.download = `SmartWarehouse-ExecutiveSummary-${new Date().toISOString().slice(0,10)}.pdf`;
-      a.click();
-      addToast(t.riskAnalysis.exportSuccess, 'info');
-    } catch (err) {
-      console.error('PDF Export failed:', err);
-      addToast(t.riskAnalysis.exportFailed, 'danger');
-    }
-    setExporting(false);
-  };
+  const handleRangeChange = (range) => { setActiveRange(range); fetchAnalytics(range); };
 
   if (loading) {
     return (
@@ -172,22 +95,13 @@ export default function RiskAnalysis() {
         <div>
           <h2 style={{ fontSize: '1.875rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>{t.riskAnalysis.executiveSummary}</h2>
         </div>
-        <button
-          onClick={handleExportPDF}
-          disabled={exporting}
-          className="btn"
-          style={{
-            display: 'flex', alignItems: 'center', gap: '0.5rem',
-            backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)',
-            border: 'none', fontWeight: '600', padding: '0.625rem 1.25rem',
-            opacity: exporting ? 0.6 : 1, cursor: exporting ? 'wait' : 'pointer'
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          {exporting ? t.riskAnalysis.generatingPdf : t.riskAnalysis.downloadReport}
-        </button>
+        {/* Report toast */}
+        {reportToast && (
+          <div style={{ fontSize: '0.875rem', padding: '0.625rem 1rem', borderRadius: '10px', backgroundColor: reportToastType === 'danger' ? 'rgba(239,68,68,0.08)' : 'rgba(34,197,94,0.08)', border: `1px solid ${reportToastType === 'danger' ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)'}`, color: reportToastType === 'danger' ? '#ef4444' : '#16a34a', fontWeight: '600' }}>
+            {reportToast}
+          </div>
+        )}
+        <ReportGenerator onSuccess={(msg, type) => { setReportToast(msg); setReportToastType(type || 'info'); setTimeout(() => setReportToast(''), 5000); }} />
       </div>
 
       {/* Report Content (captured for PDF) */}
@@ -342,6 +256,9 @@ export default function RiskAnalysis() {
             </div>
           </div>
         </div>
+
+        {/* Peak Hours Predictive Chart */}
+        <PeakHoursChart />
 
         {/* Warehouse Zone Map */}
         <WarehouseZoneMap zoneData={zoneData} recentLogs={recentLogs} />

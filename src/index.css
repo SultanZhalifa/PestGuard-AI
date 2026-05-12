@@ -1640,3 +1640,27 @@ body.dark-mode .login-submit {
   font-family: 'SFMono-Regular', Consolas, monospace;
 }
 
+/* ── PDF Report Generator button ── */
+.generate-report-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 1.375rem;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(59,130,246,0.25);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.generate-report-btn:disabled {
+  cursor: not-allowed;
+}
+
+

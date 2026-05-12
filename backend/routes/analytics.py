@@ -127,6 +127,87 @@ def get_analytics(time_range: str = "weekly", auth: bool = Depends(verify_token)
     return {"trend": trend, "distribution": distribution, "zone_activity": zone_activity}
 
 
+# ─── Peak Hours (Predictive Risk) ───
+@router.get("/analytics/peak-hours")
+def get_peak_hours(auth: bool = Depends(verify_token)):
+    """
+    Analyzes historical detection timestamps to identify peak risk hours per zone.
+    Returns hourly detection counts for the last 30 days + a per-zone breakdown.
+    """
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cutoff = (datetime.date.today() - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
+
+        # ── Global hourly heatmap (all zones, last 30d) ──
+        cursor.execute(
+            "SELECT CAST(SUBSTR(time,1,2) AS INTEGER) AS hr, COUNT(*) "
+            "FROM logs WHERE date>=? GROUP BY hr ORDER BY hr",
+            (cutoff,)
+        )
+        global_slots = {h: 0 for h in range(24)}
+        for hr, cnt in cursor.fetchall():
+            if 0 <= hr <= 23:
+                global_slots[hr] = cnt
+        global_hourly = [
+            {"hour": f"{h:02d}:00", "count": global_slots[h], "label": f"{h:02d}:00"}
+            for h in range(24)
+        ]
+
+        # ── Top 3 peak hours ──
+        sorted_hours = sorted(global_slots.items(), key=lambda x: x[1], reverse=True)
+        peak_hours = [
+            {"hour": f"{h:02d}:00", "count": c, "risk_score": min(100, int(c * 10))}
+            for h, c in sorted_hours[:3] if c > 0
+        ]
+
+        # ── Per-zone peak hour breakdown ──
+        cursor.execute(
+            "SELECT location, CAST(SUBSTR(time,1,2) AS INTEGER) AS hr, COUNT(*) "
+            "FROM logs WHERE date>=? GROUP BY location, hr",
+            (cutoff,)
+        )
+        zone_map: dict[str, dict[int, int]] = {}
+        for loc, hr, cnt in cursor.fetchall():
+            if loc not in zone_map:
+                zone_map[loc] = {}
+            if 0 <= hr <= 23:
+                zone_map[loc][hr] = cnt
+
+        zone_peaks = []
+        for zone, hrs in zone_map.items():
+            if hrs:
+                worst_hr = max(hrs, key=hrs.get)
+                total = sum(hrs.values())
+                zone_peaks.append({
+                    "zone": zone,
+                    "peak_hour": f"{worst_hr:02d}:00",
+                    "peak_count": hrs[worst_hr],
+                    "total_30d": total,
+                    "risk_score": min(100, int((hrs[worst_hr] / max(total, 1)) * 100 + total * 5)),
+                })
+        zone_peaks.sort(key=lambda x: x["risk_score"], reverse=True)
+
+        # ── Tonight prediction (18:00-06:00 window) ──
+        cursor.execute(
+            "SELECT CAST(SUBSTR(time,1,2) AS INTEGER) AS hr, COUNT(*) "
+            "FROM logs WHERE date>=? AND (CAST(SUBSTR(time,1,2) AS INTEGER) >= 18 "
+            "OR CAST(SUBSTR(time,1,2) AS INTEGER) <= 6) GROUP BY hr",
+            (cutoff,)
+        )
+        night_counts = sum(cnt for _, cnt in cursor.fetchall())
+        cursor.execute("SELECT COUNT(*) FROM logs WHERE date>=?", (cutoff,))
+        total_30d = cursor.fetchone()[0] or 1
+        night_pct = int((night_counts / total_30d) * 100)
+
+    return {
+        "hourly": global_hourly,
+        "peak_hours": peak_hours,
+        "zone_peaks": zone_peaks,
+        "night_risk_pct": night_pct,
+        "period_days": 30,
+    }
+
+
 # ─── System Status ───
 @router.get("/status")
 def get_status(auth: bool = Depends(verify_token)):
