@@ -409,24 +409,23 @@ export default function ReportGenerator({ onSuccess }) {
     <button
       onClick={generate}
       disabled={loading}
-      className="generate-report-btn"
-      style={{ opacity: loading ? 0.7 : 1 }}
-      onMouseOver={(e) => { if (!loading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(59,130,246,0.35)'; } }}
-      onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(59,130,246,0.25)'; }}
+      className="btn"
+      style={{
+        display: 'flex', alignItems: 'center', gap: '0.5rem',
+        backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)',
+        border: '1px solid var(--border-color)', opacity: loading ? 0.7 : 1,
+        transition: 'all 0.2s ease', cursor: loading ? 'not-allowed' : 'pointer'
+      }}
     >
       {loading ? (
         <>
-          <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-          Generating PDF...
+          <div style={{ width: 16, height: 16, border: '2px solid rgba(0,0,0,0.1)', borderTopColor: 'var(--text-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          Generating...
         </>
       ) : (
         <>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-            <polyline points="10 9 9 9 8 9"/>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
           Generate PDF Report
         </>
