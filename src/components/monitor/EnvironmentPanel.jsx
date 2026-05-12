@@ -96,6 +96,34 @@ export default function EnvironmentPanel() {
           Dispatch Security Team
         </button>
       </div>
+
+      {/* Security Shift Status Card */}
+      <div className="card" style={{ padding: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+          <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div>
+            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Active Shift</h3>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>Security personnel status</p>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '0.75rem', borderBottom: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e' }} />
+            <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-primary)' }}>Officer: Budi Santoso</span>
+          </div>
+          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ID: #SEC-089</span>
+        </div>
+        
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.75rem' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>System Link</span>
+          <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>Secured (AES-256)</span>
+        </div>
+      </div>
     </div>
   );
 }
