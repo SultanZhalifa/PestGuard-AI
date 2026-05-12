@@ -114,7 +114,7 @@ export default function EnvironmentPanel() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '0.75rem', borderBottom: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e' }} />
-            <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-primary)' }}>Officer: Budi Santoso</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-primary)' }}>Officer: Misha Andalusia</span>
           </div>
           <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ID: #SEC-089</span>
         </div>
