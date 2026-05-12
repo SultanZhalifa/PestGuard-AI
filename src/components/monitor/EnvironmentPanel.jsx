@@ -53,7 +53,7 @@ export default function EnvironmentPanel() {
       {/* Quick Actions Card */}
       <div className="card" style={{ padding: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'var(--alert-danger-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--alert-danger)' }}>
+          <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
@@ -67,9 +67,9 @@ export default function EnvironmentPanel() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
           <button
             onClick={() => handleQuickAction('Evacuation Alarm')}
-            style={{ padding: '0.6rem', fontSize: '0.75rem', fontWeight: '600', backgroundColor: 'var(--alert-danger-bg)', color: 'var(--alert-danger)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s' }}
-            onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--alert-danger)'; e.currentTarget.style.color = '#fff'; }}
-            onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'var(--alert-danger-bg)'; e.currentTarget.style.color = 'var(--alert-danger)'; }}
+            style={{ padding: '0.6rem', fontSize: '0.75rem', fontWeight: '600', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s' }}
+            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--alert-danger)'; e.currentTarget.style.color = 'var(--alert-danger)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             Sound Alarm
@@ -77,9 +77,9 @@ export default function EnvironmentPanel() {
           
           <button
             onClick={() => handleQuickAction('Zone Lockdown')}
-            style={{ padding: '0.6rem', fontSize: '0.75rem', fontWeight: '600', backgroundColor: 'var(--alert-warning-bg)', color: 'var(--alert-warning)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '8px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s' }}
-            onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--alert-warning)'; e.currentTarget.style.color = '#fff'; }}
-            onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'var(--alert-warning-bg)'; e.currentTarget.style.color = 'var(--alert-warning)'; }}
+            style={{ padding: '0.6rem', fontSize: '0.75rem', fontWeight: '600', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s' }}
+            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--alert-warning)'; e.currentTarget.style.color = 'var(--alert-warning)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             Lockdown
