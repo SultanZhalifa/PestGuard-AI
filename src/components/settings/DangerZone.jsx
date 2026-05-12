@@ -1,5 +1,6 @@
 import React from 'react';
 import { useToast } from '../ToastNotification';
+import api from '../../lib/apiClient';
 
 /**
  * DangerZone — destructive actions: clear logs, reset settings
@@ -7,23 +8,27 @@ import { useToast } from '../ToastNotification';
 export default function DangerZone({ authToken, setLogs, onResetSuccess }) {
   const { addToast } = useToast();
   const handleClearLogs = async () => {
-    if (!confirm('Are you sure?\n\nThis will permanently delete ALL detection logs from the database. This action cannot be undone.')) return;
+    if (!window.confirm('Are you sure?\n\nThis will permanently delete ALL detection logs from the database. This action cannot be undone.')) return;
     try {
-      const res = await fetch('/api/logs', { method: 'DELETE', headers: { Authorization: `Bearer ${authToken}` } });
+      const res = await api.delete('/logs');
       const data = await res.json();
-      if (res.ok) { setLogs([]); addToast(data.message || 'All logs cleared successfully.', 'success'); }
-      else addToast('Error: ' + (data.detail || 'Failed to clear logs.'), 'error');
-    } catch { addToast('Error: Server error. Could not clear logs.', 'error'); }
+      if (!res.ok) throw new Error(data.detail || 'Failed to clear logs.');
+      setLogs([]); 
+      addToast(data.message || 'All logs cleared successfully.', 'success');
+    } catch (err) { 
+      addToast(err.message || 'Error: Server error. Could not clear logs.', 'error'); 
+    }
   };
 
   const handleResetSettings = async () => {
-    if (!confirm('Reset all settings to factory defaults?\n\nCamera URL: 0\nThreshold: 50%\nNotifications: On')) return;
+    if (!window.confirm('Reset all settings to factory defaults?\n\nCamera URL: 0\nThreshold: 50%\nNotifications: On')) return;
     try {
-      const res = await fetch('/api/settings/reset', { method: 'POST', headers: { Authorization: `Bearer ${authToken}` } });
-      const data = await res.json();
-      if (res.ok) { onResetSuccess(); addToast(data.message || 'Settings restored to defaults.', 'success'); }
-      else addToast('Error: ' + (data.detail || 'Failed to reset settings.'), 'error');
-    } catch { addToast('Error: Server error. Could not reset settings.', 'error'); }
+      const data = await api.postJson('/settings/reset', {});
+      onResetSuccess(); 
+      addToast(data.message || 'Settings restored to defaults.', 'success');
+    } catch (err) { 
+      addToast(err.message || 'Error: Server error. Could not reset settings.', 'error'); 
+    }
   };
 
   const actions = [
