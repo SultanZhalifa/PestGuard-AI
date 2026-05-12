@@ -161,8 +161,8 @@ export default function AIPerformance() {
       {/* Model Info Banner */}
       <div className="card" style={{ padding: '1.5rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {Icons.cpu('#ffffff')}
+          <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {Icons.cpu('var(--text-primary)')}
           </div>
           <div>
             <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: '700', color: 'var(--text-primary)' }}>{modelInfo.model_file || 'YOLO Model'}</h3>
@@ -174,9 +174,9 @@ export default function AIPerformance() {
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           {modelInfo.class_names?.map((cls, i) => (
             <span key={i} style={{
-              padding: '0.375rem 0.75rem', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '700',
-              backgroundColor: cls === 'snake' ? 'var(--alert-danger-bg)' : cls === 'cat' ? 'var(--alert-warning-bg)' : 'rgba(34,197,94,0.15)',
-              color: cls === 'snake' ? 'var(--alert-danger)' : cls === 'cat' ? 'var(--alert-warning)' : '#22c55e',
+              padding: '0.375rem 0.75rem', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '600',
+              backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)',
               textTransform: 'uppercase', letterSpacing: '0.05em'
             }}>{cls}</span>
           ))}
