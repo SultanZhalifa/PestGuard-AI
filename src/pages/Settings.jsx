@@ -19,7 +19,7 @@ const TEAM = [
   { name: 'Sultan', role: 'Scrum Master', color: '#3b82f6', initials: 'SZ' },
   { name: 'Fathir', role: 'Backend & AI Lead', color: '#ef4444', initials: 'FF' },
   { name: 'Risly', role: 'Frontend Dev', color: '#8b5cf6', initials: 'RM' },
-  { name: 'Mishaandalusia', role: 'UI/UX Designer', color: '#f59e0b', initials: 'MS' },
+  { name: 'Misha', role: 'UI/UX Designer', color: '#f59e0b', initials: 'MS' },
 ];
 
 export default function Settings() {
