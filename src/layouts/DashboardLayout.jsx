@@ -132,7 +132,6 @@ export default function DashboardLayout() {
               <>
                 <img src="/ask ai.svg" alt="Ask AI" style={{ width: 18, height: 18, objectFit: 'contain', borderRadius: 4, flexShrink: 0, filter: isActive ? 'brightness(0) invert(1)' : 'none' }} />
                 Ask AI
-                <span style={{ fontSize: '0.55rem', fontWeight: '800', backgroundColor: '#3b82f6', color: '#fff', padding: '0.1rem 0.35rem', borderRadius: '99px', marginLeft: 'auto', letterSpacing: '0.03em' }}>NEW</span>
               </>
             )}
           </NavLink>
