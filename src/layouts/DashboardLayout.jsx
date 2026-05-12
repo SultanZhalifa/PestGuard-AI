@@ -128,7 +128,7 @@ export default function DashboardLayout() {
             {t.nav.detectionLogs}
           </NavLink>
           <NavLink to="/ask-ai" className={({ isActive }) => isActive ? "nav-link active" : "nav-link inactive"} style={{ position: 'relative' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <img src="/icon ask ai.png" alt="Ask AI" style={{ width: 18, height: 18, objectFit: 'contain', borderRadius: 4, flexShrink: 0 }} />
             Ask AI
             <span style={{ fontSize: '0.55rem', fontWeight: '800', backgroundColor: '#3b82f6', color: '#fff', padding: '0.1rem 0.35rem', borderRadius: '99px', marginLeft: 'auto', letterSpacing: '0.03em' }}>NEW</span>
           </NavLink>

@@ -3,23 +3,6 @@ import api from '../lib/apiClient';
 
 /* ─── SVG Icon Library (inline, no deps) ─── */
 const Icon = {
-  Bot: () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="11" width="18" height="10" rx="2"/>
-      <path d="M9 11V7a3 3 0 0 1 6 0v4"/>
-      <circle cx="9" cy="16" r="1" fill="white"/>
-      <circle cx="15" cy="16" r="1" fill="white"/>
-      <path d="M12 2v3M8 2h8"/>
-    </svg>
-  ),
-  BotSm: () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="11" width="18" height="10" rx="2"/>
-      <path d="M9 11V7a3 3 0 0 1 6 0v4"/>
-      <circle cx="9" cy="16" r="1" fill="white"/>
-      <circle cx="15" cy="16" r="1" fill="white"/>
-    </svg>
-  ),
   MapPin: () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
@@ -96,15 +79,20 @@ const WELCOME = {
   timestamp: new Date(),
 };
 
-/* ─── Bot avatar (reused in multiple spots) ─── */
+/* ─── Bot avatar using icon ask ai.png ─── */
 const BotAvatar = ({ size = 34 }) => (
   <div style={{
-    width: size, height: size, borderRadius: size > 40 ? '16px' : '10px',
-    background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    flexShrink: 0, boxShadow: size > 40 ? '0 4px 16px rgba(59,130,246,0.3)' : 'none',
+    width: size, height: size,
+    borderRadius: size > 40 ? '16px' : '10px',
+    flexShrink: 0,
+    overflow: 'hidden',
+    boxShadow: size > 40 ? '0 4px 16px rgba(59,130,246,0.25)' : 'none',
   }}>
-    {size > 40 ? <Icon.Bot /> : <Icon.BotSm />}
+    <img
+      src="/icon ask ai.png"
+      alt="AI Assistant"
+      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+    />
   </div>
 );
 
