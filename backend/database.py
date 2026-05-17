@@ -56,6 +56,24 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, location TEXT,
             date TEXT, time TEXT, confidence TEXT, risk TEXT)''')
 
+        # Persistent invite tokens (survives server restarts)
+        cursor.execute('''CREATE TABLE IF NOT EXISTS invite_tokens (
+            token TEXT PRIMARY KEY,
+            username TEXT NOT NULL,
+            email TEXT NOT NULL,
+            role TEXT NOT NULL DEFAULT 'operator',
+            expires REAL NOT NULL,
+            created_at REAL NOT NULL
+        )''')
+
+        # Persistent password reset codes (survives server restarts)
+        cursor.execute('''CREATE TABLE IF NOT EXISTS password_reset_codes (
+            email TEXT PRIMARY KEY,
+            code TEXT NOT NULL,
+            expires REAL NOT NULL,
+            attempts INTEGER NOT NULL DEFAULT 0
+        )''')
+
         # ── Migrations ──
         cursor.execute("PRAGMA table_info(users)")
         columns = [col[1] for col in cursor.fetchall()]

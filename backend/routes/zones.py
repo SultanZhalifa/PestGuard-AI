@@ -5,6 +5,7 @@ Multi-zone camera management with real-time
 status tracking via database persistence.
 """
 
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -50,20 +51,35 @@ def init_camera_zones():
             cursor.execute("SELECT source FROM camera_zones WHERE id=?", (z["id"],))
             row = cursor.fetchone()
             if row is None:
+                # New zone — insert with default source
                 cursor.execute(
                     "INSERT INTO camera_zones (id, name, location, source, status) "
                     "VALUES (?, ?, ?, ?, ?)",
                     (z["id"], z["name"], z["location"], z["source"], z["status"])
                 )
             else:
-                # Upgrade source path if existing row has empty/legacy value but
-                # default config now provides a real video. Don't overwrite if
-                # user has manually customised it.
                 existing = row[0] or ""
-                if z["source"] and (existing == "" or existing == z["id"]):
+                new_src = z["source"]
+                # Always update if:
+                # 1. Existing source is empty or equals the zone id (placeholder)
+                # 2. Existing source is a file path that no longer exists on disk
+                #    but the new default path does exist (handles project folder renames)
+                should_update = (
+                    not existing
+                    or existing == z["id"]
+                    or (
+                        new_src
+                        and existing != new_src
+                        and not existing.isdigit()
+                        and not existing.lower().startswith(("rtsp://", "http://", "https://"))
+                        and not os.path.exists(existing)
+                        and os.path.exists(new_src)
+                    )
+                )
+                if should_update and new_src:
                     cursor.execute(
                         "UPDATE camera_zones SET source=? WHERE id=?",
-                        (z["source"], z["id"])
+                        (new_src, z["id"])
                     )
 
 

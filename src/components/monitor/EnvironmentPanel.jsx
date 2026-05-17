@@ -1,51 +1,87 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from '../ToastNotification';
+import { useWarehouse } from '../../context/WarehouseContext';
+import api from '../../lib/apiClient';
 
 export default function EnvironmentPanel() {
   const { addToast } = useToast();
+  const { user } = useWarehouse();
+  const [systemStatus, setSystemStatus] = useState(null);
+
+  // Fetch live system status for real inference time and zone data
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const data = await api.getJson('/status');
+        setSystemStatus(data);
+      } catch { /* ignore */ }
+    };
+    fetch();
+    const interval = setInterval(fetch, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const inferenceMs = systemStatus?.ai_performance?.inference_time || 0;
+  const activeZoneCount = systemStatus?.active_zones?.length || 0;
+  const modelName = systemStatus?.ai_performance?.model || 'YOLO11-Nano';
+
+  // Derived "load" from inference time: 0–80ms → 0–100%
+  const inferenceLoad = Math.min(100, Math.round((inferenceMs / 80) * 100));
+  const loadColor = inferenceLoad > 70 ? 'var(--alert-danger)' : inferenceLoad > 40 ? 'var(--alert-warning)' : '#22c55e';
 
   const handleQuickAction = (actionName) => {
-    addToast(`${actionName} triggered successfully. Security team notified.`, 'success');
+    addToast(`${actionName} triggered. Security team notified.`, 'success');
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      {/* IoT Sensors Card */}
+      {/* AI System Status Card */}
       <div className="card" style={{ padding: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 9a4 4 0 0 0-2 7.5"/><path d="M12 3v2"/><path d="M6.6 18.4l-1.4 1.4"/><path d="M20 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z"/>
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
             </svg>
           </div>
           <div>
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Environment Sensors</h3>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>Warehouse condition metrics</p>
+            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>AI System Performance</h3>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>Live inference engine metrics</p>
           </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {/* Temperature */}
+          {/* Inference Time */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem', fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
-              <span>Temperature</span>
-              <span style={{ color: 'var(--text-primary)' }}>26°C</span>
+              <span>Inference Time</span>
+              <span style={{ color: inferenceMs > 0 ? loadColor : 'var(--text-secondary)' }}>
+                {inferenceMs > 0 ? `${inferenceMs}ms` : 'Idle'}
+              </span>
             </div>
             <div style={{ width: '100%', height: '6px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ width: '60%', height: '100%', backgroundColor: '#22c55e', borderRadius: '3px' }} />
+              <div style={{ width: `${inferenceLoad}%`, height: '100%', backgroundColor: loadColor, borderRadius: '3px', transition: 'width 0.5s ease' }} />
             </div>
           </div>
 
-          {/* Humidity */}
+          {/* Active Zones */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem', fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
-              <span>Humidity <span style={{ color: 'var(--alert-warning)', marginLeft: '4px' }}>High</span></span>
-              <span style={{ color: 'var(--alert-warning)' }}>78%</span>
+              <span>Active Detection Zones</span>
+              <span style={{ color: activeZoneCount > 0 ? '#22c55e' : 'var(--text-secondary)' }}>
+                {activeZoneCount} zone{activeZoneCount !== 1 ? 's' : ''}
+              </span>
             </div>
             <div style={{ width: '100%', height: '6px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ width: '78%', height: '100%', backgroundColor: 'var(--alert-warning)', borderRadius: '3px' }} />
+              <div style={{ width: `${(activeZoneCount / 4) * 100}%`, height: '100%', backgroundColor: '#22c55e', borderRadius: '3px', transition: 'width 0.5s ease' }} />
             </div>
-            <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', margin: '0.35rem 0 0' }}>High humidity increases pest risk.</p>
+          </div>
+
+          {/* Model badge */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.5rem', borderTop: '1px solid var(--border-color)' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>AI Model</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-primary)', backgroundColor: 'var(--bg-tertiary)', padding: '0.2rem 0.6rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+              {modelName}
+            </span>
           </div>
         </div>
       </div>
@@ -97,7 +133,7 @@ export default function EnvironmentPanel() {
         </button>
       </div>
 
-      {/* Security Shift Status Card */}
+      {/* Active Session Card — real user from context */}
       <div className="card" style={{ padding: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)' }}>
@@ -106,17 +142,21 @@ export default function EnvironmentPanel() {
             </svg>
           </div>
           <div>
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Active Shift</h3>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>Security personnel status</p>
+            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Active Session</h3>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>Current logged-in operator</p>
           </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '0.75rem', borderBottom: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e' }} />
-            <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-primary)' }}>Officer: Misha Andalusia</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-primary)' }}>
+              {user?.name || user?.username || 'Operator'}
+            </span>
           </div>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ID: #SEC-089</span>
+          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: '600', backgroundColor: 'var(--bg-tertiary)', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>
+            {user?.role || 'operator'}
+          </span>
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.75rem' }}>

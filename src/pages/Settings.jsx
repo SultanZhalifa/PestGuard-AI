@@ -200,7 +200,7 @@ export default function Settings() {
           <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>SmartWarehouse Dashboard</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-          <span>Build: <strong style={{ color: 'var(--text-primary)' }}>a5d6943</strong></span>
+          <span>Build: <strong style={{ color: 'var(--text-primary)' }}>4631948</strong></span>
           <span>Stack: <strong style={{ color: 'var(--text-primary)' }}>React 19 + FastAPI</strong></span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#22c55e', display: 'inline-block' }} />

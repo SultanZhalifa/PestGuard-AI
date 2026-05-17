@@ -50,12 +50,12 @@ DETECTION_COOLDOWN_SECONDS = 10.0
 TTS_COOLDOWN_SECONDS = 8.0
 DEFAULT_THRESHOLD = int(os.getenv("DEFAULT_THRESHOLD", "50"))
 
-# ─── In-Memory Stores (thread-safe) ───
+# ─── In-Memory Stores ───
+# Sessions are intentionally ephemeral — users re-login if server restarts.
+# Invite tokens and password reset codes are persisted in SQLite (see database.py).
 _sessions_lock = threading.RLock()
-_reset_codes_lock = threading.RLock()
 
 active_sessions: dict = {}          # token -> { username, role, expires }
-password_reset_codes: dict = {}     # email -> { code, expires, attempts }
 
 
 # ─── Thread-safe session helpers ───
@@ -80,22 +80,6 @@ def delete_all_user_sessions(username: str):
         to_delete = [t for t, s in active_sessions.items() if s.get('username') == username]
         for t in to_delete:
             del active_sessions[t]
-
-
-# ─── Thread-safe reset code helpers ───
-def get_reset_code(email: str) -> Optional[dict]:
-    with _reset_codes_lock:
-        return password_reset_codes.get(email)
-
-
-def set_reset_code(email: str, data: dict):
-    with _reset_codes_lock:
-        password_reset_codes[email] = data
-
-
-def delete_reset_code(email: str):
-    with _reset_codes_lock:
-        password_reset_codes.pop(email, None)
 
 
 # Separate rate limiters per endpoint type (prevents cross-contamination)
@@ -180,11 +164,6 @@ def _cleanup_rate_limiters():
             expired = [t for t, s in list(active_sessions.items()) if now > s.get('expires', 0)]
             for t in expired:
                 del active_sessions[t]
-        # Clean expired reset codes
-        with _reset_codes_lock:
-            expired_codes = [e for e, d in list(password_reset_codes.items()) if now > d.get('expires', 0)]
-            for e in expired_codes:
-                del password_reset_codes[e]
 
 
 threading.Thread(target=_cleanup_rate_limiters, daemon=True).start()

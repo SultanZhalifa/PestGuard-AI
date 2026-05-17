@@ -27,6 +27,8 @@ export default function UserManagement() {
   const [editingUser, setEditingUser] = useState(null);
   const [resetResult, setResetResult] = useState(null); // { username, temp_password }
   const [inviteResult, setInviteResult] = useState(null); // { invite_link }
+  const [resetCodes, setResetCodes] = useState(null); // [{ email, code, expires_in_seconds, attempts_used }]
+  const [loadingCodes, setLoadingCodes] = useState(false);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -87,6 +89,18 @@ export default function UserManagement() {
     }
   };
 
+  const handleViewResetCodes = async () => {
+    setLoadingCodes(true);
+    try {
+      const data = await apiFetch('/api/admin/reset-codes');
+      setResetCodes(data.reset_codes || []);
+    } catch (e) {
+      showToast(`Error: ${e.message}`);
+    } finally {
+      setLoadingCodes(false);
+    }
+  };
+
   return (
     <div className="page-transition" style={{ maxWidth: '1100px', margin: '0 auto', paddingBottom: '2rem' }}>
       {toast && (
@@ -105,6 +119,12 @@ export default function UserManagement() {
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>{t.userManagement.subtitle}</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
+          {currentUser?.role === 'admin' && (
+            <button onClick={handleViewResetCodes} disabled={loadingCodes} style={btnSecondary}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+              {loadingCodes ? 'Loading...' : 'Reset OTPs'}
+            </button>
+          )}
           <button onClick={() => setShowInvite(true)} style={btnSecondary}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
             {t.userManagement.inviteViaLink}
@@ -225,6 +245,39 @@ export default function UserManagement() {
           </div>
           <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
             <button onClick={() => setResetResult(null)} style={btnPrimary}>{t.userManagement.done}</button>
+          </div>
+        </Modal>
+      )}
+
+      {/* Reset codes modal (admin only) */}
+      {resetCodes !== null && (
+        <Modal onClose={() => setResetCodes(null)}>
+          <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>Active Password Reset OTPs</h3>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+            Codes below are valid and can be given to users to reset their password.
+          </p>
+          {resetCodes.length === 0 ? (
+            <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+              No active reset codes at the moment.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {resetCodes.map((rc, i) => (
+                <div key={i} style={{ padding: '0.875rem 1rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{rc.email}</span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>expires in {Math.floor(rc.expires_in_seconds / 60)}m</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.4rem' }}>
+                    <code style={{ fontFamily: '"Fira Code", monospace', fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '0.15em' }}>{rc.code}</code>
+                    <button onClick={() => { navigator.clipboard.writeText(rc.code); showToast('OTP copied!'); }} style={btnGhost}>Copy</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+            <button onClick={() => setResetCodes(null)} style={btnPrimary}>Close</button>
           </div>
         </Modal>
       )}

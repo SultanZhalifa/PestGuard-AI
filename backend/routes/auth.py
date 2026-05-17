@@ -3,6 +3,8 @@ Smart Warehouse — Authentication Routes
 =========================================
 Username-based login, invitation flow, token verification,
 forced password change, and email-based password recovery.
+All invite tokens and reset codes are persisted to SQLite DB
+so they survive server restarts.
 """
 
 import time
@@ -10,6 +12,7 @@ import hashlib
 import secrets
 import random
 import string
+import re
 
 from typing import Optional
 
@@ -17,16 +20,12 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Header
 from pydantic import BaseModel
 
 from config import (
-    active_sessions, password_reset_codes,
+    active_sessions,
     login_rate_limiter, forgot_pw_rate_limiter, invite_rate_limiter,
     check_rate_limit, record_attempt,
     verify_token, require_role,
 )
 from database import get_db
-
-# Store invite tokens in memory (for hackathon). In prod, use a DB table.
-# Format: { "token": { "email": "...", "role": "...", "expires": float } }
-invite_codes = {}
 
 router = APIRouter(prefix="/api", tags=["Authentication"])
 
@@ -99,14 +98,11 @@ def _verify_password(plain: str, stored_hash: str, salt: str) -> bool:
 
 
 # ─── Input Validation ───
-import re
-
 _USERNAME_RE = re.compile(r'^[a-zA-Z0-9_.-]{3,30}$')
 _EMAIL_RE = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
 
 
 def _validate_username(username: str):
-    """Validate username format: 3-30 chars, alphanumeric/underscore/dot/dash only."""
     if not _USERNAME_RE.match(username):
         raise HTTPException(
             status_code=400,
@@ -115,7 +111,6 @@ def _validate_username(username: str):
 
 
 def _validate_password(password: str):
-    """Validate password length (min 6, max 128 to prevent bcrypt DoS)."""
     if len(password) < 6:
         raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
     if len(password) > 128:
@@ -123,13 +118,11 @@ def _validate_password(password: str):
 
 
 def _validate_email(email: str):
-    """Basic email format validation."""
     if not _EMAIL_RE.match(email):
         raise HTTPException(status_code=400, detail="Invalid email format.")
 
 
 def _sanitize_name(name: str) -> str:
-    """Strip HTML tags and limit length."""
     import re as _re
     clean = _re.sub(r'<[^>]+>', '', name).strip()
     if len(clean) > 100:
@@ -137,6 +130,72 @@ def _sanitize_name(name: str) -> str:
     if not clean:
         raise HTTPException(status_code=400, detail="Name cannot be empty.")
     return clean
+
+
+# ─── DB helpers: invite tokens ───
+def _db_save_invite(token: str, username: str, email: str, role: str, expires: float):
+    with get_db() as conn:
+        conn.cursor().execute(
+            "INSERT OR REPLACE INTO invite_tokens (token, username, email, role, expires, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (token, username, email, role, expires, time.time())
+        )
+
+
+def _db_get_invite(token: str) -> dict | None:
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT username, email, role, expires FROM invite_tokens WHERE token=?", (token,)
+        )
+        row = cursor.fetchone()
+    if row:
+        return {"username": row[0], "email": row[1], "role": row[2], "expires": row[3]}
+    return None
+
+
+def _db_delete_invite(token: str):
+    with get_db() as conn:
+        conn.cursor().execute("DELETE FROM invite_tokens WHERE token=?", (token,))
+
+
+def _db_cleanup_expired_invites():
+    with get_db() as conn:
+        conn.cursor().execute("DELETE FROM invite_tokens WHERE expires<?", (time.time(),))
+
+
+# ─── DB helpers: password reset codes ───
+def _db_save_reset_code(email: str, code: str, expires: float):
+    with get_db() as conn:
+        conn.cursor().execute(
+            "INSERT OR REPLACE INTO password_reset_codes (email, code, expires, attempts) "
+            "VALUES (?, ?, ?, 0)",
+            (email, code, expires)
+        )
+
+
+def _db_get_reset_code(email: str) -> dict | None:
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT code, expires, attempts FROM password_reset_codes WHERE email=?", (email,)
+        )
+        row = cursor.fetchone()
+    if row:
+        return {"code": row[0], "expires": row[1], "attempts": row[2]}
+    return None
+
+
+def _db_increment_reset_attempts(email: str):
+    with get_db() as conn:
+        conn.cursor().execute(
+            "UPDATE password_reset_codes SET attempts=attempts+1 WHERE email=?", (email,)
+        )
+
+
+def _db_delete_reset_code(email: str):
+    with get_db() as conn:
+        conn.cursor().execute("DELETE FROM password_reset_codes WHERE email=?", (email,))
 
 
 # ─── Login ───
@@ -202,7 +261,6 @@ def login(request: LoginRequest, req: Request):
 @router.post("/change-password")
 def change_password(request: ChangePasswordRequest,
                     authorization: Optional[str] = Header(None)):
-    # Security: allow this endpoint even when must_change_password is set
     from config import verify_token as _verify
     session = _verify(authorization, allow_password_change=True)
     _validate_password(request.new_password)
@@ -227,20 +285,21 @@ def change_password(request: ChangePasswordRequest,
             (new_hash, new_salt, user_id)
         )
 
-    # Security: revoke all sessions for this user so stolen tokens can't persist
     _revoke_user_sessions(user_id)
-
     return {"status": "success", "message": "Password changed successfully."}
 
 
-# ─── Admin Invite System ───
+# ─── Admin Invite System (DB-persisted) ───
 @router.post("/invite-user")
 def invite_user(request: InviteRequest, req: Request,
                 session: dict = Depends(require_role("admin"))):
     _validate_username(request.username)
     _validate_email(request.email)
 
-    # Check if username or email already exists
+    # Cleanup stale invites first
+    _db_cleanup_expired_invites()
+
+    # Check if username or email already exists in users table
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -252,14 +311,20 @@ def invite_user(request: InviteRequest, req: Request,
                 status_code=400,
                 detail="A user with this username or email already exists."
             )
+        # Also check pending invites
+        cursor.execute(
+            "SELECT token FROM invite_tokens WHERE (username = ? COLLATE NOCASE OR email = ?) AND expires > ?",
+            (request.username, request.email, time.time())
+        )
+        if cursor.fetchone():
+            raise HTTPException(
+                status_code=400,
+                detail="A pending invitation for this username or email already exists."
+            )
 
     invite_token = secrets.token_urlsafe(32)
-    invite_codes[invite_token] = {
-        "username": request.username.lower(),
-        "email": request.email,
-        "role": request.role,
-        "expires": time.time() + 86400 * 3,  # Valid for 3 days
-    }
+    expires = time.time() + 86400 * 3  # Valid for 3 days
+    _db_save_invite(invite_token, request.username.lower(), request.email, request.role, expires)
 
     origin = req.headers.get("origin") or str(req.base_url).rstrip("/")
     invite_link = f"{origin}/accept-invite?token={invite_token}"
@@ -269,6 +334,7 @@ def invite_user(request: InviteRequest, req: Request,
         "message": f"Invitation generated for {request.email}",
         "invite_link": invite_link,
         "token": invite_token,
+        "expires_in_hours": 72,
     }
 
 
@@ -277,14 +343,14 @@ def accept_invite(request: AcceptInviteRequest, req: Request):
     client_ip = req.client.host if req.client else "unknown"
     check_rate_limit(invite_rate_limiter, client_ip, max_attempts=5, window_seconds=120)
 
-    invite = invite_codes.get(request.token)
+    invite = _db_get_invite(request.token)
     if not invite:
         record_attempt(invite_rate_limiter, client_ip)
         raise HTTPException(status_code=400, detail="Invalid or expired invitation token.")
 
     if time.time() > invite["expires"]:
         record_attempt(invite_rate_limiter, client_ip)
-        del invite_codes[request.token]
+        _db_delete_invite(request.token)
         raise HTTPException(status_code=400, detail="Invitation has expired.")
 
     _validate_password(request.password)
@@ -299,13 +365,13 @@ def accept_invite(request: AcceptInviteRequest, req: Request):
                 "VALUES (?, ?, ?, ?, ?, ?, 0)",
                 (invite["username"], invite["email"], pw_hash, salt, request.name, invite["role"])
             )
-            del invite_codes[request.token]
         except Exception:
             raise HTTPException(
                 status_code=400,
                 detail="Failed to create account. Username or email may already be in use."
             )
 
+    _db_delete_invite(request.token)
     return {"status": "success", "message": "Account created successfully. You can now log in."}
 
 
@@ -331,7 +397,7 @@ def verify_token_endpoint(session: dict = Depends(verify_token)):
     }
 
 
-# ─── Forgot Password ───
+# ─── Forgot Password (DB-persisted, admin-viewable) ───
 @router.post("/forgot-password")
 def forgot_password(request: ForgotPasswordRequest, req: Request):
     client_ip = req.client.host if req.client else "unknown"
@@ -341,7 +407,7 @@ def forgot_password(request: ForgotPasswordRequest, req: Request):
     # Security: always return same response to prevent user enumeration
     generic_response = {
         "status": "success",
-        "message": "If an account with that email exists, a reset code has been generated. Check server console.",
+        "message": "If an account with that email exists, a reset code has been generated. Contact your administrator to obtain the code.",
     }
 
     with get_db() as conn:
@@ -353,22 +419,44 @@ def forgot_password(request: ForgotPasswordRequest, req: Request):
         return generic_response  # Don't reveal that email doesn't exist
 
     code = "".join(random.choices(string.digits, k=6))
-    password_reset_codes[request.email] = {
-        "code": code,
-        "expires": time.time() + 600,
-        "attempts": 0,
-    }
+    _db_save_reset_code(request.email, code, time.time() + 600)
 
-    # Security: OTP printed to server console only — NEVER returned in HTTP response
-    print(f"[SECURITY] Password reset OTP for {request.email}: {code}")
+    # Security: OTP printed to server console AND stored in DB for admin retrieval
+    print(f"[SECURITY] Password reset OTP for {request.email}: {code} (expires in 10 min)")
 
     return generic_response
+
+
+# ─── Admin: View Active Reset Codes ───
+@router.get("/admin/reset-codes")
+def list_reset_codes(session: dict = Depends(require_role("admin"))):
+    """Admin-only endpoint to view all active (non-expired) password reset codes."""
+    now = time.time()
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT email, code, expires, attempts FROM password_reset_codes WHERE expires > ?",
+            (now,)
+        )
+        rows = cursor.fetchall()
+
+    return {
+        "reset_codes": [
+            {
+                "email": row[0],
+                "code": row[1],
+                "expires_in_seconds": int(row[2] - now),
+                "attempts_used": row[3],
+            }
+            for row in rows
+        ]
+    }
 
 
 # ─── Reset Password ───
 @router.post("/reset-password")
 def reset_password(request: ResetPasswordRequest):
-    stored = password_reset_codes.get(request.email)
+    stored = _db_get_reset_code(request.email)
 
     if not stored:
         raise HTTPException(
@@ -376,21 +464,21 @@ def reset_password(request: ResetPasswordRequest):
         )
 
     if time.time() > stored["expires"]:
-        del password_reset_codes[request.email]
+        _db_delete_reset_code(request.email)
         raise HTTPException(
             status_code=400, detail="Reset code has expired. Please request a new one."
         )
 
     if stored["attempts"] >= 3:
-        del password_reset_codes[request.email]
+        _db_delete_reset_code(request.email)
         raise HTTPException(
             status_code=400,
             detail="Too many failed attempts. Please request a new reset code.",
         )
 
     if stored["code"] != request.code:
-        stored["attempts"] += 1
-        remaining = 3 - stored["attempts"]
+        _db_increment_reset_attempts(request.email)
+        remaining = 3 - (stored["attempts"] + 1)
         raise HTTPException(
             status_code=400,
             detail=f"Invalid reset code. {remaining} attempt(s) remaining.",
@@ -409,7 +497,7 @@ def reset_password(request: ResetPasswordRequest):
             (new_hash, new_salt, request.email),
         )
 
-    del password_reset_codes[request.email]
+    _db_delete_reset_code(request.email)
     return {
         "status": "success",
         "message": "Password updated successfully. You can now log in.",
