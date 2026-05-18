@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const MAX_DISPLAY = 20; // Max alerts shown in the panel at once
 
@@ -305,9 +306,9 @@ export default function AlertsPanel({ logs, t }) {
           }}
         >
           Showing {MAX_DISPLAY} most recent — view all in{' '}
-          <a href="/detection-logs" style={{ color: 'var(--accent-primary)', fontWeight: 700 }}>
+          <Link to="/logs" style={{ color: 'var(--accent-primary)', fontWeight: 700 }}>
             Detection Logs
-          </a>
+          </Link>
         </div>
       )}
     </div>
