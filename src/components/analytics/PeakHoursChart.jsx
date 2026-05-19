@@ -9,6 +9,10 @@ const RISK_COLOR = (count, max) => {
   return '#22c55e';
 };
 
+// Color constants used by rank labels
+const HEX = { danger: '#ef4444', warning: '#f59e0b', success: '#22c55e' };
+
+
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   const count = payload[0]?.value || 0;
