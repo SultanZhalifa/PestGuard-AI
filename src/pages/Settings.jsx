@@ -149,7 +149,7 @@ export default function Settings() {
             </React.Fragment>
           ))}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem' }}>
+        <div className="grid-2col" style={{ marginTop: '1.5rem' }}>
           {[
             ['Frontend Framework', 'React 19 + Vite 8'], ['Backend Framework', 'FastAPI + Uvicorn'],
             ['AI Model', 'YOLO11-Nano (Ultralytics)'], ['Computer Vision', 'OpenCV 4 + NumPy'],

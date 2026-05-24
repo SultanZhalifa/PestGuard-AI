@@ -170,7 +170,8 @@ export default function AlertsPanel({ logs, t }) {
             onClick={() => setAlertFilter(key)}
             style={{
               flex: 1,
-              padding: '4px 0',
+              padding: '6px 0',
+              minHeight: 32,
               border: `1px solid ${alertFilter === key ? (color || 'var(--text-primary)') : 'var(--border-color)'}`,
               borderRadius: 6,
               background: alertFilter === key ? (color || 'var(--text-primary)') : 'var(--bg-tertiary)',
@@ -363,9 +364,10 @@ function shareBtn(color) {
   return {
     background: 'transparent',
     border: `1px solid ${color}`,
-    borderRadius: 5,
+    borderRadius: 6,
     color,
-    width: 22, height: 22,
+    width: 28, height: 28,
+    minWidth: 28, minHeight: 28,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     cursor: 'pointer',
     padding: 0,
