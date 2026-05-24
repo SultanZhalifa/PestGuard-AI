@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
 import ZoneDetailModal from './ZoneDetailModal';
 import { useT } from '../hooks/useT';
+import api from '../lib/apiClient';
 
 export default function CameraGrid() {
   const { authToken } = useWarehouse();
@@ -13,7 +14,7 @@ export default function CameraGrid() {
 
   const fetchZones = useCallback(() => {
     if (!authToken) return;
-    fetch('/api/cameras', { headers: { 'Authorization': `Bearer ${authToken}` } })
+    api.get('/cameras')
       .then(r => r.ok ? r.json() : [])
       .then(data => setZones(data))
       .catch(() => {});
@@ -28,9 +29,11 @@ export default function CameraGrid() {
   // Cleanup: stop any zone we started when the tab closes / component unmounts
   useEffect(() => {
     const handleBeforeUnload = () => {
+      const base = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
       startedZonesRef.current.forEach(zoneId => {
+        const url = base ? `${base}/api/cameras/${zoneId}/toggle` : `/api/cameras/${zoneId}/toggle`;
         navigator.sendBeacon?.(
-          `/api/cameras/${zoneId}/toggle`,
+          url,
           new Blob([JSON.stringify({ state: false })], { type: 'application/json' })
         );
       });
@@ -44,18 +47,7 @@ export default function CameraGrid() {
   const toggleZone = async (zoneId, turnOn) => {
     setPendingZones(p => ({ ...p, [zoneId]: true }));
     try {
-      const res = await fetch(`/api/cameras/${zoneId}/toggle`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({ state: turnOn }),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail || 'Server error');
-      }
+      await api.postJson(`/cameras/${zoneId}/toggle`, { state: turnOn });
       if (turnOn) {
         startedZonesRef.current.add(zoneId);
       } else {

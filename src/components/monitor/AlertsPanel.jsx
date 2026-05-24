@@ -1,7 +1,34 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const MAX_DISPLAY = 20; // Max alerts shown in the panel at once
+const MAX_DISPLAY = 20;
+
+// ── End-to-end latency tracker ─────────────────────────────────────────────
+const latencyCache = new Map(); // log.id -> latencyMs
+
+function getAlertLatency(log) {
+  if (latencyCache.has(log.id)) return latencyCache.get(log.id);
+  // Parse backend timestamp from log.time (e.g. "14:35:22")
+  // Compare with current time to estimate alert-to-display latency
+  const now = Date.now();
+  // Store when this ID was first seen
+  if (!latencyCache.has(log.id)) {
+    const receiveMs = now;
+    // Parse detection time from log
+    const today = new Date().toDateString();
+    const detectionMs = log.date && log.time
+      ? new Date(`${log.date}T${log.time}`).getTime()
+      : null;
+    const latency = detectionMs && receiveMs - detectionMs > 0 && receiveMs - detectionMs < 30000
+      ? receiveMs - detectionMs
+      : null;
+    latencyCache.set(log.id, latency);
+    // Cleanup after 5 min
+    setTimeout(() => latencyCache.delete(log.id), 300000);
+    return latency;
+  }
+  return null;
+}
 
 const RISK_COLORS = {
   danger: '#ef4444',
@@ -225,6 +252,22 @@ export default function AlertsPanel({ logs, t }) {
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                   </svg>
                   {log.location}
+                  {/* End-to-end latency badge */}
+                  {(() => {
+                    const lat = getAlertLatency(log);
+                    if (!lat || lat <= 0) return null;
+                    const latColor = lat < 1000 ? '#22c55e' : lat < 3000 ? '#f59e0b' : '#ef4444';
+                    return (
+                      <span style={{
+                        marginLeft: 4, fontSize: '0.62rem', fontWeight: '700',
+                        color: latColor, background: `${latColor}15`,
+                        padding: '1px 5px', borderRadius: 4,
+                        border: `1px solid ${latColor}30`,
+                      }}>
+                        {lat < 1000 ? `${lat}ms` : `${(lat/1000).toFixed(1)}s`}
+                      </span>
+                    );
+                  })()}
                 </div>
               </div>
 
@@ -236,7 +279,7 @@ export default function AlertsPanel({ logs, t }) {
                 <div style={{ display: 'flex', gap: 4 }}>
                   {/* Telegram */}
                   <button
-                    onClick={() => window.open(`https://t.me/share/url?url=http://localhost:5173&text=${getShareText(log)}`, '_blank')}
+                    onClick={() => window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.origin)}&text=${getShareText(log)}`, '_blank')}
                     title="Share via Telegram"
                     style={shareBtn('#0088cc')}
                     onMouseOver={e => Object.assign(e.currentTarget.style, shareBtnHover('#0088cc'))}

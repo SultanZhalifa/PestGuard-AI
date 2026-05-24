@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
 import { useT } from '../hooks/useT';
+import api from '../lib/apiClient';
 
 const ROLE_OPTIONS = [
   { value: 'admin',    label: 'Admin' },
@@ -15,7 +16,7 @@ const ROLE_COLOR = {
 };
 
 export default function UserManagement() {
-  const { authToken, user: currentUser } = useWarehouse();
+  const { user: currentUser } = useWarehouse();
   const t = useT();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,42 +36,25 @@ export default function UserManagement() {
     setTimeout(() => setToast(''), 4000);
   };
 
-  const apiFetch = useCallback(async (url, options = {}) => {
-    const res = await fetch(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}`,
-        ...(options.headers || {}),
-      },
-    });
-    let data = null;
-    try { data = await res.json(); } catch { /* empty body */ }
-    if (!res.ok) {
-      throw new Error((data && data.detail) || `Request failed (${res.status})`);
-    }
-    return data;
-  }, [authToken]);
-
   const loadUsers = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
-      const data = await apiFetch('/api/users');
+      const data = await api.getJson('/users');
       setUsers(data || []);
     } catch (e) {
       setError(e.message);
     } finally {
       setLoading(false);
     }
-  }, [apiFetch]);
+  }, []);
 
   useEffect(() => { loadUsers(); }, [loadUsers]);
 
   const handleDelete = async (u) => {
     if (!window.confirm(t.userManagement.deleteConfirm.replace('{username}', u.username))) return;
     try {
-      await apiFetch(`/api/users/${u.id}`, { method: 'DELETE' });
+      await api.delete(`/users/${u.id}`);
       showToast(t.userManagement.userDeleted.replace('{username}', u.username));
       loadUsers();
     } catch (e) {
@@ -81,7 +65,7 @@ export default function UserManagement() {
   const handleResetPassword = async (u) => {
     if (!window.confirm(t.userManagement.resetConfirm.replace('{username}', u.username))) return;
     try {
-      const data = await apiFetch(`/api/users/${u.id}/reset-password`, { method: 'POST' });
+      const data = await api.postJson(`/users/${u.id}/reset-password`, {});
       setResetResult({ username: u.username, temp_password: data.temp_password });
       loadUsers();
     } catch (e) {
@@ -92,7 +76,7 @@ export default function UserManagement() {
   const handleViewResetCodes = async () => {
     setLoadingCodes(true);
     try {
-      const data = await apiFetch('/api/admin/reset-codes');
+      const data = await api.getJson('/admin/reset-codes');
       setResetCodes(data.reset_codes || []);
     } catch (e) {
       showToast(`Error: ${e.message}`);
@@ -102,7 +86,7 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="page-transition" style={{ maxWidth: '1100px', margin: '0 auto', paddingBottom: '2rem' }}>
+    <div style={{ maxWidth: '1100px', margin: '0 auto', paddingBottom: '2rem' }}>
       {toast && (
         <div style={{
           position: 'fixed', bottom: '2rem', right: '2rem',
@@ -308,7 +292,7 @@ export default function UserManagement() {
           onClose={() => setShowCreate(false)}
           onCreate={async (form) => {
             try {
-              await apiFetch('/api/users', { method: 'POST', body: JSON.stringify(form) });
+              await api.postJson('/users', form);
               showToast(t.userManagement.userCreated.replace('{username}', form.username));
               setShowCreate(false);
               loadUsers();
@@ -325,7 +309,7 @@ export default function UserManagement() {
           onClose={() => setShowInvite(false)}
           onInvite={async (form) => {
             try {
-              const data = await apiFetch('/api/invite-user', { method: 'POST', body: JSON.stringify(form) });
+              const data = await api.postJson('/invite-user', form);
               setShowInvite(false);
               setInviteResult({ invite_link: data.invite_link });
             } catch (e) {
@@ -343,7 +327,7 @@ export default function UserManagement() {
           onClose={() => setEditingUser(null)}
           onSave={async (patch) => {
             try {
-              await apiFetch(`/api/users/${editingUser.id}`, { method: 'PATCH', body: JSON.stringify(patch) });
+              await api.patchJson(`/users/${editingUser.id}`, patch);
               showToast(t.userManagement.userUpdated);
               setEditingUser(null);
               loadUsers();

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useWarehouse } from '../context/WarehouseContext';
 import CommandPalette from '../components/CommandPalette';
@@ -10,12 +10,113 @@ const ROLE_BADGE_COLORS = {
   operator: { bg: 'rgba(16, 185, 129, 0.15)', fg: '#059669', label: 'Operator' },
 };
 
+const PAGE_META = {
+  '/':               { title: 'Live Monitor',       subtitle: 'Real-time warehouse surveillance' },
+  '/logs':           { title: 'Detection Logs',      subtitle: 'Comprehensive history of AI-detected events' },
+  '/ask-ai':         { title: 'Ask AI',              subtitle: 'Warehouse assistant powered by Gemini 2.0 Flash' },
+  '/sop-mitigasi':   { title: 'SOP & ROI',           subtitle: 'Standard operating procedures and ROI calculator' },
+  '/analysis':       { title: 'Risk Analysis',       subtitle: 'Executive risk report and detection analytics' },
+  '/ai-performance': { title: 'AI Model Performance', subtitle: 'Custom-trained YOLO11 model metrics' },
+  '/users':          { title: 'User Management',     subtitle: 'Manage warehouse staff accounts, roles, and access' },
+  '/settings':       { title: 'Settings',            subtitle: 'System preferences and global configurations' },
+};
+
+const NavClock = memo(function NavClock() {
+  const [time, setTime] = useState(() => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  useEffect(() => {
+    const id = setInterval(() => setTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="top-nav-clock" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span style={{ fontSize: '0.8125rem', fontWeight: '600', color: 'var(--text-secondary)' }}>{time}</span>
+    </div>
+  );
+});
+
+const SearchHint = memo(function SearchHint({ hints }) {
+  const [text, setText] = useState(hints[0]);
+  const [phraseIdx, setPhraseIdx] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  const [cursorVisible, setCursorVisible] = useState(true);
+
+  useEffect(() => {
+    const id = setInterval(() => setCursorVisible(v => !v), 530);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const phrase = hints[phraseIdx];
+    let timer;
+    if (deleting) {
+      if (text === '') { setDeleting(false); setPhraseIdx(i => (i + 1) % hints.length); return; }
+      timer = setTimeout(() => setText(phrase.substring(0, text.length - 1)), 28);
+    } else {
+      if (text === phrase) { timer = setTimeout(() => setDeleting(true), 2200); return; }
+      const next = phrase[text.length];
+      const speed = next === ' ' ? 90 : 55 + Math.random() * 35;
+      timer = setTimeout(() => setText(phrase.substring(0, text.length + 1)), speed);
+    }
+    return () => clearTimeout(timer);
+  }, [text, deleting, phraseIdx, hints]);
+
+  return (
+    <span style={{ minWidth: '120px', display: 'inline-block', textAlign: 'left' }}>
+      {text}
+      <span style={{ display: 'inline-block', width: '1px', opacity: cursorVisible ? 1 : 0, marginLeft: '1px', color: 'var(--accent-primary)', transition: 'opacity 0.05s' }}>|</span>
+    </span>
+  );
+});
+
 export default function DashboardLayout() {
-  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-  const { alerts, logout, authToken, user, hasRole, darkMode, toggleDarkMode } = useWarehouse();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { alerts, logout, authToken, user, hasRole } = useWarehouse();
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
+  const prevAlertsLen = useRef(0);
+
+  // Close mobile sidebar + reset scroll on route change
+  useEffect(() => {
+    setIsSidebarOpen(false);
+    document.querySelector('.main-content')?.scrollTo({ top: 0, behavior: 'instant' });
+  }, [location.pathname]);
+
+  // ── Browser Audio Alarm for DANGER alerts ──────────────────────────────
+  useEffect(() => {
+    const newAlerts = alerts.slice(prevAlertsLen.current);
+    prevAlertsLen.current = alerts.length;
+    const dangerAlert = newAlerts.find(a => a.risk === 'danger');
+    if (dangerAlert) {
+      try {
+        // Use Web Audio API to generate alarm beeps (no external file needed)
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          const ctx = new AudioCtx();
+          const playBeep = (startTime, freq = 880) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value = freq;
+            osc.type = 'square';
+            gain.gain.setValueAtTime(0.3, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
+            osc.start(startTime);
+            osc.stop(startTime + 0.4);
+          };
+          // 3 alarm beeps
+          playBeep(ctx.currentTime, 880);
+          playBeep(ctx.currentTime + 0.5, 1100);
+          playBeep(ctx.currentTime + 1.0, 880);
+        }
+      } catch (e) {
+        console.warn('[ALARM] Web Audio API not available:', e);
+      }
+    }
+  }, [alerts]);
+  // ── End Alarm ──────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (!authToken) {
@@ -27,11 +128,6 @@ export default function DashboardLayout() {
     }
   }, [authToken, user, navigate]);
 
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
   const handleSignOut = (e) => {
     e.preventDefault();
     logout();
@@ -39,46 +135,24 @@ export default function DashboardLayout() {
   };
 
   const badge = ROLE_BADGE_COLORS[user?.role] || { bg: 'var(--bg-tertiary)', fg: 'var(--text-secondary)', label: user?.role || '—' };
+  const pageMeta = PAGE_META[location.pathname] || { title: 'Bio-Hazard Detection', subtitle: 'PT. Kawan Lama Surveillance' };
 
   const isMac = typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform);
 
-  // Typing animation for search hint — rotates through suggestions
   const searchHints = t.search.hints;
-  const [hintText, setHintText] = useState(t.search.hints[0]);
-  const [hintPhraseIdx, setHintPhraseIdx] = useState(0);
-  const [hintDeleting, setHintDeleting] = useState(false);
-  const [hintCursorVisible, setHintCursorVisible] = useState(true);
-
-  useEffect(() => {
-    const cursorBlink = setInterval(() => setHintCursorVisible(v => !v), 530);
-    return () => clearInterval(cursorBlink);
-  }, []);
-
-  useEffect(() => {
-    let timer;
-    const phrase = searchHints[hintPhraseIdx];
-    if (hintDeleting) {
-      if (hintText === '') {
-        setHintDeleting(false);
-        setHintPhraseIdx(i => (i + 1) % searchHints.length);
-      } else {
-        timer = setTimeout(() => setHintText(phrase.substring(0, hintText.length - 1)), 28);
-      }
-    } else {
-      if (hintText === phrase) {
-        timer = setTimeout(() => setHintDeleting(true), 2200);
-      } else {
-        const next = phrase[hintText.length];
-        const speed = next === ' ' ? 90 : 55 + Math.random() * 35;
-        timer = setTimeout(() => setHintText(phrase.substring(0, hintText.length + 1)), speed);
-      }
-    }
-    return () => clearTimeout(timer);
-  }, [hintText, hintDeleting, hintPhraseIdx]);
 
   return (
     <div className="app-container">
       <CommandPalette />
+
+      {/* Mobile sidebar backdrop overlay */}
+      {isSidebarOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setIsSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
       {/* Real-Time Toast Notifications */}
       <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 9999, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -106,7 +180,7 @@ export default function DashboardLayout() {
       </div>
 
       {/* Sidebar Navigation */}
-      <aside className="sidebar" style={{ display: 'flex', flexDirection: 'column' }}>
+      <aside className={`sidebar${isSidebarOpen ? ' sidebar--open' : ''}`} style={{ display: 'flex', flexDirection: 'column' }}>
         {/* Logo */}
         <div className="logo" style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '2rem', flexShrink: 0 }}>
           <div style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -134,6 +208,10 @@ export default function DashboardLayout() {
                 Ask AI
               </>
             )}
+          </NavLink>
+          <NavLink to="/sop-mitigasi" className={({ isActive }) => isActive ? "nav-link active" : "nav-link inactive"}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            SOP & ROI
           </NavLink>
 
           {/* Analytics — only admin/manager */}
@@ -200,17 +278,35 @@ export default function DashboardLayout() {
       {/* Main Content Area */}
       <main className="main-content">
         {/* Top Header */}
-        <header className="top-nav" style={{ padding: '0 2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', height: '80px', backgroundColor: 'var(--glass-bg)' }}>
+        <header className="top-nav" style={{ padding: '0 2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', height: '64px', minHeight: '64px', maxHeight: '64px', flexShrink: 0, backgroundColor: 'var(--glass-bg)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div>
-              <h2 style={{ fontSize: '1.125rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>{t.header.title}</h2>
-              <p style={{ fontSize: '0.8125rem', fontWeight: '500', color: 'var(--text-secondary)', margin: '0.125rem 0 0 0' }}>{t.header.subtitle}</p>
+            {/* Hamburger — visible only on mobile */}
+            <button
+              className="hamburger-btn"
+              onClick={() => setIsSidebarOpen((v) => !v)}
+              aria-label="Toggle navigation"
+              aria-expanded={isSidebarOpen}
+            >
+              {isSidebarOpen ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+              )}
+            </button>
+            <div style={{ minWidth: 0 }}>
+              <h2 style={{ fontSize: '1.0625rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pageMeta.title}</h2>
+              <p style={{ fontSize: '0.75rem', fontWeight: '500', color: 'var(--text-secondary)', margin: '0.1rem 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pageMeta.subtitle}</p>
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            {/* Command palette trigger */}
+            {/* Command palette trigger — hidden on mobile */}
             <button
+              className="top-nav-search-btn"
               onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }))}
               title={`Quick search (${isMac ? '⌘' : 'Ctrl'}+K)`}
               style={{
@@ -227,42 +323,13 @@ export default function DashboardLayout() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
-              <span style={{ minWidth: '120px', display: 'inline-block', textAlign: 'left' }}>
-                {hintText}
-                <span style={{
-                  display: 'inline-block', width: '1px',
-                  opacity: hintCursorVisible ? 1 : 0,
-                  marginLeft: '1px', color: 'var(--accent-primary)',
-                  transition: 'opacity 0.05s',
-                }}>|</span>
-              </span>
+              <SearchHint hints={searchHints} />
               <span style={{
                 fontSize: '0.7rem', padding: '0.1rem 0.35rem',
                 background: 'var(--bg-secondary)', border: '1px solid var(--border-color)',
                 borderRadius: '4px', fontFamily: 'SFMono-Regular, Consolas, monospace',
                 color: 'var(--text-secondary)',
               }}>{isMac ? '⌘K' : 'Ctrl+K'}</span>
-            </button>
-
-            {/* Dark mode toggle */}
-            <button
-              onClick={() => toggleDarkMode(!darkMode)}
-              title={darkMode ? t.header.lightMode : t.header.darkMode}
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                width: '36px', height: '36px',
-                backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)',
-                borderRadius: '8px', color: 'var(--text-secondary)', cursor: 'pointer',
-                transition: 'all 0.2s ease', flexShrink: 0,
-              }}
-              onMouseOver={(e) => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--text-secondary)'; }}
-              onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}
-            >
-              {darkMode ? (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-              ) : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-              )}
             </button>
 
             {/* User info + role badge */}
@@ -278,17 +345,14 @@ export default function DashboardLayout() {
               </div>
             )}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-              <span style={{ fontSize: '0.8125rem', fontWeight: '600', color: 'var(--text-secondary)' }}>{currentTime}</span>
-            </div>
+            <NavClock />
 
           </div>
         </header>
 
         {/* Dynamic Page Content Rendered Here */}
         <div className="dashboard-content">
-          <div key={location.pathname} className="page-transition">
+          <div key={location.pathname} className="page-enter">
             <Outlet />
           </div>
         </div>

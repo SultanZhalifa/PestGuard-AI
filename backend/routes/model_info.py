@@ -5,6 +5,7 @@ Public endpoints exposing AI model metadata,
 training performance metrics, and system health status.
 """
 
+import logging
 import os
 import csv
 from pathlib import Path
@@ -77,7 +78,7 @@ def _parse_training_metrics():
             ],
         }
     except Exception as e:
-        print(f"[MODEL-INFO] Error parsing training metrics: {e}")
+        logging.error("[MODEL-INFO] Error parsing training metrics: %s", e)
         return None
 
 

@@ -16,6 +16,7 @@ const setDraw = (doc, hex) => { const [r, g, b] = hexToRgb(hex); doc.setDrawColo
 
 export default function ReportGenerator({ onSuccess }) {
   const [loading, setLoading] = useState(false);
+  const locale = localStorage.getItem('sw_language') === 'id' ? locale : 'en-US';
 
   const generate = async () => {
     setLoading(true);
@@ -74,10 +75,10 @@ export default function ReportGenerator({ onSuccess }) {
 
       // Date badge
       const now = new Date();
-      const dateStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+      const dateStr = now.toLocaleDateString(locale, { day: '2-digit', month: 'long', year: 'numeric' });
       doc.setFontSize(9);
       setColor(doc, '#94a3b8');
-      doc.text(`Generated: ${dateStr}  •  ${now.toLocaleTimeString('id-ID')}`, ML, 76);
+      doc.text(`Generated: ${dateStr}  •  ${now.toLocaleTimeString(locale)}`, ML, 76);
 
       y = 95;
 
@@ -390,7 +391,7 @@ export default function ReportGenerator({ onSuccess }) {
       doc.setFont('helvetica', 'normal');
       setColor(doc, HEX.secondary);
       doc.text('Smart Warehouse AI  •  PT. Kawan Lama Surveillance System  •  Confidential', PW / 2, footerY, { align: 'center' });
-      doc.text(`Digenerate otomatis pada ${dateStr} ${now.toLocaleTimeString('id-ID')}`, PW / 2, footerY + 5, { align: 'center' });
+      doc.text(`Digenerate otomatis pada ${dateStr} ${now.toLocaleTimeString(locale)}`, PW / 2, footerY + 5, { align: 'center' });
 
       // ── Save ──
       const filename = `Warehouse_Report_${now.toISOString().slice(0, 10)}.pdf`;

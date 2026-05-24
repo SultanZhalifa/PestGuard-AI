@@ -65,7 +65,7 @@ export default function Settings() {
 
   if (isLoading) {
     return (
-      <div className="page-transition" style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <div style={{ marginBottom: '2.5rem' }}>
           <div className="skeleton" style={{ height: 32, width: 160, marginBottom: 8 }} />
           <div className="skeleton" style={{ height: 16, width: 320 }} />
@@ -78,7 +78,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="page-transition" style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '2rem' }}>
+    <div style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '2rem' }}>
 
       {/* Page title */}
       <div style={{ marginBottom: '2.5rem' }}>

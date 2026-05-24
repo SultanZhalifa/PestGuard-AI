@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWarehouse } from '../context/WarehouseContext';
 import { useT } from '../hooks/useT';
+import api from '../lib/apiClient';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -45,31 +46,19 @@ export default function Login() {
           setIsLoading(false);
           return;
         }
-        const res = await fetch('/api/forgot-password', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: recoveryEmail })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setOtpCode(data.otp_code || '');
-          setSuccessMsg(t.login.resetCodeGenerated);
-          setMode('reset');
-        } else { setError(data.detail || t.login.sendCodeFailed); }
+        const data = await api.postJson('/forgot-password', { email: recoveryEmail });
+        setOtpCode(data.otp_code || '');
+        setSuccessMsg(t.login.resetCodeGenerated);
+        setMode('reset');
         setIsLoading(false);
         return;
       }
 
       if (mode === 'reset') {
-        const res = await fetch('/api/reset-password', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: recoveryEmail, code: resetCode, new_password: newPassword })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setSuccessMsg(data.message);
-          setResetCode(''); setNewPassword(''); setOtpCode('');
-          setMode('login');
-        } else { setError(data.detail || t.login.resetFailed); }
+        const data = await api.postJson('/reset-password', { email: recoveryEmail, code: resetCode, new_password: newPassword });
+        setSuccessMsg(data.message);
+        setResetCode(''); setNewPassword(''); setOtpCode('');
+        setMode('login');
         setIsLoading(false);
         return;
       }
@@ -80,24 +69,14 @@ export default function Login() {
         setIsLoading(false);
         return;
       }
-      const res = await fetch('/api/login', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setAuthToken(data.token, data.user);
-        if (data.user?.must_change_password) {
-          navigate('/change-password');
-        } else {
-          navigate('/');
-        }
+      const data = await api.postJson('/login', { username, password });
+      setAuthToken(data.token, data.user);
+      if (data.user?.must_change_password) {
+        navigate('/change-password');
       } else {
-        const errData = await res.json();
-        setError(errData.detail || t.login.invalidCredentials);
+        navigate('/');
       }
-    } catch { setError(t.login.serverError); }
+    } catch (e) { setError(e.message || t.login.serverError); }
     setIsLoading(false);
   };
 

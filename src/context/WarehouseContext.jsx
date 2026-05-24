@@ -39,10 +39,7 @@ export function WarehouseProvider({ children }) {
   const logout = useCallback(() => {
     const token = localStorage.getItem('sw_token');
     if (token) {
-      fetch('/api/logout', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-      }).catch(() => {});
+      api.post('/logout', {}).catch(() => {});
     }
     localStorage.removeItem('sw_token');
     localStorage.removeItem('sw_token_meta');
@@ -81,9 +78,7 @@ export function WarehouseProvider({ children }) {
       } catch { /* ignore */ }
     }
 
-    fetch('/api/verify-token', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
+    api.get('/verify-token')
       .then(res => {
         if (!res.ok) {
           logout();

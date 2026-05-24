@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWarehouse } from '../context/WarehouseContext';
+import api from '../lib/apiClient';
 
 export default function ChangePassword() {
   const navigate = useNavigate();
@@ -37,24 +38,12 @@ export default function ChangePassword() {
 
     setSubmitting(true);
     try {
-      const res = await fetch('/api/change-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.detail || 'Password change failed.');
-      } else {
-        setSuccess('Password changed successfully. Redirecting…');
-        updateUser({ must_change_password: false });
-        setTimeout(() => navigate('/'), 1200);
-      }
-    } catch {
-      setError('Cannot reach the server. Please try again.');
+      await api.postJson('/change-password', { current_password: currentPassword, new_password: newPassword });
+      setSuccess('Password changed successfully. Redirecting…');
+      updateUser({ must_change_password: false });
+      setTimeout(() => navigate('/'), 1200);
+    } catch (e) {
+      setError(e.message || 'Cannot reach the server. Please try again.');
     } finally {
       setSubmitting(false);
     }

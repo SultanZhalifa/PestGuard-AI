@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
 import { useToast } from './ToastNotification';
 import { useT } from '../hooks/useT';
+import api from '../lib/apiClient';
 
 const TRACKED_CLASSES = ['snake', 'cat', 'gecko', 'lizard'];
 
@@ -51,18 +52,12 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
     if (!authToken || !zone?.id) return;
     try {
       const [statsRes, logsRes] = await Promise.all([
-        fetch(`/api/zones/${zone.id}/stats`, {
-          headers: { Authorization: `Bearer ${authToken}` },
-        }),
-        fetch(`/api/logs?zone=${encodeURIComponent(zone.name)}&limit=20`, {
-          headers: { Authorization: `Bearer ${authToken}` },
-        }),
+        api.get(`/zones/${zone.id}/stats`),
+        api.get(`/logs?zone=${encodeURIComponent(zone.name)}&limit=20`),
       ]);
       if (statsRes.ok) setStats(await statsRes.json());
       if (logsRes.ok) setLogs(await logsRes.json());
-    } catch (err) {
-      console.error('Failed to fetch zone data:', err);
-    }
+    } catch { /* silently ignore — polling will retry */ }
   }, [authToken, zone?.id, zone?.name]);
 
   useEffect(() => {
@@ -108,9 +103,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
     }
     setSnapshotLoading(true);
     try {
-      const res = await fetch(`/api/cameras/${zone.id}/snapshot`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
+      const res = await api.get(`/cameras/${zone.id}/snapshot`);
       if (!res.ok) throw new Error('Snapshot failed');
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -132,9 +125,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
   };
 
   const exportLogs = () => {
-    if (!authToken) return;
-    const url = `/api/export/logs?token=${encodeURIComponent(authToken)}`;
-    window.open(url, '_blank');
+    window.open(api.streamUrl('/export/logs'), '_blank');
   };
 
   const filteredLogs = filter === 'all'
@@ -199,7 +190,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
               {isLive ? (
                 <img
                   key={`detail-${zone.id}-${zone.status}`}
-                  src={`/api/video_feed/${zone.id}?token=${authToken}`}
+                  src={api.streamUrl(`/video_feed/${zone.id}`)}
                   alt={zone.name}
                   style={{
                     width: rotation % 180 === 0 ? '100%' : '100%',

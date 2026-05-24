@@ -13,6 +13,7 @@ so the UI does not show broken thumbnails.
 Runs hourly in a daemon thread started from app.py.
 """
 
+import logging
 import os
 import time
 import threading
@@ -52,7 +53,7 @@ def _delete_files(paths):
             p.unlink()
             deleted_names.append(p.name)
         except OSError as e:
-            print(f"[RETENTION] Failed to delete {p.name}: {e}")
+            logging.error("[RETENTION] Failed to delete %s: %s", p.name, e)
 
     if not deleted_names:
         return 0
@@ -67,7 +68,7 @@ def _delete_files(paths):
                 deleted_names,
             )
     except Exception as e:
-        print(f"[RETENTION] Failed to clear DB references: {e}")
+        logging.error("[RETENTION] Failed to clear DB references: %s", e)
 
     return len(deleted_names)
 
@@ -100,9 +101,9 @@ def cleanup_once():
 
     deleted_count = _delete_files(to_delete)
     if deleted_count:
-        print(
-            f"[RETENTION] Deleted {deleted_count} snapshot(s) "
-            f"(age > {RETENTION_DAYS}d or count > {MAX_SNAPSHOT_COUNT})"
+        logging.info(
+            "[RETENTION] Deleted %d snapshot(s) (age > %dd or count > %d)",
+            deleted_count, RETENTION_DAYS, MAX_SNAPSHOT_COUNT,
         )
     return deleted_count
 
@@ -113,14 +114,14 @@ def _retention_loop():
     try:
         cleanup_once()
     except Exception as e:
-        print(f"[RETENTION] Startup cleanup error: {e}")
+        logging.error("[RETENTION] Startup cleanup error: %s", e)
 
     while True:
         time.sleep(CLEANUP_INTERVAL_SECONDS)
         try:
             cleanup_once()
         except Exception as e:
-            print(f"[RETENTION] Cleanup error: {e}")
+            logging.error("[RETENTION] Cleanup error: %s", e)
 
 
 def start_retention_thread():
@@ -132,7 +133,7 @@ def start_retention_thread():
         target=_retention_loop, daemon=True, name="snapshot-retention"
     )
     _cleanup_thread.start()
-    print(
-        f"[RETENTION] Started — keeping {MAX_SNAPSHOT_COUNT} most recent snapshots, "
-        f"max age {RETENTION_DAYS} days"
+    logging.info(
+        "[RETENTION] Started — keeping %d most recent snapshots, max age %d days",
+        MAX_SNAPSHOT_COUNT, RETENTION_DAYS,
     )

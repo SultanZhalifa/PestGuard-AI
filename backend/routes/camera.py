@@ -6,7 +6,9 @@ each running YOLO inference on its own video source
 (webcam, video file, or RTSP/HTTP stream).
 """
 
+import logging
 import os
+import queue
 import time
 import threading
 
@@ -19,11 +21,13 @@ from pydantic import BaseModel
 from config import (
     APP_SETTINGS, TRACKED_CLASSES, DANGER_CLASSES, WARNING_CLASSES,
     CLASS_NAME_MAP, DETECTION_COOLDOWN_SECONDS, TRANSLATE_DICT, verify_token,
+    INFERENCE_FRAME_SKIP, INFERENCE_QUEUE_SIZE,
 )
 from database import get_db
-from services.detector import model, draw_hud_bounding_box, get_risk_info
+from services.detector import model, model_device, draw_hud_bounding_box, get_risk_info
 from services.websocket_manager import manager
 from services.tts import speak_async
+from services.telegram_alert import send_telegram_alert
 
 router = APIRouter(prefix="/api", tags=["Camera"])
 
@@ -41,6 +45,7 @@ class ZoneWorker:
         self.source = source
         self.capture = None
         self.thread = None
+        self.inference_thread = None
         self.stop_flag = threading.Event()
         self.latest_frame_bytes = None
         self.latest_annotated_frame = None  # Keep annotated frame for snapshots
@@ -49,6 +54,12 @@ class ZoneWorker:
         self.lock = threading.Lock()
         self.running = False
         self._pending_logs: list = []
+        # Stores latest bounding box detections to overlay on all frames
+        self._latest_detections: list = []
+        self._detections_lock = threading.Lock()
+        # Queue for sending frames to the inference thread (size=1 drops stale frames)
+        self._inference_queue: queue.Queue = queue.Queue(maxsize=INFERENCE_QUEUE_SIZE)
+        self._frame_counter: int = 0
 
     def _open_capture(self):
         """Open the cv2.VideoCapture for this zone's source."""
@@ -67,7 +78,7 @@ class ZoneWorker:
         # File path or stream URL
         if not src.lower().startswith(("rtsp://", "http://", "https://")):
             if not os.path.exists(src):
-                print(f"[ZONE {self.zone_id}] Source file not found: {src}")
+                logging.warning("[ZONE %s] Source file not found: %s", self.zone_id, src)
                 return None
         return cv2.VideoCapture(src)
 
@@ -86,12 +97,16 @@ class ZoneWorker:
         self.running = True
         self.thread = threading.Thread(target=self._run_loop, daemon=True)
         self.thread.start()
+        self.inference_thread = threading.Thread(target=self._inference_loop, daemon=True)
+        self.inference_thread.start()
 
     def stop(self):
         self.stop_flag.set()
         self.running = False
         if self.thread:
             self.thread.join(timeout=3)
+        if self.inference_thread:
+            self.inference_thread.join(timeout=5)
         if self.capture is not None:
             self.capture.release()
             self.capture = None
@@ -103,6 +118,7 @@ class ZoneWorker:
                 self.latest_frame_bytes = buf.tobytes()
 
     def _run_loop(self):
+        """Capture frames at ~30 FPS, overlay latest detections, encode JPEG for streaming."""
         is_file = self._is_video_file()
         retry_count = 0
 
@@ -115,13 +131,12 @@ class ZoneWorker:
                 success, frame = self.capture.read()
                 if not success or frame is None:
                     if is_file:
-                        # Loop video file from start
                         self.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
                         time.sleep(0.05)
                         continue
                     retry_count += 1
                     if retry_count > 30:
-                        print(f"[ZONE {self.zone_id}] Stream lost, reconnecting...")
+                        logging.warning("[ZONE %s] Stream lost, reconnecting...", self.zone_id)
                         self.capture.release()
                         time.sleep(2)
                         self.capture = self._open_capture()
@@ -131,14 +146,27 @@ class ZoneWorker:
 
                 retry_count = 0
 
-                # Normalize portrait video to landscape before inference
-                if self._is_video_file():
+                # Normalize portrait video to landscape
+                if is_file:
                     h, w = frame.shape[:2]
                     if h > w:
                         frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
                     frame = cv2.resize(frame, (640, 360))
 
-                annotated = self._process_frame(frame)
+                # Every N frames, send to inference thread (non-blocking, drop if busy)
+                self._frame_counter += 1
+                if self._frame_counter % INFERENCE_FRAME_SKIP == 0:
+                    try:
+                        self._inference_queue.put_nowait(frame.copy())
+                    except queue.Full:
+                        pass  # Inference still busy — skip this frame
+
+                # Overlay last known detections onto current frame
+                annotated = frame.copy()
+                with self._detections_lock:
+                    detections = list(self._latest_detections)
+                for x1, y1, x2, y2, class_name, conf in detections:
+                    draw_hud_bounding_box(annotated, x1, y1, x2, y2, class_name, conf)
 
                 ok, buf = cv2.imencode(
                     ".jpg", annotated, [int(cv2.IMWRITE_JPEG_QUALITY), 80]
@@ -147,28 +175,58 @@ class ZoneWorker:
                     with self.lock:
                         self.latest_frame_bytes = buf.tobytes()
 
-                # Pace to ~30fps. For video files this maintains natural playback.
+                # Pace to ~30 FPS
                 time.sleep(0.033)
 
             except Exception as e:
-                print(f"[ZONE {self.zone_id}] Worker error: {e}")
+                logging.error("[ZONE %s] Worker error: %s", self.zone_id, e)
                 time.sleep(0.5)
 
-    def _process_frame(self, frame):
-        """Run YOLO inference on a single frame, log detections, return annotated frame."""
+    def _inference_loop(self):
+        """Run YOLO inference on queued frames without blocking the capture loop."""
+        use_half = model_device == "cuda"
+        while not self.stop_flag.is_set():
+            try:
+                frame = self._inference_queue.get(timeout=1.0)
+            except queue.Empty:
+                continue
+
+            try:
+                self._process_frame(frame, use_half=use_half)
+            except Exception as e:
+                logging.error("[ZONE %s] Inference error: %s", self.zone_id, e)
+
+    def _process_frame(self, frame, use_half: bool = False):
+        """Run YOLO inference, update latest_detections, log new detections."""
         if not model:
-            return frame
+            return
+
+        # ── Low-light Enhancement (CLAHE) ──────────────────────────────────
+        # Meningkatkan deteksi di kondisi cahaya rendah (gudang malam hari)
+        try:
+            lab = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
+            l_ch, a_ch, b_ch = cv2.split(lab)
+            clahe = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8))
+            l_ch = clahe.apply(l_ch)
+            frame = cv2.cvtColor(cv2.merge([l_ch, a_ch, b_ch]), cv2.COLOR_LAB2BGR)
+        except Exception:
+            pass  # Gunakan frame original jika preprocessing gagal
+        # ── End CLAHE ──────────────────────────────────────────────────────
 
         start = time.time()
-        results = model(frame, verbose=False, imgsz=320)
+        results = model(frame, verbose=False, imgsz=320, half=use_half)
         self.latest_inference_ms = int((time.time() - start) * 1000)
 
         threshold = APP_SETTINGS.get("threshold", 50) / 100.0
         now = time.time()
-        annotated = frame.copy()
 
         if len(results) == 0 or getattr(results[0], "boxes", None) is None:
-            return annotated
+            with self._detections_lock:
+                self._latest_detections = []
+            return
+
+        new_detections = []
+        pending_logs = []
 
         for box in results[0].boxes:
             cls_id = int(box.cls[0].item())
@@ -181,44 +239,57 @@ class ZoneWorker:
             if class_name not in TRACKED_CLASSES:
                 continue
 
-            # Cooldown per-class per-zone
+            x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
+
+            # ── Anti False-Positive Filter ──────────────────────────────────
+            # Hapus bounding box yang terlalu kecil (noise, bukan objek nyata)
+            w_box, h_box = x2 - x1, y2 - y1
+            if w_box < 20 or h_box < 20:
+                continue
+
+            # Snake: hewan elongated, aspect ratio harus > 1.4
+            # Mencegah false positive tali/selang dikira ular (tapi tali biasanya sangat panjang)
+            # Filter ini hanya untuk objek SANGAT kecil yang hampir kotak
+            if class_name == "Snake":
+                aspect = max(w_box, h_box) / max(min(w_box, h_box), 1)
+                if aspect < 1.3 and max(w_box, h_box) < 60:
+                    continue  # Terlalu kecil dan kotak — kemungkinan noise
+            # ── End Filter ─────────────────────────────────────────────────
+
+            new_detections.append((x1, y1, x2, y2, class_name, conf))
+
             last = self.last_detection_per_class.get(class_name, 0.0)
             if now - last > DETECTION_COOLDOWN_SECONDS:
                 self.last_detection_per_class[class_name] = now
-                self._pending_logs.append((class_name, conf))
+                pending_logs.append((class_name, conf))
 
-            x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
-            draw_hud_bounding_box(annotated, x1, y1, x2, y2, class_name, conf)
+        with self._detections_lock:
+            self._latest_detections = new_detections
 
-        # Save annotated frame reference for snapshot capture
-        self.latest_annotated_frame = annotated
+        # Log detections (snapshot uses current latest_frame_bytes)
+        for cls, cnf in pending_logs:
+            self._log_detection(cls, cnf)
 
-        # Log after drawing all bounding boxes (so snapshot includes all detections)
-        if self._pending_logs:
-            pending = self._pending_logs
-            self._pending_logs = []
-            for cls, cnf in pending:
-                self._log_detection(cls, cnf, annotated)
-
-        return annotated
-
-    def _log_detection(self, class_name: str, conf: float, annotated_frame=None):
+    def _log_detection(self, class_name: str, conf: float):
         """Persist detection to DB, save snapshot, and broadcast WebSocket alert."""
         risk_info = get_risk_info(class_name)
         risk_level = risk_info["level"]
         log_id = 0
         snapshot_path = ""
 
-        # Save detection snapshot
-        if annotated_frame is not None:
-            try:
+        # Save current JPEG frame as snapshot
+        try:
+            with self.lock:
+                frame_bytes = self.latest_frame_bytes
+            if frame_bytes:
                 ts = time.strftime("%Y%m%d_%H%M%S")
                 filename = f"{ts}_{class_name}_{self.zone_id}.jpg"
                 filepath = os.path.join(SNAPSHOT_DIR, filename)
-                cv2.imwrite(filepath, annotated_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+                with open(filepath, "wb") as f:
+                    f.write(frame_bytes)
                 snapshot_path = filename
-            except Exception as snap_err:
-                print(f"[SNAPSHOT-ERROR] {snap_err}")
+        except Exception as snap_err:
+            logging.error("[SNAPSHOT-ERROR] %s", snap_err)
 
         try:
             with get_db() as conn:
@@ -238,11 +309,9 @@ class ZoneWorker:
                 )
                 log_id = cursor.lastrowid
         except Exception as db_err:
-            print(f"[DB-ERROR] Zone {self.zone_id}: {db_err}")
+            logging.error("[DB-ERROR] Zone %s: %s", self.zone_id, db_err)
 
-        print(
-            f"[AUTO-LOG] {self.zone_name}: {class_name} ({conf*100:.1f}%) - {risk_level}"
-        )
+        logging.info("[AUTO-LOG] %s: %s (%.1f%%) - %s", self.zone_name, class_name, conf * 100, risk_level)
 
         indo = TRANSLATE_DICT.get(class_name, class_name)
         if risk_level == "danger":
@@ -253,7 +322,7 @@ class ZoneWorker:
         else:
             speak_async(f"Peringatan! Ada {indo} terdeteksi di {self.zone_name}.")
 
-        if APP_SETTINGS.get("notifications", False):
+        if APP_SETTINGS.get("notifications", True):
             manager.broadcast_sync({
                 "id": log_id,
                 "type": class_name,
@@ -263,7 +332,13 @@ class ZoneWorker:
                 "confidence": f"{int(conf * 100)}%",
                 "message": f"Detected {class_name} at {self.zone_name}",
                 "risk": risk_level,
+                "snapshot": snapshot_path,
             })
+
+        # ── Telegram Alert ─────────────────────────────────────────────────
+        # Kirim notifikasi ke Telegram untuk semua risk level
+        # (Konfigurasi TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID di .env)
+        send_telegram_alert(class_name, self.zone_name, conf, risk_level, snapshot_path)
 
 
 # ─── Zone Worker Registry ───

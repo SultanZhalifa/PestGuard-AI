@@ -52,7 +52,7 @@ export default function RiskAnalysis() {
 
   if (loading) {
     return (
-      <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '1rem 0' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '1rem 0' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div className="skeleton" style={{ height: 32, width: 250 }} />
           <div className="skeleton" style={{ height: 40, width: 160, borderRadius: 10 }} />
@@ -78,7 +78,7 @@ export default function RiskAnalysis() {
 
   if (fetchError) {
     return (
-      <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', minHeight: '400px', textAlign: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', minHeight: '400px', textAlign: 'center' }}>
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         <h3 style={{ color: 'var(--text-primary)', fontWeight: '600' }}>{t.riskAnalysis.failedAnalytics}</h3>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{t.riskAnalysis.serverUnavailable}</p>
@@ -88,7 +88,7 @@ export default function RiskAnalysis() {
   }
 
   return (
-    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
       
       {/* Header with PDF Export */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>

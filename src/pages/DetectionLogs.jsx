@@ -62,8 +62,7 @@ export default function DetectionLogs() {
     setIsExporting(true);
     try {
       // /export/logs auth uses ?token= query param (can't send headers on blob downloads)
-      const token = localStorage.getItem('sw_token') || '';
-      const res = await fetch(`/api/export/logs?token=${token}`);
+      const res = await fetch(api.streamUrl('/export/logs'));
       if (!res.ok) throw new Error('Export failed');
       const csvText = await res.text();
       const today = new Date().toISOString().slice(0, 10);
@@ -93,7 +92,7 @@ export default function DetectionLogs() {
   };
 
   return (
-    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
       {/* Summary Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>

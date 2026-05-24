@@ -5,6 +5,7 @@ Thread-safe SQLite connection management, schema initialization,
 and settings cache loader.
 """
 
+import logging
 import sqlite3
 import secrets
 import hashlib
@@ -130,13 +131,13 @@ def init_db():
                     "VALUES (?, ?, ?, ?, ?, ?, 1)",
                     (username, email, pw_hash, salt, name, role)
                 )
-                print(f"[SETUP] Created user '{username}' (role={role}) — password: {plain_pw}")
+                logging.warning("[SETUP] Created user '%s' (role=%s) — password: %s", username, role, plain_pw)
                 seeded_any = True
             except sqlite3.IntegrityError:
                 # Email already taken (e.g., legacy row with this email but different username)
                 pass
         if seeded_any:
-            print("[SETUP] WARNING: Save these passwords -- they won't be shown again!")
+            logging.warning("[SETUP] WARNING: Save these passwords -- they won't be shown again!")
 
         # ── Seed Default Settings ──
         cursor.execute("SELECT COUNT(*) FROM settings")

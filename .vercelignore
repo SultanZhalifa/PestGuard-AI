@@ -1,0 +1,35 @@
+# Backend Python files — runs locally, not on Vercel
+backend/
+
+# Model weights — large binary files
+*.pt
+
+# Python artifacts
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+.pytest_cache/
+
+# Local env secrets
+.env
+.env.local
+.env.production.local
+backend/.env
+
+# Training datasets
+backend/dataset/
+backend/dataset_merged/
+backend/runs/
+
+# Demo videos
+backend/demo_videos/
+
+# Snapshots
+backend/snapshots/
+
+# Server logs
+backend/server.log
+backend/warehouse.db
+
+# Docs
+docs/

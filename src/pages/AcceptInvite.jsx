@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import api from '../lib/apiClient';
 
 export default function AcceptInvite() {
   const navigate = useNavigate();
@@ -47,26 +48,13 @@ export default function AcceptInvite() {
     setError('');
 
     try {
-      const res = await fetch('/api/accept-invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, name, password })
-      });
-
-      const data = await res.json();
-      
-      if (res.ok) {
-        setSuccessMsg('Account setup complete! Redirecting to login...');
-        setTimeout(() => {
-          navigate('/login');
-        }, 2500);
-      } else {
-        setError(data.detail || 'Failed to setup account. The invite may have expired.');
-      }
-    } catch { 
-      setError('Cannot connect to server.'); 
+      await api.postJson('/accept-invite', { token, name, password });
+      setSuccessMsg('Account setup complete! Redirecting to login...');
+      setTimeout(() => navigate('/login'), 2500);
+    } catch (e) {
+      setError(e.message || 'Failed to setup account. The invite may have expired.');
     }
-    
+
     setIsLoading(false);
   };
 
