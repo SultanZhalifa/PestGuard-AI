@@ -81,6 +81,7 @@ h1, h2, h3, h4, h5, h6 {
   height: 100vh;
   flex-shrink: 0;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .main-content {
@@ -194,6 +195,7 @@ body.dark-mode .card:hover {
   height: 60%;
   background: var(--accent-primary);
   border-radius: 0 3px 3px 0;
+  pointer-events: none;
 }
 
 body.dark-mode .nav-link.active::before {
