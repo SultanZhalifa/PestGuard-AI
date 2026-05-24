@@ -190,7 +190,7 @@ export default function DashboardLayout() {
         </div>
 
         {/* Nav — scrollable middle section */}
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, overflowY: 'auto' }}>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
           {/* Main */}
           <p style={{ fontSize: '0.6rem', fontWeight: '800', letterSpacing: '0.12em', color: 'var(--text-secondary)', opacity: 0.5, margin: '0 0 0.4rem 0.6rem', textTransform: 'uppercase' }}>{t.nav.main}</p>
           <NavLink to="/" end className={({ isActive }) => isActive ? "nav-link active" : "nav-link inactive"}>
