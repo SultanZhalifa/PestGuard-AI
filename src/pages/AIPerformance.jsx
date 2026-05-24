@@ -347,7 +347,7 @@ export default function AIPerformance() {
                     padding: '1rem 0.75rem', borderRadius: '12px',
                     border: isActive ? '2px solid var(--text-primary)' : '1px solid var(--border-color)',
                     backgroundColor: isActive ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
-                    cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s ease',
+                    cursor: 'pointer', textAlign: 'center', transition: 'border-color 0.2s ease, background-color 0.2s ease',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem',
                   }}
                 >

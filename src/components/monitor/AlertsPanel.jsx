@@ -144,7 +144,7 @@ export default function AlertsPanel({ logs, t }) {
               display: 'flex',
               alignItems: 'center',
               gap: 4,
-              transition: 'all 0.15s',
+              transition: 'background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease',
             }}
             onMouseOver={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
             onMouseOut={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
@@ -181,7 +181,7 @@ export default function AlertsPanel({ logs, t }) {
               cursor: 'pointer',
               textTransform: 'uppercase',
               letterSpacing: '0.04em',
-              transition: 'all 0.15s',
+              transition: 'background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease',
             }}
           >
             {label}

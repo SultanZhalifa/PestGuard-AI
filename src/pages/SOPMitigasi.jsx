@@ -148,7 +148,7 @@ function ROISection() {
                   onChange={(e) => set(Number(e.target.value))}
                   style={{ flex: 1, accentColor: 'var(--accent-primary)' }}
                 />
-                <span style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)', minWidth: '80px', textAlign: 'right' }}>
+                <span className="roi-slider-value">
                   {isRupiah ? `Rp ${(state / 1_000_000).toFixed(1)}jt` : `${state}x`}
                 </span>
               </div>
@@ -177,7 +177,7 @@ function ROISection() {
                     onChange={(e) => set(Number(e.target.value))}
                     style={{ flex: 1, accentColor: 'var(--accent-primary)' }}
                   />
-                  <span style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)', minWidth: '90px', textAlign: 'right' }}>
+                  <span className="roi-slider-value">
                     Rp {(state / 1_000_000).toFixed(1)}jt
                   </span>
                 </div>
@@ -199,7 +199,7 @@ function ROISection() {
                   onChange={(e) => setReductionRate(Number(e.target.value))}
                   style={{ flex: 1, accentColor: '#059669' }}
                 />
-                <span style={{ fontSize: '0.82rem', fontWeight: '700', color: '#059669', minWidth: '45px', textAlign: 'right' }}>
+                <span className="roi-slider-value" style={{ color: '#059669' }}>
                   {reductionRate}%
                 </span>
               </div>
@@ -261,7 +261,7 @@ function SOPSection() {
               backgroundColor: selected === key ? val.bgColor : 'transparent',
               color: selected === key ? val.color : 'var(--text-secondary)',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
+              transition: 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease',
             }}
           >
             {key}
@@ -481,7 +481,7 @@ export default function SOPMitigasi() {
               backgroundColor: activeTab === tab.id ? 'rgba(99,102,241,0.08)' : 'transparent',
               color: activeTab === tab.id ? 'var(--accent-primary)' : 'var(--text-secondary)',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
+              transition: 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease',
             }}
           >
             {tab.label}

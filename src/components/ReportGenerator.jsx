@@ -415,7 +415,7 @@ export default function ReportGenerator({ onSuccess }) {
         display: 'flex', alignItems: 'center', gap: '0.5rem',
         backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)',
         border: '1px solid var(--border-color)', opacity: loading ? 0.7 : 1,
-        transition: 'all 0.2s ease', cursor: loading ? 'not-allowed' : 'pointer'
+        transition: 'border-color 0.2s ease, background-color 0.2s ease', cursor: loading ? 'not-allowed' : 'pointer'
       }}
     >
       {loading ? (

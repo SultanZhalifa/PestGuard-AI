@@ -53,7 +53,7 @@ function LatencyGauge({ ms }) {
           x1={cx} y1={cy}
           x2={tipX} y2={tipY}
           stroke={color} strokeWidth="2" strokeLinecap="round"
-          style={{ transition: 'all 0.5s ease' }}
+          style={{ transition: 'x2 0.5s ease, y2 0.5s ease' }}
         />
         {/* Center dot */}
         <circle cx={cx} cy={cy} r="3" fill={color} />

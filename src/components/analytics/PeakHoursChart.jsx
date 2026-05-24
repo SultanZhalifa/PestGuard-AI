@@ -86,7 +86,7 @@ export default function PeakHoursChart() {
       </div>
 
       {/* Top 3 Peak Hours */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
+      <div className="grid-3col" style={{ marginBottom: '1.5rem' }}>
         {data.peak_hours?.length > 0 ? data.peak_hours.map((p, i) => {
           const colors = ['#ef4444', '#f59e0b', '#22c55e'];
           const bgs = ['rgba(239,68,68,0.08)', 'rgba(245,158,11,0.08)', 'rgba(34,197,94,0.08)'];
@@ -98,8 +98,8 @@ export default function PeakHoursChart() {
               padding: '1rem', borderRadius: '12px', textAlign: 'center',
               backgroundColor: bgs[i], border: `1px solid ${borders[i]}`,
             }}>
-              <div style={{ fontWeight: '900', fontSize: '0.95rem', color: i === 0 ? HEX.danger : i === 1 ? HEX.warning : HEX.success, letterSpacing: '-0.05em', opacity: 0.6 }}>{ranks[i]}</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '800', color: colors[i], letterSpacing: '-0.025em' }}>{p.hour}</div>
+              <div style={{ fontWeight: '900', fontSize: '0.85rem', color: i === 0 ? HEX.danger : i === 1 ? HEX.warning : HEX.success, letterSpacing: '-0.05em', opacity: 0.6 }}>{ranks[i]}</div>
+              <div style={{ fontSize: 'clamp(1.1rem, 3.5vw, 1.5rem)', fontWeight: '800', color: colors[i], letterSpacing: '-0.025em' }}>{p.hour}</div>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '600', marginTop: '0.2rem' }}>{labels[i]}</div>
               <div style={{ fontSize: '0.75rem', color: colors[i], fontWeight: '700', marginTop: '0.25rem' }}>{p.count} deteksi</div>
             </div>
@@ -152,15 +152,15 @@ export default function PeakHoursChart() {
             {data.zone_peaks.map((z) => {
               const rColor = z.risk_score > 60 ? '#ef4444' : z.risk_score > 30 ? '#f59e0b' : '#22c55e';
               return (
-                <div key={z.zone} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-primary)', minWidth: 70 }}>{z.zone}</span>
-                  <div style={{ flex: 1, height: 8, backgroundColor: 'var(--bg-tertiary)', borderRadius: 4, overflow: 'hidden' }}>
+                <div key={z.zone} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-primary)', minWidth: 60 }}>{z.zone}</span>
+                  <div style={{ flex: 1, minWidth: 60, height: 8, backgroundColor: 'var(--bg-tertiary)', borderRadius: 4, overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${z.risk_score}%`, backgroundColor: rColor, borderRadius: 4, transition: 'width 0.6s ease' }} />
                   </div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: '700', color: rColor, minWidth: 48, textAlign: 'right' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: '700', color: rColor, textAlign: 'right' }}>
                     Peak {z.peak_hour}
                   </span>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', minWidth: 50, textAlign: 'right' }}>
+                  <span style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', textAlign: 'right' }}>
                     {z.total_30d} total
                   </span>
                 </div>

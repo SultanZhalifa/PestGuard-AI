@@ -88,7 +88,7 @@ export default function CameraGrid() {
   if (zones.length === 0) return null;
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem' }}>
+    <div className="camera-grid" style={{ marginTop: '1.5rem' }}>
       {zones.map((zone) => {
         const isLive = zone.status === 'live';
         const statusColor = getStatusColor(zone.status);
@@ -104,7 +104,7 @@ export default function CameraGrid() {
             style={{
               backgroundColor: 'var(--bg-secondary)', borderRadius: '16px',
               border: isLive ? `2px solid ${statusColor}` : '1px solid var(--border-color)',
-              overflow: 'hidden', transition: 'all 0.3s ease',
+              overflow: 'hidden', transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
               boxShadow: isLive ? `0 0 20px ${statusColor}20` : 'none',
               cursor: 'pointer',
             }}
@@ -205,13 +205,15 @@ export default function CameraGrid() {
                   onClick={(e) => { e.stopPropagation(); toggleZone(zone.id, !isLive); }}
                   disabled={isPending}
                   style={{
-                    padding: '0.35rem 0.75rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '700',
+                    padding: '0.45rem 0.875rem', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '700',
                     backgroundColor: isLive ? 'var(--bg-tertiary)' : 'var(--text-primary)',
                     color: isLive ? 'var(--text-primary)' : 'var(--bg-primary)',
                     border: '1px solid var(--border-color)',
                     cursor: isPending ? 'wait' : 'pointer',
                     opacity: isPending ? 0.6 : 1,
-                    transition: 'all 0.2s ease',
+                    transition: 'background-color 0.2s ease, color 0.2s ease',
+                    minHeight: '36px',
+                    flexShrink: 0,
                   }}>
                   {isPending ? '...' : (isLive ? t.cameraGrid.stop : t.cameraGrid.start)}
                 </button>

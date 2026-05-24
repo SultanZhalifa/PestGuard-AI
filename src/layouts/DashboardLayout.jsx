@@ -155,7 +155,7 @@ export default function DashboardLayout() {
       )}
 
       {/* Real-Time Toast Notifications */}
-      <div style={{ position: 'fixed', bottom: '1rem', left: '1rem', right: '1rem', zIndex: 9999, display: 'flex', flexDirection: 'column', gap: '0.75rem', pointerEvents: 'none' }}>
+      <div className="realtime-toast-container" style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 9999, display: 'flex', flexDirection: 'column', gap: '0.75rem', pointerEvents: 'none', maxWidth: '420px', width: 'calc(100vw - 3rem)' }}>
         {alerts.map((alert) => (
           <div key={alert.id} style={{
             backgroundColor: alert.risk === 'danger' ? 'var(--alert-danger-bg)' : 'var(--alert-warning-bg)',
@@ -263,7 +263,7 @@ export default function DashboardLayout() {
                 padding: '0.5rem 0.75rem', borderRadius: '8px',
                 backgroundColor: 'transparent', border: '1px solid var(--border-color)',
                 color: 'var(--text-secondary)', cursor: 'pointer',
-                fontSize: '0.8rem', fontWeight: '600', transition: 'all 0.2s ease',
+                fontSize: '0.8rem', fontWeight: '600', transition: 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease',
               }}
               onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239,68,68,0.08)'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)'; }}
               onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}
@@ -315,7 +315,7 @@ export default function DashboardLayout() {
                 border: '1px solid var(--border-color)', borderRadius: '8px',
                 color: 'var(--text-secondary)', cursor: 'pointer',
                 fontSize: '0.8125rem', fontWeight: '500',
-                transition: 'all 0.2s ease',
+                transition: 'border-color 0.2s ease, color 0.2s ease',
               }}
               onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--accent-primary)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
               onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
