@@ -8,36 +8,53 @@ label pills, and confidence bars.
 
 import logging
 import os
-import cv2
-import numpy as np
-from ultralytics import YOLO
 
 from config import (
     TRACKED_CLASSES, DANGER_CLASSES, WARNING_CLASSES, CLASS_NAME_MAP
 )
 
+# ─── Optional CV imports (not available in cloud/lite deployment) ───
+try:
+    import cv2
+    import numpy as np
+    CV2_AVAILABLE = True
+except ImportError:
+    cv2 = None
+    np = None
+    CV2_AVAILABLE = False
+    logging.info("[MODEL] cv2/numpy not available — camera features disabled")
+
+try:
+    from ultralytics import YOLO
+    YOLO_AVAILABLE = True
+except ImportError:
+    YOLO = None
+    YOLO_AVAILABLE = False
+    logging.info("[MODEL] ultralytics not available — AI detection disabled")
+
 # ─── Model Loading ───
 model = None
 model_device = "cpu"
 
-try:
-    import torch
-    model_device = "cuda" if torch.cuda.is_available() else "cpu"
-    logging.info("[MODEL] Using device: %s", model_device.upper())
-except ImportError:
-    pass
+if YOLO_AVAILABLE:
+    try:
+        import torch
+        model_device = "cuda" if torch.cuda.is_available() else "cpu"
+        logging.info("[MODEL] Using device: %s", model_device.upper())
+    except ImportError:
+        pass
 
-try:
-    if os.path.exists("warehouse_pest.pt"):
-        model = YOLO("warehouse_pest.pt")
-        logging.info("[MODEL] Loaded custom warehouse pest model (warehouse_pest.pt)")
-    elif os.path.exists("yolo11n.pt"):
-        model = YOLO("yolo11n.pt")
-        logging.warning("[MODEL] Custom model not found. Using YOLO11-nano (COCO).")
-    else:
-        logging.warning("[MODEL] No YOLO model weights found. AI detection disabled.")
-except Exception as e:
-    logging.error("[MODEL] Failed to load YOLO model: %s", e)
+    try:
+        if os.path.exists("warehouse_pest.pt"):
+            model = YOLO("warehouse_pest.pt")
+            logging.info("[MODEL] Loaded custom warehouse pest model (warehouse_pest.pt)")
+        elif os.path.exists("yolo11n.pt"):
+            model = YOLO("yolo11n.pt")
+            logging.warning("[MODEL] Custom model not found. Using YOLO11-nano (COCO).")
+        else:
+            logging.warning("[MODEL] No YOLO model weights found. AI detection disabled.")
+    except Exception as e:
+        logging.error("[MODEL] Failed to load YOLO model: %s", e)
 
 
 def get_risk_info(class_name: str):
@@ -66,13 +83,9 @@ def get_risk_info(class_name: str):
 
 
 def draw_hud_bounding_box(frame, x1, y1, x2, y2, class_name, conf):
-    """
-    Draw a premium HUD-style bounding box with:
-    - Corner brackets
-    - Semi-transparent overlay
-    - Label pill with class name, confidence, and risk tag
-    - Confidence bar at the bottom
-    """
+    """Draw HUD-style bounding box. No-op if cv2 is not available."""
+    if not CV2_AVAILABLE:
+        return frame
     risk = get_risk_info(class_name)
     color = risk["color"]
     accent = risk["accent"]

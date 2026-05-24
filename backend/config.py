@@ -24,7 +24,8 @@ DB_PATH = os.getenv("DB_PATH", str(BASE_DIR / "warehouse.db"))
 # ─── Security ───
 SECRET_KEY = os.getenv("SECRET_KEY", "smartwarehouse-dev-key-change-in-production")
 CORS_ORIGINS = [o.strip() for o in os.getenv(
-    "CORS_ORIGINS", "http://localhost:5173,http://localhost:3000"
+    "CORS_ORIGINS",
+    "http://localhost:5173,http://localhost:3000,https://smartwarehouse-ai.vercel.app"
 ).split(",")]
 
 # ─── AI Detection Scope (Case 1: Bio-Hazard & Pest Detection) ───
