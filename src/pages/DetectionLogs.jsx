@@ -95,7 +95,7 @@ export default function DetectionLogs() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
       {/* Summary Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+      <div className="grid-4col">
         {[
           { label: t.detectionLogs.totalDetections, value: counts.total, color: 'var(--text-primary)' },
           { label: t.detectionLogs.hazardEvents, value: counts.danger, color: '#ef4444' },
@@ -119,7 +119,7 @@ export default function DetectionLogs() {
             <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{t.detectionLogs.comprehensiveLog}</p>
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', width: '280px', flex: '1 1 auto' }}>
+            <div style={{ position: 'relative', width: '100%', maxWidth: '280px', flex: '1 1 180px', minWidth: 0 }}>
               <svg style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input
                 type="text"
@@ -139,7 +139,7 @@ export default function DetectionLogs() {
         </div>
 
         {/* Filter Tabs */}
-        <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', overflowX: 'auto', flexShrink: 0 }}>
           {RISK_FILTERS.map(f => (
             <button
               key={f.key}

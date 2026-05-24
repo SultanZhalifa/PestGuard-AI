@@ -185,7 +185,7 @@ export default function AIPerformance() {
 
       {/* Metric Cards */}
       {metrics && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+        <div className="grid-4col">
           {metricCards.map((m, i) => (
             <MetricCard key={i} {...m} />
           ))}
@@ -194,7 +194,7 @@ export default function AIPerformance() {
 
       {/* Training Info Bar */}
       {training && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+        <div className="grid-3col">
           <div className="card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)' }}>
               {Icons.zap()}
@@ -227,9 +227,9 @@ export default function AIPerformance() {
 
       {/* Training Curves */}
       {training?.training_curve && (
-        <div className="grid-layout" style={{ gridTemplateColumns: '1fr 1fr' }}>
+        <div className="grid-2col">
           {/* mAP Curve */}
-          <div className="card" style={{ height: '400px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
+          <div className="card" style={{ minHeight: '320px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
             <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{t.aiPerformance.mapOverTraining}</h3>
             <div style={{ flex: 1, minHeight: 0 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -257,7 +257,7 @@ export default function AIPerformance() {
           </div>
 
           {/* Loss Curve */}
-          <div className="card" style={{ height: '400px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
+          <div className="card" style={{ minHeight: '320px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
             <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{t.aiPerformance.validationLoss}</h3>
             <div style={{ flex: 1, minHeight: 0 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -280,7 +280,7 @@ export default function AIPerformance() {
       {artifacts.length > 0 && (
         <div className="card" style={{ padding: '2rem' }}>
           <h3 style={{ fontSize: '1.125rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{t.aiPerformance.trainingArtifacts}</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+          <div className="grid-4col">
             {artifacts.map((a) => {
               const isActive = activeArtifact === a.key;
               const iconColor = isActive ? 'var(--text-primary)' : 'var(--text-secondary)';
@@ -443,7 +443,7 @@ export default function AIPerformance() {
       {/* Risk Classification Reference */}
       <div className="card" style={{ padding: '2rem' }}>
         <h3 style={{ fontSize: '1.125rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{t.aiPerformance.detectionClassMapping}</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+        <div className="grid-3col">
           {[
             { cls: 'Snake', risk: 'DANGER', color: 'var(--alert-danger)', bg: 'var(--alert-danger-bg)', action: t.aiPerformance.immediateEvacuation, iconFn: Icons.snake },
             { cls: 'Cat', risk: 'WARNING', color: 'var(--alert-warning)', bg: 'var(--alert-warning-bg)', action: t.aiPerformance.contaminationAlert, iconFn: Icons.cat },

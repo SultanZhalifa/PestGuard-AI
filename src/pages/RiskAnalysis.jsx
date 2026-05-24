@@ -68,7 +68,7 @@ export default function RiskAnalysis() {
             {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 50, flex: 1 }} />)}
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <div className="grid-2col">
           <div className="skeleton-card" style={{ minHeight: 200 }}><div className="skeleton" style={{ height: '100%', minHeight: 160 }} /></div>
           <div className="skeleton-card" style={{ minHeight: 200 }}><div className="skeleton" style={{ height: '100%', minHeight: 160 }} /></div>
         </div>
@@ -160,10 +160,10 @@ export default function RiskAnalysis() {
         </div>
 
         {/* Charts Row */}
-        <div className="grid-layout" style={{ gridTemplateColumns: '1fr 1fr' }}>
-          
+        <div className="grid-2col">
+
           {/* Detection Trend Chart with Range Toggle */}
-          <div className="card" style={{ height: '420px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
+          <div className="card" style={{ minHeight: '320px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
               <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>
                 {t.riskAnalysis.detectionTrend}
@@ -230,7 +230,7 @@ export default function RiskAnalysis() {
           </div>
 
           {/* Risk Distribution Chart */}
-          <div className="card" style={{ height: '420px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
+          <div className="card" style={{ minHeight: '320px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
             <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--text-primary)' }}>{t.riskAnalysis.riskDistribution}</h3>
             <div style={{ flex: 1, minHeight: 0 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -266,7 +266,7 @@ export default function RiskAnalysis() {
         {/* Mitigation Protocol */}
         <div className="card" style={{ padding: '2rem' }}>
           <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{t.riskAnalysis.rapidResponse}</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
+          <div className="grid-3col">
             
             {/* Snake Protocol */}
             <div style={{ 

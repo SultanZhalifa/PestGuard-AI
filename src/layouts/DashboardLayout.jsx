@@ -155,14 +155,14 @@ export default function DashboardLayout() {
       )}
 
       {/* Real-Time Toast Notifications */}
-      <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 9999, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div style={{ position: 'fixed', bottom: '1rem', left: '1rem', right: '1rem', zIndex: 9999, display: 'flex', flexDirection: 'column', gap: '0.75rem', pointerEvents: 'none' }}>
         {alerts.map((alert) => (
           <div key={alert.id} style={{
             backgroundColor: alert.risk === 'danger' ? 'var(--alert-danger-bg)' : 'var(--alert-warning-bg)',
             border: `1px solid ${alert.risk === 'danger' ? 'var(--alert-danger)' : 'var(--alert-warning)'}`,
-            padding: '1rem 1.5rem', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+            padding: '1rem 1.25rem', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
             animation: 'toastSlideIn 0.4s cubic-bezier(0.21, 1.02, 0.73, 1)',
-            display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '300px'
+            display: 'flex', alignItems: 'center', gap: '1rem', pointerEvents: 'auto'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: alert.risk === 'danger' ? 'var(--alert-danger)' : 'var(--alert-warning)' }}>
               {alert.risk === 'danger' ? (

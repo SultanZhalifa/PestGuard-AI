@@ -97,12 +97,12 @@ export default function UserManagement() {
         }}>{toast}</div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>{t.userManagement.title}</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>{t.userManagement.subtitle}</p>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.25rem', letterSpacing: '-0.025em' }}>{t.userManagement.title}</h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{t.userManagement.subtitle}</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', gap: '0.625rem', flexWrap: 'wrap' }}>
           {currentUser?.role === 'admin' && (
             <button onClick={handleViewResetCodes} disabled={loadingCodes} style={btnSecondary}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
@@ -130,7 +130,8 @@ export default function UserManagement() {
         backgroundColor: 'var(--bg-secondary)', borderRadius: '20px',
         border: '1px solid var(--border-color)', overflow: 'hidden',
       }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', whiteSpace: 'nowrap' }}>
           <thead>
             <tr style={{ backgroundColor: 'var(--bg-tertiary)' }}>
               <th style={th}>{t.userManagement.username}</th>
@@ -211,6 +212,7 @@ export default function UserManagement() {
             })}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Reset password result modal */}

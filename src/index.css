@@ -408,6 +408,32 @@ body.dark-mode .nav-link.active::before {
   gap: 1rem;
 }
 
+/* ── Table horizontal scroll wrapper ── */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Responsive grid helpers ── */
+.grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.grid-4col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
 /* ── Mobile sidebar overlay backdrop ── */
 .sidebar-backdrop {
   display: none;
@@ -502,6 +528,19 @@ body.dark-mode .nav-link.active::before {
   .roi-results-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  /* Responsive grid helpers */
+  .grid-4col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-3col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-2col {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* =========================================
@@ -576,6 +615,34 @@ body.dark-mode .nav-link.active::before {
   .roi-results-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  /* Responsive grid helpers */
+  .grid-4col {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .grid-3col {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .grid-2col {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Remove card hover lift on mobile (prevents jank) */
+  .card:hover {
+    transform: none;
+  }
+
+  /* Panel titles smaller on mobile */
+  .panel-title {
+    font-size: 1rem;
+  }
+
+  /* Section title smaller */
+  .section-title {
+    font-size: 1rem;
+  }
 }
 
 /* =========================================
@@ -583,36 +650,73 @@ body.dark-mode .nav-link.active::before {
    ========================================= */
 @media (max-width: 480px) {
   .top-nav {
-    padding: 0.75rem !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+    padding: 0 0.875rem !important;
   }
 
   .dashboard-content {
     padding: 0.75rem !important;
   }
 
-  /* Single column on small mobile */
+  /* 2 column stat grid on small phones (not 1 col — wastes too much space) */
   .stat-grid {
-    grid-template-columns: 1fr !important;
-    gap: 0.75rem;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.625rem;
   }
 
-  .stat-card h3 {
-    font-size: 1.125rem !important;
+  .stat-card {
+    padding: 0.875rem !important;
+    gap: 0.625rem !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .stat-icon {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    border-radius: 9px !important;
+  }
+
+  .stat-value {
+    font-size: 1.25rem !important;
+  }
+
+  .stat-label {
+    font-size: 0.7rem !important;
+  }
+
+  .stat-sub {
+    font-size: 0.65rem !important;
   }
 
   .card {
-    border-radius: 12px;
+    border-radius: 14px;
+    padding: 1rem !important;
   }
 
   /* Hide clock in top nav to save space */
   .top-nav-clock {
-    display: none;
+    display: none !important;
   }
 
-  /* ROI results: single column */
+  /* ROI results: 2 compact cols */
   .roi-results-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.625rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  /* All multi-col grids collapse to single col */
+  .grid-4col,
+  .grid-3col {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.625rem !important;
+  }
+
+  .grid-2col {
+    grid-template-columns: 1fr !important;
   }
 
   /* Tab buttons wrap */
@@ -625,11 +729,15 @@ body.dark-mode .nav-link.active::before {
     display: none;
   }
 
-  /* Grid chart heights reduce */
-  .card[style*="height: '400px'"],
-  .card[style*="height:400px"] {
-    height: auto !important;
-    min-height: 280px;
+  /* Settings card less padding */
+  .settings-card {
+    padding: 1.25rem !important;
+  }
+
+  /* Panel header stacks on small mobile */
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 
