@@ -12,8 +12,15 @@ import queue
 import time
 import threading
 
-import cv2
-import numpy as np
+try:
+    import cv2
+    import numpy as np
+    CV2_AVAILABLE = True
+except ImportError:
+    cv2 = None
+    np = None
+    CV2_AVAILABLE = False
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -110,12 +117,12 @@ class ZoneWorker:
         if self.capture is not None:
             self.capture.release()
             self.capture = None
-        # Render a black frame so the UI shows NO SIGNAL after stop
-        black = np.zeros((480, 640, 3), dtype=np.uint8)
-        ok, buf = cv2.imencode(".jpg", black)
-        if ok:
-            with self.lock:
-                self.latest_frame_bytes = buf.tobytes()
+        if CV2_AVAILABLE:
+            black = np.zeros((480, 640, 3), dtype=np.uint8)
+            ok, buf = cv2.imencode(".jpg", black)
+            if ok:
+                with self.lock:
+                    self.latest_frame_bytes = buf.tobytes()
 
     def _run_loop(self):
         """Capture frames at ~30 FPS, overlay latest detections, encode JPEG for streaming."""
@@ -385,6 +392,11 @@ class ZoneToggleRequest(BaseModel):
 
 @router.post("/cameras/{zone_id}/toggle")
 def toggle_zone(zone_id: str, req: ZoneToggleRequest, auth: bool = Depends(verify_token)):
+    if not CV2_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="Camera features are not available in cloud deployment. Run the backend locally for live detection."
+        )
     cfg = _get_zone_config(zone_id)
     if not cfg:
         raise HTTPException(status_code=404, detail=f"Zone {zone_id} not found")
