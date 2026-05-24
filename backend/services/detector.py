@@ -6,6 +6,7 @@ HUD-style bounding box rendering with corner brackets,
 label pills, and confidence bars.
 """
 
+import logging
 import os
 import cv2
 import numpy as np
@@ -17,18 +18,26 @@ from config import (
 
 # ─── Model Loading ───
 model = None
+model_device = "cpu"
+
+try:
+    import torch
+    model_device = "cuda" if torch.cuda.is_available() else "cpu"
+    logging.info("[MODEL] Using device: %s", model_device.upper())
+except ImportError:
+    pass
 
 try:
     if os.path.exists("warehouse_pest.pt"):
         model = YOLO("warehouse_pest.pt")
-        print("[MODEL] Loaded custom warehouse pest model (warehouse_pest.pt)")
+        logging.info("[MODEL] Loaded custom warehouse pest model (warehouse_pest.pt)")
     elif os.path.exists("yolo11n.pt"):
         model = YOLO("yolo11n.pt")
-        print("[MODEL] Custom model not found. Using YOLO11-nano (COCO).")
+        logging.warning("[MODEL] Custom model not found. Using YOLO11-nano (COCO).")
     else:
-        print("[MODEL] No YOLO model weights found. AI detection disabled.")
+        logging.warning("[MODEL] No YOLO model weights found. AI detection disabled.")
 except Exception as e:
-    print(f"[MODEL] Failed to load YOLO model: {e}")
+    logging.error("[MODEL] Failed to load YOLO model: %s", e)
 
 
 def get_risk_info(class_name: str):

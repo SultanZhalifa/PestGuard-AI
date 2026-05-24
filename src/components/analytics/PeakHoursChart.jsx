@@ -86,36 +86,34 @@ export default function PeakHoursChart() {
       </div>
 
       {/* Top 3 Peak Hours */}
-      {data.peak_hours?.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
-          {data.peak_hours.map((p, i) => {
-            const colors = ['#ef4444', '#f59e0b', '#22c55e'];
-            const bgs = ['rgba(239,68,68,0.08)', 'rgba(245,158,11,0.08)', 'rgba(34,197,94,0.08)'];
-            const borders = ['rgba(239,68,68,0.2)', 'rgba(245,158,11,0.2)', 'rgba(34,197,94,0.2)'];
-            const ranks = ['01', '02', '03'];
-            const labels = ['Paling Berbahaya', 'Kedua', 'Ketiga'];
-            return (
-              <div key={i} style={{
-                padding: '1rem', borderRadius: '12px', textAlign: 'center',
-                backgroundColor: bgs[i], border: `1px solid ${borders[i]}`,
-              }}>
-                <div style={{ fontWeight: '900', fontSize: '0.95rem', color: i === 0 ? HEX.danger : i === 1 ? HEX.warning : HEX.success, letterSpacing: '-0.05em', opacity: 0.6 }}>{ranks[i]}</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: '800', color: colors[i], letterSpacing: '-0.025em' }}>{p.hour}</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '600', marginTop: '0.2rem' }}>{labels[i]}</div>
-                <div style={{ fontSize: '0.75rem', color: colors[i], fontWeight: '700', marginTop: '0.25rem' }}>{p.count} deteksi</div>
-              </div>
-            );
-          })}
-          {data.peak_hours.length === 0 && (
-            <div style={{ gridColumn: '1 / -1', padding: '1.5rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.875rem', backgroundColor: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-              Belum cukup data historis untuk prediksi jam puncak.
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
+        {data.peak_hours?.length > 0 ? data.peak_hours.map((p, i) => {
+          const colors = ['#ef4444', '#f59e0b', '#22c55e'];
+          const bgs = ['rgba(239,68,68,0.08)', 'rgba(245,158,11,0.08)', 'rgba(34,197,94,0.08)'];
+          const borders = ['rgba(239,68,68,0.2)', 'rgba(245,158,11,0.2)', 'rgba(34,197,94,0.2)'];
+          const ranks = ['01', '02', '03'];
+          const labels = ['Paling Berbahaya', 'Kedua', 'Ketiga'];
+          return (
+            <div key={i} style={{
+              padding: '1rem', borderRadius: '12px', textAlign: 'center',
+              backgroundColor: bgs[i], border: `1px solid ${borders[i]}`,
+            }}>
+              <div style={{ fontWeight: '900', fontSize: '0.95rem', color: i === 0 ? HEX.danger : i === 1 ? HEX.warning : HEX.success, letterSpacing: '-0.05em', opacity: 0.6 }}>{ranks[i]}</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: '800', color: colors[i], letterSpacing: '-0.025em' }}>{p.hour}</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '600', marginTop: '0.2rem' }}>{labels[i]}</div>
+              <div style={{ fontSize: '0.75rem', color: colors[i], fontWeight: '700', marginTop: '0.25rem' }}>{p.count} deteksi</div>
             </div>
-          )}
-        </div>
-      )}
+          );
+        }) : (
+          <div style={{ gridColumn: '1 / -1', padding: '1.5rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.875rem', backgroundColor: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+            Belum cukup data historis untuk prediksi jam puncak.
+          </div>
+        )}
+      </div>
 
       {/* 24-hour bar chart */}
-      <ResponsiveContainer width="100%" height={160}>
+      <div style={{ width: '100%', height: 160 }}>
+      <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data.hourly} margin={{ top: 4, right: 4, left: -20, bottom: 0 }} barSize={7}>
           <XAxis
             dataKey="label"
@@ -132,6 +130,7 @@ export default function PeakHoursChart() {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      </div>
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginTop: '0.75rem', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
         {[['#ef4444', 'Risiko Tinggi'], ['#f59e0b', 'Sedang'], ['#22c55e', 'Rendah']].map(([color, label]) => (

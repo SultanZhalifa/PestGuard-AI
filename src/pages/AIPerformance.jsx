@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
 import { useT } from '../hooks/useT';
+import api from '../lib/apiClient';
 
 /* ─── Inline SVG Icon Components ─── */
 const Icons = {
@@ -102,8 +103,7 @@ export default function AIPerformance() {
   const [activeArtifact, setActiveArtifact] = useState(null);
 
   useEffect(() => {
-    fetch('/api/model-info')
-      .then(res => res.json())
+    api.getJson('/model-info')
       .then(data => {
         setModelInfo(data);
         setLoading(false);
@@ -116,7 +116,7 @@ export default function AIPerformance() {
 
   if (loading) {
     return (
-      <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '1rem 0' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '1rem 0' }}>
         <div className="skeleton" style={{ height: 32, width: 280 }} />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
           {[1,2,3,4].map(i => <div key={i} className="skeleton-card" style={{ minHeight: 120 }}><div className="skeleton" style={{ height: 60 }} /></div>)}
@@ -128,7 +128,7 @@ export default function AIPerformance() {
 
   if (error || !modelInfo || modelInfo.status === 'no_model') {
     return (
-      <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', minHeight: '400px', textAlign: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', minHeight: '400px', textAlign: 'center' }}>
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 15h8"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/></svg>
         <h3 style={{ color: 'var(--text-primary)', fontWeight: '600' }}>{t.aiPerformance.noModelTitle}</h3>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', maxWidth: 400 }}>
@@ -150,7 +150,7 @@ export default function AIPerformance() {
   ] : [];
 
   return (
-    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
       
       {/* Header */}
       <div>
@@ -370,7 +370,7 @@ export default function AIPerformance() {
                 </button>
               </div>
               <img
-                src={`/api/training-artifacts/${activeArtifact}`}
+                src={api.streamUrl(`/training-artifacts/${activeArtifact}`)}
                 alt={activeArtifact}
                 style={{ width: '100%', display: 'block', maxHeight: '600px', objectFit: 'contain', padding: '1rem', backgroundColor: '#ffffff' }}
               />
@@ -378,6 +378,67 @@ export default function AIPerformance() {
           )}
         </div>
       )}
+
+      {/* Dataset Card */}
+      <div className="card" style={{ padding: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div style={{ width: 40, height: 40, borderRadius: '10px', backgroundColor: 'rgba(99,102,241,0.1)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+            </svg>
+          </div>
+          <div>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Dataset Card</h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>Training data provenance & augmentation pipeline</p>
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          <div>
+            <p style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-secondary)', letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 0.75rem 0' }}>Data Sources</p>
+            {[
+              { label: 'Roboflow Snake Detection', tag: 'Public Dataset', color: '#6366f1' },
+              { label: 'Roboflow Cat & Lizard', tag: 'Public Dataset', color: '#6366f1' },
+              { label: 'Custom Warehouse Footage', tag: 'Internal', color: '#22c55e' },
+              { label: 'Low-light Augmented', tag: 'Synthetic', color: '#f59e0b' },
+            ].map((s, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '0.6rem 0.875rem', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)',
+                border: '1px solid var(--border-color)', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.83rem', color: 'var(--text-primary)', fontWeight: '600' }}>{s.label}</span>
+                <span style={{ fontSize: '0.65rem', fontWeight: '700', padding: '0.2rem 0.5rem', borderRadius: '6px',
+                  backgroundColor: `${s.color}15`, color: s.color, border: `1px solid ${s.color}30` }}>{s.tag}</span>
+              </div>
+            ))}
+          </div>
+          <div>
+            <p style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-secondary)', letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 0.75rem 0' }}>Augmentation Pipeline</p>
+            {[
+              { tech: 'Horizontal Flip', detail: 'p=0.5' },
+              { tech: 'Brightness / Contrast', detail: '±30%' },
+              { tech: 'Rotation', detail: '±15°' },
+              { tech: 'Mosaic Mix', detail: '4-image mosaic' },
+              { tech: 'CLAHE (inference)', detail: 'clipLimit=2.5, tile=8×8' },
+              { tech: 'Partial Occlusion', detail: 'Hewan di balik barang' },
+            ].map((a, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '0.5rem 0.875rem', borderRadius: '8px', marginBottom: '0.4rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ color: '#22c55e', fontSize: '0.9rem' }}>✓</span>
+                  <span style={{ fontSize: '0.83rem', color: 'var(--text-primary)', fontWeight: '600' }}>{a.tech}</span>
+                </div>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{a.detail}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ marginTop: '1.25rem', padding: '0.875rem 1rem', borderRadius: '10px',
+          backgroundColor: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)' }}>
+          <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            <strong style={{ color: '#6366f1' }}>Anti False-Positive Measure:</strong> Dataset mencakup gambar <strong style={{ color: 'var(--text-primary)' }}>tali, selang, dan kabel</strong> yang <em>tidak</em> di-label sebagai ular — memastikan model belajar membedakan objek serupa. Dikombinasikan dengan aspect-ratio bounding box filter di inference time.
+          </p>
+        </div>
+      </div>
 
       {/* Risk Classification Reference */}
       <div className="card" style={{ padding: '2rem' }}>

@@ -1,88 +1,234 @@
-# SmartWarehouse AI
-
-> AI-Powered Object Detection & Inventory Management System — built for Software Engineering course, President University.
-
-**GitHub:** [github.com/SultanZhalifa/smart-warehouse](https://github.com/SultanZhalifa/smart-warehouse)
+# 🏭 SmartWarehouse AI
+### AI-Powered Bio-Hazard & Pest Detection System
+**AI Open Innovation Challenge 2026 — PT. Kawan Lama Group | Logistics Category**
 
 ---
 
-## Overview
+<div align="center">
 
-SmartWarehouse AI is a full-stack inventory management system that uses computer vision to detect and track stock items in real time through a connected web dashboard. Built by a team of five as a group project for the Software Engineering course.
+![Python](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.136-009688?style=for-the-badge&logo=fastapi)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)
+![YOLO11](https://img.shields.io/badge/YOLO11-Custom_Trained-00FFFF?style=for-the-badge)
+![Gemini](https://img.shields.io/badge/Gemini_2.0_Flash-AI_Chat-4285F4?style=for-the-badge&logo=google)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)
 
-## Features
+</div>
 
-- **Real-time Object Detection** — YOLOv8/YOLOv11 model detects stock items via connected camera feed
-- **Live Dashboard** — React frontend displays live inventory status, alerts, and zone monitoring
-- **Alert System** — Automated notifications for low stock, unauthorized access, or anomalies
-- **User Management** — Role-based access with admin-invite authentication flow
-- **Environment Monitoring** — Tracks temperature, humidity, and environmental conditions
-- **Docker Deployment** — Fully containerized with Docker Compose for easy deployment
+---
 
-## Tech Stack
+## 🎯 Problem Statement
 
-| Layer | Tech |
-|-------|------|
-| Frontend | React 18, Vite, Recharts |
-| Backend | Python, FastAPI |
-| AI / CV | YOLOv8, YOLOv11, OpenCV |
-| Database | PostgreSQL |
-| Auth | JWT, Admin-Invite Flow |
-| Deploy | Docker, Docker Compose |
+Gudang PT. Kawan Lama Group menghadapi risiko bio-hazard dan kontaminasi akibat masuknya hewan liar (ular, kucing, gecko/kadal) ke area penyimpanan produk. Sistem inspeksi manual tidak efektif untuk gudang berskala besar dan tidak beroperasi 24/7.
 
-## Getting Started
+**SmartWarehouse AI** menyelesaikan masalah ini dengan sistem deteksi real-time berbasis Computer Vision (YOLO11) yang memantau seluruh zona gudang secara otomatis, 24 jam sehari.
 
-### Prerequisites
-- Docker & Docker Compose
-- Python 3.10+
-- Node.js 18+
+---
 
-### Run with Docker
+## ✨ Key Features
+
+| Feature | Description |
+|---|---|
+| 🐍 **Bio-Hazard Detection** | YOLO11 custom model mendeteksi Ular (DANGER), Kucing (WARNING), Gecko/Kadal (MONITOR) |
+| 🌙 **Low-Light Enhancement** | CLAHE preprocessing meningkatkan akurasi di kondisi gudang malam hari |
+| ⚡ **Real-time WebSocket Alerts** | Push notification ke dashboard dalam <1 detik dari deteksi |
+| 🔔 **Browser Audio Alarm** | Web Audio API menghasilkan alarm beep saat DANGER terdeteksi |
+| 📱 **Telegram Notifications** | Alert otomatis ke Telegram Bot untuk semua risk level |
+| 🤖 **Gemini AI Chat** | LLM-powered chatbot dengan RAG pattern — inject data real-time ke setiap prompt |
+| 🗺️ **Multi-Zone Monitoring** | Pantau hingga 4+ zona kamera secara bersamaan |
+| 📋 **SOP Matrix** | Protokol penanganan per jenis hewan (0-30 detik, 1-5 menit, dst.) |
+| 💹 **ROI Calculator** | Kalkulasi penghematan biaya vs pest control manual |
+| 📊 **Risk Analytics** | Trend chart, zone heatmap, peak hours analysis |
+| 📄 **Report Generator** | Export laporan deteksi ke PDF/CSV |
+| 👥 **Role-Based Access** | Admin, Manager, Operator dengan hak akses berbeda |
+| 🐳 **Docker Ready** | Deploy dengan satu perintah |
+
+---
+
+## 🏗️ System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    SMARTWAREHOUSE AI                        │
+├──────────────────┬──────────────────┬───────────────────────┤
+│   CAMERA LAYER   │   AI/ML LAYER    │   ALERT LAYER         │
+│                  │                  │                       │
+│  Multi-zone      │  YOLO11 Custom   │  WebSocket Push       │
+│  RTSP/Webcam     │  CLAHE Preproc   │  Browser Audio Alarm  │
+│  720p @ 30fps    │  CUDA/CPU Auto   │  Telegram Bot         │
+│  Frame Skip=3    │  320px Inference │  TTS (Indonesian)     │
+└──────────────────┴──────────────────┴───────────────────────┤
+│                    BACKEND (FastAPI)                        │
+│                                                             │
+│  ┌─────────┐ ┌──────────┐ ┌───────────┐ ┌──────────────┐  │
+│  │  Auth   │ │  Camera  │ │ Analytics │ │  Gemini AI   │  │
+│  │  Routes │ │  Routes  │ │  Routes   │ │  Chat (RAG)  │  │
+│  └─────────┘ └──────────┘ └───────────┘ └──────────────┘  │
+│                                                             │
+│  SQLite WAL + Thread-Safe Connections                       │
+└─────────────────────────────────────────────────────────────┤
+│                   FRONTEND (React + Vite)                   │
+│                                                             │
+│  LiveMonitor │ Analytics │ Ask AI │ SOP & ROI │ AI Perf    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🤖 AI Model Details
+
+### Custom YOLO11 — `warehouse_pest.pt`
+
+| Parameter | Value |
+|---|---|
+| **Architecture** | YOLO11-Nano (fine-tuned) |
+| **Framework** | Ultralytics YOLO11 |
+| **Training Resolution** | 640px |
+| **Inference Resolution** | 320px (optimized untuk speed) |
+| **Device** | CUDA GPU / CPU (auto-detect) |
+| **Preprocessing** | CLAHE (clipLimit=2.5, tileGrid=8x8) |
+| **Model Size** | ~5.2 MB |
+
+### Detection Classes & Risk Mapping
+
+| Class | Risk Level | Action | Response Time |
+|---|---|---|---|
+| 🐍 **Snake** | `DANGER` (Bio-Hazard) | Evakuasi zona, hubungi pest control | 0-30 detik |
+| 🐱 **Cat** | `WARNING` (Kontaminasi) | Karantina produk, sanitasi area | 0-5 menit |
+| 🦎 **Gecko/Lizard** | `INFO` (Monitoring) | Dokumentasi, periksa celah masuk | Hari ini |
+
+### Dataset Card
+
+| Property | Details |
+|---|---|
+| **Sources** | Roboflow Public + Custom warehouse footage |
+| **Classes** | Snake, Cat, Gecko, Lizard |
+| **Augmentation** | Horizontal flip, brightness ±30%, rotation ±15°, mosaic |
+| **Split** | 70% train / 20% val / 10% test |
+| **Low-light samples** | ✅ Included (gudang malam hari) |
+| **Partial occlusion** | ✅ Included (hewan tersembunyi di barang) |
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Frontend** | React 18, Vite, Recharts | Dashboard & visualisasi |
+| **Backend** | Python 3.12, FastAPI | REST API + WebSocket |
+| **AI/CV** | YOLO11, OpenCV, CLAHE | Object detection & preprocessing |
+| **Database** | SQLite (WAL mode) | Detection logs & settings |
+| **AI Chat** | Google Gemini 2.0 Flash | RAG-powered warehouse assistant |
+| **Auth** | bcrypt + session tokens | Role-based access control |
+| **Alerts** | WebSocket + Telegram API + Web Audio | Multi-channel notifications |
+| **Deployment** | Docker + Docker Compose | Containerized deployment |
+
+---
+
+## 🚀 Quick Start
+
+### Option 1: Docker (Recommended)
 
 ```bash
-git clone https://github.com/SultanZhalifa/smart-warehouse
-cd smart-warehouse
-cp .env.example .env
+git clone https://github.com/SultanZhalifa/smartwarehouse-ai
+cd smartwarehouse-ai
+cp backend/.env.example backend/.env
+# Edit backend/.env: tambahkan GEMINI_API_KEY dan TELEGRAM_BOT_TOKEN
 docker-compose up --build
 ```
 
-Open `http://localhost:5173` for the dashboard, `http://localhost:8000/docs` for API.
-
-### Run without Docker
+### Option 2: Manual
 
 ```bash
 # Backend
 cd backend
+python -m venv venv
+venv\Scripts\activate  # Windows
 pip install -r requirements.txt
-uvicorn main:app --reload
+python main.py
 
-# Frontend
-cd frontend
+# Frontend (terminal baru)
+cd ..
 npm install
 npm run dev
 ```
 
-## Project Structure
+**Akses:**
+- Dashboard: [http://localhost:5173](http://localhost:5173)
+- API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+### Default Login
+| Username | Password | Role |
+|---|---|---|
+| `admin` | *(lihat terminal saat startup)* | Admin |
+| `manager` | *(lihat terminal saat startup)* | Manager |
+| `operator` | *(lihat terminal saat startup)* | Operator |
+
+---
+
+## 📁 Project Structure
 
 ```
 smartwarehouse-ai/
 ├── backend/
-│   ├── routes/          # API endpoints (auth, zones, alerts)
-│   ├── models/          # Database models
-│   ├── config.py        # App configuration
-│   └── main.py          # FastAPI entry point
+│   ├── routes/
+│   │   ├── auth.py          # Login, register, password reset
+│   │   ├── camera.py        # Multi-zone camera + YOLO inference
+│   │   ├── analytics.py     # Trend charts, heatmap, peak hours
+│   │   ├── chat.py          # Gemini AI chat (RAG pattern)
+│   │   ├── logs.py          # Detection logs CRUD + CSV export
+│   │   ├── model_info.py    # YOLO metrics + training artifacts
+│   │   ├── zones.py         # Camera zone management
+│   │   └── users.py         # User management
+│   ├── services/
+│   │   ├── detector.py      # YOLO11 + HUD bounding box renderer
+│   │   ├── tts.py           # Indonesian text-to-speech alerts
+│   │   ├── telegram_alert.py # Telegram Bot notifications
+│   │   └── websocket_manager.py # WebSocket broadcast manager
+│   ├── config.py            # Constants, env vars, auth guards
+│   ├── database.py          # SQLite WAL + schema migrations
+│   └── requirements.txt
 ├── src/
-│   ├── pages/           # React pages (Dashboard, LiveMonitor, etc.)
-│   ├── components/      # Reusable UI components
-│   └── main.jsx
+│   ├── pages/
+│   │   ├── LiveMonitor.jsx  # Real-time camera + alert dashboard
+│   │   ├── DetectionLogs.jsx # Detection history + search/filter
+│   │   ├── RiskAnalysis.jsx # Analytics, charts, zone heatmap
+│   │   ├── AIPerformance.jsx # YOLO metrics, training curves
+│   │   ├── AskAI.jsx        # Gemini AI chat interface
+│   │   ├── SOPMitigasi.jsx  # SOP protocols + ROI calculator
+│   │   └── UserManagement.jsx # Admin: user CRUD + invite system
+│   ├── components/
+│   │   ├── CameraGrid.jsx   # Multi-zone camera grid
+│   │   ├── WarehouseZoneMap.jsx # Interactive warehouse map
+│   │   ├── ReportGenerator.jsx  # PDF/CSV report export
+│   │   └── CommandPalette.jsx   # Ctrl+K quick navigation
+│   └── layouts/
+│       └── DashboardLayout.jsx  # Sidebar + WebSocket + audio alarm
 ├── docker-compose.yml
-└── README.md
+└── Dockerfile
 ```
-
-## Team
-
-Group 5 — Software Engineering Course, President University
 
 ---
 
-Built by Sultan Zhalifunnas Musyaffa & Team
+## 💰 Business Value (ROI)
+
+Estimasi untuk 1 gudang PT. Kawan Lama:
+
+| Metric | Value |
+|---|---|
+| Biaya pest control manual | Rp 15-30 jt/bulan |
+| OPEX SmartWarehouse AI | Rp 3 jt/bulan |
+| **Penghematan per tahun** | **Rp 144-324 jt/gudang** |
+| Break-even period | 4-6 bulan |
+| ROI 3 tahun | >200% |
+
+---
+
+## 👥 Team
+
+**Group 5 — AI Open Innovation Challenge 2026**
+President University × PT. Kawan Lama Group
+
+---
+
+*Built with ❤️ for AI Open Innovation Challenge 2026*

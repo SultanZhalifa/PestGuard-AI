@@ -41,6 +41,8 @@ backend/*.pt
 # Environment variables
 .env
 backend/.env
+.env.production.local
+.env.local
 
 # Training data & artifacts (too large for git)
 backend/dataset/
@@ -72,3 +74,4 @@ backend/yolo11n.pt
 
 # Scripts output
 backend/scripts/__pycache__/
+.vercel

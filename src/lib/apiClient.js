@@ -2,23 +2,46 @@
  * Smart Warehouse — Centralized API Client
  * ==========================================
  * Single source of truth for all API calls.
- * Auto-injects auth headers, handles 401 redirects,
- * and provides typed response parsing.
+ * - Auto-injects auth headers
+ * - Handles 401 redirects (session expiry)
+ * - Supports environment-based backend URL (for Vercel + ngrok/Railway deploy)
+ * - Provides typed response helpers (getJson, postJson)
+ *
+ * Environment:
+ *   VITE_API_BASE_URL — override backend host for production deploys
+ *   e.g. https://xxxx.ngrok-free.app  (ngrok tunnel to local backend)
+ *        https://smartwarehouse.up.railway.app  (Railway deployment)
  */
-
-const API_BASE = '/api';
 
 /**
- * Get current auth token from localStorage.
+ * Resolve base URL from environment or fall back to same-origin /api proxy.
+ * In development (Vite), VITE_API_BASE_URL is typically not set → uses Vite proxy.
+ * In production (Vercel), set VITE_API_BASE_URL to the backend public URL.
  */
+const _resolveBase = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl) {
+    // Strip trailing slash, append /api
+    return `${envUrl.replace(/\/$/, '')}/api`;
+  }
+  // Default: same-origin proxy (works for local dev with Vite proxy config)
+  return '/api';
+};
+
+const API_BASE = _resolveBase();
+
+/** Retrieve stored auth token from localStorage. */
 function getToken() {
   return localStorage.getItem('sw_token');
 }
 
 /**
- * Core fetch wrapper with auth header injection and error handling.
- * @param {string} path - API path (e.g. '/logs')
- * @param {RequestInit} options - fetch options
+ * Core fetch wrapper.
+ * - Injects Authorization header if token present
+ * - Auto-redirects to /login on 401
+ *
+ * @param {string} path - API path relative to base (e.g. '/logs')
+ * @param {RequestInit} options - Standard fetch options
  * @returns {Promise<Response>}
  */
 async function request(path, options = {}) {
@@ -35,7 +58,7 @@ async function request(path, options = {}) {
     headers,
   });
 
-  // Auto-logout on 401 (expired or invalid token)
+  // Session expired — clear storage and redirect to login
   if (response.status === 401) {
     localStorage.removeItem('sw_token');
     localStorage.removeItem('sw_token_meta');
@@ -48,12 +71,14 @@ async function request(path, options = {}) {
 }
 
 /**
- * Convenience wrappers
+ * API client — convenience methods over `request`.
  */
 const api = {
+  /** Raw GET request. Returns Response object. */
   get: (path, options = {}) =>
     request(path, { ...options, method: 'GET' }),
 
+  /** Raw POST request. Returns Response object. */
   post: (path, body, options = {}) =>
     request(path, {
       ...options,
@@ -61,6 +86,7 @@ const api = {
       body: typeof body === 'string' ? body : JSON.stringify(body),
     }),
 
+  /** Raw PUT request. Returns Response object. */
   put: (path, body, options = {}) =>
     request(path, {
       ...options,
@@ -68,11 +94,35 @@ const api = {
       body: typeof body === 'string' ? body : JSON.stringify(body),
     }),
 
+  /** Raw PATCH request. Returns Response object. */
+  patch: (path, body, options = {}) =>
+    request(path, {
+      ...options,
+      method: 'PATCH',
+      body: typeof body === 'string' ? body : JSON.stringify(body),
+    }),
+
+  /** PATCH — auto-parses JSON. Throws with detail message on non-2xx. */
+  patchJson: async (path, body, options = {}) => {
+    const res = await request(path, {
+      ...options,
+      method: 'PATCH',
+      body: typeof body === 'string' ? body : JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
+      throw new Error(err.detail || `API error ${res.status}`);
+    }
+    return res.json();
+  },
+
+  /** Raw DELETE request. Returns Response object. */
   delete: (path, options = {}) =>
     request(path, { ...options, method: 'DELETE' }),
 
   /**
-   * GET request that automatically parses JSON response.
+   * GET — auto-parses JSON. Throws on non-2xx responses.
+   * @returns {Promise<any>}
    */
   getJson: async (path, options = {}) => {
     const res = await request(path, { ...options, method: 'GET' });
@@ -81,7 +131,8 @@ const api = {
   },
 
   /**
-   * POST request that automatically parses JSON response.
+   * POST — auto-parses JSON. Throws with detail message on non-2xx.
+   * @returns {Promise<any>}
    */
   postJson: async (path, body, options = {}) => {
     const res = await request(path, {
@@ -97,9 +148,11 @@ const api = {
   },
 
   /**
-   * Build a URL with token query param (for streaming/WS endpoints
-   * that can't use Authorization headers).
-   * e.g. api.streamUrl('/video_feed/zone-a') → '/api/video_feed/zone-a?token=xxx'
+   * Build URL with token query param — for streaming/SSE endpoints
+   * that cannot use Authorization headers.
+   * e.g. api.streamUrl('/video_feed/zone-a')
+   * @param {string} path
+   * @returns {string}
    */
   streamUrl: (path) => {
     const token = getToken();
@@ -108,13 +161,26 @@ const api = {
 
   /**
    * Build authenticated WebSocket URL.
+   * Automatically resolves ws:/wss: protocol from current page protocol.
+   * If VITE_API_BASE_URL is set, derives WS URL from it.
+   * @param {string} path
+   * @returns {string}
    */
   wsUrl: (path) => {
     const token = getToken();
+    const envUrl = import.meta.env.VITE_API_BASE_URL;
+
+    if (envUrl) {
+      // Convert http/https to ws/wss
+      const wsBase = envUrl.replace(/^http/, 'ws').replace(/\/$/, '');
+      return `${wsBase}/api${path}${token ? `?token=${token}` : ''}`;
+    }
+
+    // Default: derive from current page host (local dev)
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsHost = window.location.hostname;
     const wsPort = window.location.port === '5173' ? '8000' : window.location.port;
-    return `${wsProtocol}//${wsHost}:${wsPort}${API_BASE}${path}${token ? `?token=${token}` : ''}`;
+    return `${wsProtocol}//${wsHost}:${wsPort}/api${path}${token ? `?token=${token}` : ''}`;
   },
 };
 

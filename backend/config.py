@@ -50,6 +50,10 @@ DETECTION_COOLDOWN_SECONDS = 10.0
 TTS_COOLDOWN_SECONDS = 8.0
 DEFAULT_THRESHOLD = int(os.getenv("DEFAULT_THRESHOLD", "50"))
 
+# ─── Inference Performance ───
+INFERENCE_FRAME_SKIP = int(os.getenv("INFERENCE_FRAME_SKIP", "3"))  # Run inference every N frames
+INFERENCE_QUEUE_SIZE = 1  # Drop stale frames when inference is busy
+
 # ─── In-Memory Stores ───
 # Sessions are intentionally ephemeral — users re-login if server restarts.
 # Invite tokens and password reset codes are persisted in SQLite (see database.py).

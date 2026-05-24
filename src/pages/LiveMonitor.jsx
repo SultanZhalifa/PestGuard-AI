@@ -121,7 +121,7 @@ export default function LiveMonitor() {
   const logs = allLogs.slice(0, 50);
 
   return (
-    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
       <StatCards
         status={status}

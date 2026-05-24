@@ -64,8 +64,9 @@ h1, h2, h3, h4, h5, h6 {
 /* Layout */
 .app-container {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -77,10 +78,9 @@ h1, h2, h3, h4, h5, h6 {
   padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
-  position: sticky;
-  top: 0;
   height: 100vh;
-  overflow: hidden;
+  flex-shrink: 0;
+  overflow-y: auto;
 }
 
 .main-content {
@@ -88,10 +88,14 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  height: 100vh;
 }
 
 .top-nav {
-  height: 80px;
+  height: 64px;
+  min-height: 64px;
+  max-height: 64px;
+  flex-shrink: 0;
   background-color: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -106,8 +110,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .dashboard-content {
-  padding: 0 2.5rem 2.5rem 2.5rem;
+  padding: 2rem 2.5rem 2.5rem 2.5rem;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.dashboard-content > .page-enter {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* Components */
@@ -315,15 +329,15 @@ body.dark-mode .nav-link.active::before {
 
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
 }
 
 .stat-card {
-  padding: 1.5rem;
+  padding: 1.25rem 1.25rem;
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1rem;
   overflow: hidden;
 }
 
@@ -374,89 +388,266 @@ body.dark-mode .nav-link.active::before {
   color: var(--text-secondary);
 }
 
-/* ------------------------------------- */
-/* Mobile Responsiveness                 */
-/* ------------------------------------- */
 
+/* =========================================
+   RESPONSIVE DESIGN SYSTEM
+   Mobile-first approach
+   Breakpoints: 480, 768, 992, 1280px
+   ========================================= */
+
+/* ── ROI Calculator grids ── */
+.roi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.roi-results-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+/* ── Mobile sidebar overlay backdrop ── */
+.sidebar-backdrop {
+  display: none;
+}
+
+/* ── Hamburger button — hidden on desktop ── */
+.hamburger-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.hamburger-btn:hover {
+  border-color: var(--accent-primary);
+}
+
+/* =========================================
+   992px — Tablet landscape (sidebar becomes
+   a collapsible overlay instead of stacking)
+   ========================================= */
 @media (max-width: 992px) {
-  .app-container {
-    flex-direction: column;
-  }
-
+  /* Sidebar becomes a fixed slide-in panel */
   .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: 280px;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    border-right: 1px solid var(--border-color);
+    border-bottom: none;
+    overflow-y: auto;
+  }
+
+  .sidebar--open {
+    transform: translateX(0);
+    box-shadow: 20px 0 60px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Dark backdrop when sidebar open */
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+    z-index: 199;
+    animation: fadeIn 0.2s ease;
+  }
+
+  /* Main content takes full width */
+  .app-container {
+    flex-direction: row;
+  }
+
+  .main-content {
     width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-    padding: 1rem 1.5rem;
   }
 
-  .sidebar .logo {
-    justify-content: center;
-    margin-bottom: 1.5rem;
+  /* Show hamburger button */
+  .hamburger-btn {
+    display: flex;
   }
 
-  .sidebar nav {
-    flex-direction: row !important;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+  /* Top nav padding reduced */
+  .top-nav {
+    padding: 0 1.25rem !important;
   }
 
-  .nav-link {
-    flex: 1 1 calc(50% - 0.5rem);
-    justify-content: center;
-  }
-
-  .nav-link[href="/settings"] {
-    margin-top: 0 !important;
-  }
-
+  /* Grid collapses to single column */
   .grid-layout {
     grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  /* ROI grid stack on tablet */
+  .roi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .roi-results-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* =========================================
+   768px — Tablet portrait / large mobile
+   ========================================= */
 @media (max-width: 768px) {
   .top-nav {
-    flex-direction: column;
-    height: auto;
-    padding: 1.5rem;
-    gap: 1rem;
-    align-items: flex-start;
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 56px !important;
+    padding: 0 1rem !important;
+    gap: 0.75rem;
   }
-  
+
   .dashboard-content {
-    padding: 1.5rem;
+    padding: 1rem !important;
   }
 
   .card {
-    padding: 1.5rem !important;
-  }
-
-  /* Make charts responsive */
-  .recharts-wrapper {
-    max-width: 100%;
-  }
-
-  /* Prevent stat cards from squishing on narrow mobile screens like iPhone */
-  .stat-grid {
-    grid-template-columns: 1fr !important;
-  }
-  
-  .stat-card {
     padding: 1.25rem !important;
-    gap: 1rem !important;
+    border-radius: 16px;
   }
-  
-  .stat-card .icon-container {
-    min-width: 40px !important;
-    width: 40px !important;
-    height: 40px !important;
+
+  /* Recharts — prevent horizontal overflow */
+  .recharts-wrapper,
+  .recharts-surface {
+    max-width: 100% !important;
+    overflow: hidden;
   }
-  
-  .stat-card h3 {
-    font-size: 1.25rem !important;
+
+  /* Stat grid: 2 columns on tablet */
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.875rem;
+  }
+
+  .stat-card {
+    padding: 1rem !important;
+    gap: 0.875rem !important;
+  }
+
+  /* Toast: full width on mobile */
+  .toast-container {
+    top: auto;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+  }
+
+  .toast {
+    min-width: unset;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* Hide search button and clock on small screens */
+  .top-nav-search-btn {
+    display: none !important;
+  }
+
+  .search-hint-span {
+    display: none;
+  }
+
+  /* AI chat: ensure full usable height */
+  .ask-ai-chat-container {
+    min-height: 400px;
+    max-height: 55vh;
+  }
+
+  /* ROI results: 2 cols */
+  .roi-results-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* =========================================
+   480px — Mobile portrait (iPhone SE etc.)
+   ========================================= */
+@media (max-width: 480px) {
+  .top-nav {
+    padding: 0.75rem !important;
+  }
+
+  .dashboard-content {
+    padding: 0.75rem !important;
+  }
+
+  /* Single column on small mobile */
+  .stat-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem;
+  }
+
+  .stat-card h3 {
+    font-size: 1.125rem !important;
+  }
+
+  .card {
+    border-radius: 12px;
+  }
+
+  /* Hide clock in top nav to save space */
+  .top-nav-clock {
+    display: none;
+  }
+
+  /* ROI results: single column */
+  .roi-results-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.625rem;
+  }
+
+  /* Tab buttons wrap */
+  .sop-tabs {
+    flex-wrap: wrap;
+  }
+
+  /* Nav link active indicator — no left bar on mobile */
+  .nav-link.active::before {
+    display: none;
+  }
+
+  /* Grid chart heights reduce */
+  .card[style*="height: '400px'"],
+  .card[style*="height:400px"] {
+    height: auto !important;
+    min-height: 280px;
+  }
+}
+
+/* =========================================
+   Global overflow guard — prevent ANY
+   horizontal scroll on any viewport
+   ========================================= */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.app-container {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+
 
 /* ===== SKELETON LOADING ===== */
 .skeleton {
@@ -548,11 +739,15 @@ body.dark-mode .nav-link.active::before {
 
 /* ===== PAGE TRANSITIONS ===== */
 .page-transition {
-  animation: pageEnter 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: pageEnter 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.page-enter {
+  animation: pageEnter 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes pageEnter {
-  0% { opacity: 0; transform: translateY(12px); }
+  0%   { opacity: 0; transform: translateY(8px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
@@ -951,21 +1146,7 @@ body.dark-mode .login-submit {
   }
 }
 
-/* ─── Page Transitions ─── */
-@keyframes pageEnter {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.page-transition {
-  animation: pageEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
+/* ─── Page Transitions (consolidated above) ─── */
 
 /* ─── Inline Spinner (small) ─── */
 .spinner-sm {

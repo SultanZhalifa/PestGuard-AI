@@ -66,17 +66,17 @@ function renderMarkdown(text) {
 /* ─── Suggestion chips ─── */
 const SUGGESTIONS = [
   { Icon: Icon.MapPin,       text: 'Zona mana yang paling berbahaya?' },
-  { Icon: Icon.BarChart,     text: 'Berapa total deteksi keseluruhan?' },
-  { Icon: Icon.AlertTriangle,text: 'Berapa deteksi ular?' },
+  { Icon: Icon.BarChart,     text: 'Berapa total deteksi ular bulan ini?' },
   { Icon: Icon.Clock,        text: 'Jam berapa paling sering ada deteksi?' },
-  { Icon: Icon.Search,       text: 'Kapan terakhir ada insiden?' },
-  { Icon: Icon.FileText,     text: 'Buatkan ringkasan laporan keamanan' },
+  { Icon: Icon.FileText,     text: 'Buatkan ringkasan laporan keamanan hari ini' },
+  { Icon: Icon.Search,       text: 'Apa rekomendasi untuk meningkatkan keamanan gudang?' },
 ];
 
 const WELCOME = {
   role: 'ai',
-  text: 'Halo! Saya **AI Warehouse Assistant** dari SmartWarehouse.\n\nSaya siap menjawab pertanyaan Anda tentang keamanan gudang — deteksi hama, statistik zona, pola waktu, dan laporan insiden.\n\nSilakan ajukan pertanyaan di bawah, atau pilih dari pertanyaan yang tersedia.',
+  text: 'Halo! Saya **SmartWarehouse AI** — powered by **Google Gemini 2.0 Flash**.\n\nSaya memiliki akses ke data real-time gudang PT. Kawan Lama: statistik deteksi, analisis zona, pola waktu risiko, dan riwayat insiden.\n\nSilakan ajukan pertanyaan dalam Bahasa Indonesia atau English, atau pilih dari pertanyaan di bawah.',
   timestamp: new Date(),
+  powered_by: 'gemini-2.0-flash',
 };
 
 /* ─── Bot avatar using icon ask ai.png ─── */
@@ -100,6 +100,7 @@ export default function AskAI() {
   const [messages, setMessages] = useState([WELCOME]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [poweredBy, setPoweredBy] = useState('gemini-2.0-flash');
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -117,8 +118,9 @@ export default function AskAI() {
 
     try {
       const data = await api.postJson('/chat', { message: q });
+      if (data.powered_by) setPoweredBy(data.powered_by);
       setMessages(prev => [...prev, {
-        role: 'ai', text: data.answer, intent: data.intent, timestamp: new Date(),
+        role: 'ai', text: data.answer, powered_by: data.powered_by, timestamp: new Date(),
       }]);
     } catch {
       setMessages(prev => [...prev, {
@@ -137,7 +139,7 @@ export default function AskAI() {
   };
 
   return (
-    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 160px)', gap: '1rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: 0, flex: 1 }}>
 
       {/* ── Header ── */}
       <div className="card" style={{ padding: '1.5rem 2rem', display: 'flex', alignItems: 'center', gap: '1.25rem', flexShrink: 0 }}>
@@ -151,14 +153,25 @@ export default function AskAI() {
           </p>
         </div>
         {/* Online badge — SVG dot only, no text emoji */}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: '700', color: '#22c55e', background: 'rgba(34,197,94,0.08)', padding: '0.375rem 0.875rem', borderRadius: '99px', border: '1px solid rgba(34,197,94,0.2)' }}>
-          <span style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: '#22c55e', display: 'inline-block', animation: 'pulse-ring 2s infinite' }} />
-          AI ONLINE
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          {/* Gemini badge */}
+          {poweredBy && poweredBy.includes('gemini') && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.72rem', fontWeight: '700',
+              color: '#6366f1', background: 'rgba(99,102,241,0.08)', padding: '0.3rem 0.75rem',
+              borderRadius: '99px', border: '1px solid rgba(99,102,241,0.25)' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Gemini 2.0 Flash
+            </div>
+          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: '700', color: '#22c55e', background: 'rgba(34,197,94,0.08)', padding: '0.375rem 0.875rem', borderRadius: '99px', border: '1px solid rgba(34,197,94,0.2)' }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: '#22c55e', display: 'inline-block', animation: 'pulse-ring 2s infinite' }} />
+            AI ONLINE
+          </div>
         </div>
       </div>
 
       {/* ── Messages ── */}
-      <div className="card custom-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: 0 }}>
+      <div className="card custom-scrollbar ask-ai-chat-container" style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: 0 }}>
         {messages.map((msg, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', animation: 'pageEnter 0.3s ease-out' }}>
             {msg.role === 'ai' && <BotAvatar size={34} />}

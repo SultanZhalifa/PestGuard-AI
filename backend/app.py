@@ -56,7 +56,7 @@ async def lifespan(application: FastAPI):
     yield
 
 
-# ─── Create Application ───
+# ─── Create Application ───    
 app = FastAPI(
     title="Smart Warehouse API",
     version="2.0.0",

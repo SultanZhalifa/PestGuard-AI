@@ -5,6 +5,7 @@ CRUD operations for user accounts: list, create, update,
 delete, and admin-triggered password reset.
 """
 
+import logging
 import secrets
 import string
 from typing import Optional
@@ -215,8 +216,8 @@ def admin_reset_password(user_id: int, session: dict = Depends(require_role("adm
 
     _revoke_user_sessions(user_id)
 
-    # Security: print temp password to server console only — never in HTTP response
-    print(f"[SECURITY] Temp password for user {row[0]} (id={user_id}): {temp_password}")
+    # Temp password shown on server console only — never in HTTP response
+    logging.warning("[SECURITY] Temp password for user %s (id=%s): %s", row[0], user_id, temp_password)
 
     return {
         "status": "success",

@@ -9,6 +9,7 @@ so they survive server restarts.
 
 import time
 import hashlib
+import logging
 import secrets
 import random
 import string
@@ -421,8 +422,8 @@ def forgot_password(request: ForgotPasswordRequest, req: Request):
     code = "".join(random.choices(string.digits, k=6))
     _db_save_reset_code(request.email, code, time.time() + 600)
 
-    # Security: OTP printed to server console AND stored in DB for admin retrieval
-    print(f"[SECURITY] Password reset OTP for {request.email}: {code} (expires in 10 min)")
+    # OTP shown on server console only — never sent over the network
+    logging.warning("[SECURITY] Password reset OTP for %s: %s (expires in 10 min)", request.email, code)
 
     return generic_response
 
