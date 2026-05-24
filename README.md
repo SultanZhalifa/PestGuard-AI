@@ -1,6 +1,6 @@
-# 🏭 SmartWarehouse AI
+# SmartWarehouse AI
 ### AI-Powered Bio-Hazard & Pest Detection System
-**AI Open Innovation Challenge 2026 — PT. Kawan Lama Group | Logistics Category**
+**AI Open Innovation Challenge 2026 -- PT. Kawan Lama Group | Logistics Category**
 
 ---
 
@@ -17,67 +17,67 @@
 
 ---
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Gudang PT. Kawan Lama Group menghadapi risiko bio-hazard dan kontaminasi akibat masuknya hewan liar (ular, kucing, gecko/kadal) ke area penyimpanan produk. Sistem inspeksi manual tidak efektif untuk gudang berskala besar dan tidak beroperasi 24/7.
 
-**SmartWarehouse AI** menyelesaikan masalah ini dengan sistem deteksi real-time berbasis Computer Vision (YOLO11) yang memantau seluruh zona gudang secara otomatis, 24 jam sehari.
+SmartWarehouse AI menyelesaikan masalah ini dengan sistem deteksi real-time berbasis Computer Vision (YOLO11) yang memantau seluruh zona gudang secara otomatis, 24 jam sehari.
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 | Feature | Description |
 |---|---|
-| 🐍 **Bio-Hazard Detection** | YOLO11 custom model mendeteksi Ular (DANGER), Kucing (WARNING), Gecko/Kadal (MONITOR) |
-| 🌙 **Low-Light Enhancement** | CLAHE preprocessing meningkatkan akurasi di kondisi gudang malam hari |
-| ⚡ **Real-time WebSocket Alerts** | Push notification ke dashboard dalam <1 detik dari deteksi |
-| 🔔 **Browser Audio Alarm** | Web Audio API menghasilkan alarm beep saat DANGER terdeteksi |
-| 📱 **Telegram Notifications** | Alert otomatis ke Telegram Bot untuk semua risk level |
-| 🤖 **Gemini AI Chat** | LLM-powered chatbot dengan RAG pattern — inject data real-time ke setiap prompt |
-| 🗺️ **Multi-Zone Monitoring** | Pantau hingga 4+ zona kamera secara bersamaan |
-| 📋 **SOP Matrix** | Protokol penanganan per jenis hewan (0-30 detik, 1-5 menit, dst.) |
-| 💹 **ROI Calculator** | Kalkulasi penghematan biaya vs pest control manual |
-| 📊 **Risk Analytics** | Trend chart, zone heatmap, peak hours analysis |
-| 📄 **Report Generator** | Export laporan deteksi ke PDF/CSV |
-| 👥 **Role-Based Access** | Admin, Manager, Operator dengan hak akses berbeda |
-| 🐳 **Docker Ready** | Deploy dengan satu perintah |
+| **Bio-Hazard Detection** | YOLO11 custom model mendeteksi Ular (DANGER), Kucing (WARNING), Gecko/Kadal (MONITOR) |
+| **Low-Light Enhancement** | CLAHE preprocessing meningkatkan akurasi di kondisi gudang malam hari |
+| **Real-time WebSocket Alerts** | Push notification ke dashboard dalam kurang dari 1 detik dari deteksi |
+| **Browser Audio Alarm** | Web Audio API menghasilkan alarm beep saat DANGER terdeteksi |
+| **Telegram Notifications** | Alert otomatis ke Telegram Bot untuk semua risk level |
+| **Gemini AI Chat** | LLM-powered chatbot dengan RAG pattern, inject data real-time ke setiap prompt |
+| **Multi-Zone Monitoring** | Pantau hingga 4 zona kamera secara bersamaan |
+| **SOP Matrix** | Protokol penanganan per jenis hewan (0-30 detik, 1-5 menit, dst.) |
+| **ROI Calculator** | Kalkulasi penghematan biaya vs pest control manual |
+| **Risk Analytics** | Trend chart, zone heatmap, peak hours analysis |
+| **Report Generator** | Export laporan deteksi ke PDF/CSV |
+| **Role-Based Access** | Admin, Manager, Operator dengan hak akses berbeda |
+| **Docker Ready** | Deploy dengan satu perintah |
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    SMARTWAREHOUSE AI                        │
-├──────────────────┬──────────────────┬───────────────────────┤
-│   CAMERA LAYER   │   AI/ML LAYER    │   ALERT LAYER         │
-│                  │                  │                       │
-│  Multi-zone      │  YOLO11 Custom   │  WebSocket Push       │
-│  RTSP/Webcam     │  CLAHE Preproc   │  Browser Audio Alarm  │
-│  720p @ 30fps    │  CUDA/CPU Auto   │  Telegram Bot         │
-│  Frame Skip=3    │  320px Inference │  TTS (Indonesian)     │
-└──────────────────┴──────────────────┴───────────────────────┤
-│                    BACKEND (FastAPI)                        │
-│                                                             │
-│  ┌─────────┐ ┌──────────┐ ┌───────────┐ ┌──────────────┐  │
-│  │  Auth   │ │  Camera  │ │ Analytics │ │  Gemini AI   │  │
-│  │  Routes │ │  Routes  │ │  Routes   │ │  Chat (RAG)  │  │
-│  └─────────┘ └──────────┘ └───────────┘ └──────────────┘  │
-│                                                             │
-│  SQLite WAL + Thread-Safe Connections                       │
-└─────────────────────────────────────────────────────────────┤
-│                   FRONTEND (React + Vite)                   │
-│                                                             │
-│  LiveMonitor │ Analytics │ Ask AI │ SOP & ROI │ AI Perf    │
-└─────────────────────────────────────────────────────────────┘
++-------------------------------------------------------------+
+|                    SMARTWAREHOUSE AI                        |
++------------------+------------------+-----------------------+
+|   CAMERA LAYER   |   AI/ML LAYER    |   ALERT LAYER         |
+|                  |                  |                       |
+|  Multi-zone      |  YOLO11 Custom   |  WebSocket Push       |
+|  RTSP/Webcam     |  CLAHE Preproc   |  Browser Audio Alarm  |
+|  720p @ 30fps    |  CUDA/CPU Auto   |  Telegram Bot         |
+|  Frame Skip=3    |  320px Inference |  TTS (Indonesian)     |
++------------------+------------------+-----------------------+
+|                    BACKEND (FastAPI)                        |
+|                                                             |
+|  +---------+ +----------+ +-----------+ +--------------+   |
+|  |  Auth   | |  Camera  | | Analytics | |  Gemini AI   |   |
+|  |  Routes | |  Routes  | |  Routes   | |  Chat (RAG)  |   |
+|  +---------+ +----------+ +-----------+ +--------------+   |
+|                                                             |
+|  SQLite WAL + Thread-Safe Connections                       |
++-------------------------------------------------------------+
+|                   FRONTEND (React + Vite)                   |
+|                                                             |
+|  LiveMonitor | Analytics | Ask AI | SOP & ROI | AI Perf    |
++-------------------------------------------------------------+
 ```
 
 ---
 
-## 🤖 AI Model Details
+## AI Model Details
 
-### Custom YOLO11 — `warehouse_pest.pt`
+### Custom YOLO11 -- warehouse_pest.pt
 
 | Parameter | Value |
 |---|---|
@@ -93,9 +93,9 @@ Gudang PT. Kawan Lama Group menghadapi risiko bio-hazard dan kontaminasi akibat 
 
 | Class | Risk Level | Action | Response Time |
 |---|---|---|---|
-| 🐍 **Snake** | `DANGER` (Bio-Hazard) | Evakuasi zona, hubungi pest control | 0-30 detik |
-| 🐱 **Cat** | `WARNING` (Kontaminasi) | Karantina produk, sanitasi area | 0-5 menit |
-| 🦎 **Gecko/Lizard** | `INFO` (Monitoring) | Dokumentasi, periksa celah masuk | Hari ini |
+| **Snake** | DANGER (Bio-Hazard) | Evakuasi zona, hubungi pest control | 0-30 detik |
+| **Cat** | WARNING (Kontaminasi) | Karantina produk, sanitasi area | 0-5 menit |
+| **Gecko/Lizard** | INFO (Monitoring) | Dokumentasi, periksa celah masuk | Hari ini |
 
 ### Dataset Card
 
@@ -105,12 +105,12 @@ Gudang PT. Kawan Lama Group menghadapi risiko bio-hazard dan kontaminasi akibat 
 | **Classes** | Snake, Cat, Gecko, Lizard |
 | **Augmentation** | Horizontal flip, brightness ±30%, rotation ±15°, mosaic |
 | **Split** | 70% train / 20% val / 10% test |
-| **Low-light samples** | ✅ Included (gudang malam hari) |
-| **Partial occlusion** | ✅ Included (hewan tersembunyi di barang) |
+| **Low-light samples** | Included (gudang malam hari) |
+| **Partial occlusion** | Included (hewan tersembunyi di barang) |
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology | Purpose |
 |---|---|---|
@@ -125,7 +125,7 @@ Gudang PT. Kawan Lama Group menghadapi risiko bio-hazard dan kontaminasi akibat 
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Option 1: Docker (Recommended)
 
@@ -154,10 +154,11 @@ npm run dev
 ```
 
 **Akses:**
-- Dashboard: [http://localhost:5173](http://localhost:5173)
-- API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+- Dashboard: http://localhost:5173
+- API Docs: http://localhost:8000/docs
 
 ### Default Login
+
 | Username | Password | Role |
 |---|---|---|
 | `admin` | *(lihat terminal saat startup)* | Admin |
@@ -166,39 +167,39 @@ npm run dev
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 smartwarehouse-ai/
 ├── backend/
 │   ├── routes/
-│   │   ├── auth.py          # Login, register, password reset
-│   │   ├── camera.py        # Multi-zone camera + YOLO inference
-│   │   ├── analytics.py     # Trend charts, heatmap, peak hours
-│   │   ├── chat.py          # Gemini AI chat (RAG pattern)
-│   │   ├── logs.py          # Detection logs CRUD + CSV export
-│   │   ├── model_info.py    # YOLO metrics + training artifacts
-│   │   ├── zones.py         # Camera zone management
-│   │   └── users.py         # User management
+│   │   ├── auth.py              # Login, register, password reset
+│   │   ├── camera.py            # Multi-zone camera + YOLO inference
+│   │   ├── analytics.py         # Trend charts, heatmap, peak hours
+│   │   ├── chat.py              # Gemini AI chat (RAG pattern)
+│   │   ├── logs.py              # Detection logs CRUD + CSV export
+│   │   ├── model_info.py        # YOLO metrics + training artifacts
+│   │   ├── zones.py             # Camera zone management
+│   │   └── users.py             # User management
 │   ├── services/
-│   │   ├── detector.py      # YOLO11 + HUD bounding box renderer
-│   │   ├── tts.py           # Indonesian text-to-speech alerts
-│   │   ├── telegram_alert.py # Telegram Bot notifications
+│   │   ├── detector.py          # YOLO11 + HUD bounding box renderer
+│   │   ├── tts.py               # Indonesian text-to-speech alerts
+│   │   ├── telegram_alert.py    # Telegram Bot notifications
 │   │   └── websocket_manager.py # WebSocket broadcast manager
-│   ├── config.py            # Constants, env vars, auth guards
-│   ├── database.py          # SQLite WAL + schema migrations
+│   ├── config.py                # Constants, env vars, auth guards
+│   ├── database.py              # SQLite WAL + schema migrations
 │   └── requirements.txt
 ├── src/
 │   ├── pages/
-│   │   ├── LiveMonitor.jsx  # Real-time camera + alert dashboard
-│   │   ├── DetectionLogs.jsx # Detection history + search/filter
-│   │   ├── RiskAnalysis.jsx # Analytics, charts, zone heatmap
-│   │   ├── AIPerformance.jsx # YOLO metrics, training curves
-│   │   ├── AskAI.jsx        # Gemini AI chat interface
-│   │   ├── SOPMitigasi.jsx  # SOP protocols + ROI calculator
-│   │   └── UserManagement.jsx # Admin: user CRUD + invite system
+│   │   ├── LiveMonitor.jsx      # Real-time camera + alert dashboard
+│   │   ├── DetectionLogs.jsx    # Detection history + search/filter
+│   │   ├── RiskAnalysis.jsx     # Analytics, charts, zone heatmap
+│   │   ├── AIPerformance.jsx    # YOLO metrics, training curves
+│   │   ├── AskAI.jsx            # Gemini AI chat interface
+│   │   ├── SOPMitigasi.jsx      # SOP protocols + ROI calculator
+│   │   └── UserManagement.jsx   # Admin: user CRUD + invite system
 │   ├── components/
-│   │   ├── CameraGrid.jsx   # Multi-zone camera grid
+│   │   ├── CameraGrid.jsx       # Multi-zone camera grid
 │   │   ├── WarehouseZoneMap.jsx # Interactive warehouse map
 │   │   ├── ReportGenerator.jsx  # PDF/CSV report export
 │   │   └── CommandPalette.jsx   # Ctrl+K quick navigation
@@ -210,25 +211,21 @@ smartwarehouse-ai/
 
 ---
 
-## 💰 Business Value (ROI)
+## Business Value (ROI)
 
 Estimasi untuk 1 gudang PT. Kawan Lama:
 
 | Metric | Value |
 |---|---|
-| Biaya pest control manual | Rp 15-30 jt/bulan |
-| OPEX SmartWarehouse AI | Rp 3 jt/bulan |
-| **Penghematan per tahun** | **Rp 144-324 jt/gudang** |
+| Biaya pest control manual | Rp 15-30 juta per bulan |
+| OPEX SmartWarehouse AI | Rp 3 juta per bulan |
+| **Penghematan per tahun** | **Rp 144-324 juta per gudang** |
 | Break-even period | 4-6 bulan |
-| ROI 3 tahun | >200% |
+| ROI 3 tahun | lebih dari 200% |
 
 ---
 
-## 👥 Team
+## Team
 
-**Group 5 — AI Open Innovation Challenge 2026**
-President University × PT. Kawan Lama Group
-
----
-
-*Built with ❤️ for AI Open Innovation Challenge 2026*
+**Team Andalusia -- AI Open Innovation Challenge 2026**
+President University x PT. Kawan Lama Group
