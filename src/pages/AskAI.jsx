@@ -142,30 +142,28 @@ export default function AskAI() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: 0, flex: 1 }}>
 
       {/* ── Header ── */}
-      <div className="card" style={{ padding: '1.5rem 2rem', display: 'flex', alignItems: 'center', gap: '1.25rem', flexShrink: 0 }}>
-        <BotAvatar size={52} />
-        <div>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.025em' }}>
+      <div className="card" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0, flexWrap: 'wrap' }}>
+        <BotAvatar size={44} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1 style={{ fontSize: 'clamp(1rem, 4vw, 1.25rem)', fontWeight: '800', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.025em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             AI Warehouse Assistant
           </h1>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.15rem 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             Tanya tentang deteksi, zona, statistik, atau laporan keamanan
           </p>
         </div>
-        {/* Online badge — SVG dot only, no text emoji */}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-          {/* Gemini badge */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
           {poweredBy && poweredBy.includes('gemini') && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.72rem', fontWeight: '700',
-              color: '#6366f1', background: 'rgba(99,102,241,0.08)', padding: '0.3rem 0.75rem',
-              borderRadius: '99px', border: '1px solid rgba(99,102,241,0.25)' }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-              Gemini 2.0 Flash
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.68rem', fontWeight: '700',
+              color: '#6366f1', background: 'rgba(99,102,241,0.08)', padding: '0.25rem 0.6rem',
+              borderRadius: '99px', border: '1px solid rgba(99,102,241,0.25)', whiteSpace: 'nowrap' }}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Gemini 2.0
             </div>
           )}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: '700', color: '#22c55e', background: 'rgba(34,197,94,0.08)', padding: '0.375rem 0.875rem', borderRadius: '99px', border: '1px solid rgba(34,197,94,0.2)' }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: '#22c55e', display: 'inline-block', animation: 'pulse-ring 2s infinite' }} />
-            AI ONLINE
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.68rem', fontWeight: '700', color: '#22c55e', background: 'rgba(34,197,94,0.08)', padding: '0.25rem 0.6rem', borderRadius: '99px', border: '1px solid rgba(34,197,94,0.2)', whiteSpace: 'nowrap' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#22c55e', display: 'inline-block', animation: 'pulse-ring 2s infinite' }} />
+            ONLINE
           </div>
         </div>
       </div>
@@ -178,8 +176,8 @@ export default function AskAI() {
             {msg.role === 'ai' && <div style={{ width: '0.625rem' }} />}
 
             <div style={{
-              maxWidth: msg.role === 'user' ? '60%' : '75%',
-              padding: '0.875rem 1.125rem',
+              maxWidth: msg.role === 'user' ? 'min(72%, 420px)' : 'min(85%, 520px)',
+              padding: '0.75rem 1rem',
               borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '4px 18px 18px 18px',
               backgroundColor: msg.role === 'user' ? 'var(--text-primary)' : 'var(--bg-secondary)',
               color: msg.role === 'user' ? 'var(--bg-primary)' : 'var(--text-primary)',
@@ -219,19 +217,19 @@ export default function AskAI() {
       </div>
 
       {/* ── Suggestion Chips ── */}
-      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', flexShrink: 0 }}>
+      <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', flexShrink: 0, paddingBottom: '2px', WebkitOverflowScrolling: 'touch' }}>
         {SUGGESTIONS.map((s, i) => (
           <button
             key={i}
             onClick={() => sendMessage(s.text)}
             disabled={loading}
             style={{
-              padding: '0.4rem 0.9rem', borderRadius: '99px', fontSize: '0.78rem', fontWeight: '600',
+              padding: '0.375rem 0.875rem', borderRadius: '99px', fontSize: '0.76rem', fontWeight: '600',
               backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)',
               border: '1px solid var(--border-color)', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: '0.4rem',
-              transition: 'all 0.15s ease', opacity: loading ? 0.5 : 1,
-              fontFamily: 'var(--font-family)',
+              display: 'flex', alignItems: 'center', gap: '0.375rem',
+              transition: 'border-color 0.15s ease, color 0.15s ease, transform 0.15s ease', opacity: loading ? 0.5 : 1,
+              fontFamily: 'var(--font-family)', whiteSpace: 'nowrap', flexShrink: 0,
             }}
             onMouseOver={e => { if (!loading) { e.currentTarget.style.borderColor = 'var(--text-secondary)'; e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.transform = 'translateY(-1px)'; } }}
             onMouseOut={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.transform = 'translateY(0)'; }}
@@ -270,7 +268,7 @@ export default function AskAI() {
             color: input.trim() && !loading ? 'var(--bg-primary)' : 'var(--text-secondary)',
             border: 'none', cursor: input.trim() && !loading ? 'pointer' : 'not-allowed',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.2s ease', flexShrink: 0,
+            transition: 'background-color 0.2s ease, color 0.2s ease', flexShrink: 0,
           }}
         >
           {loading

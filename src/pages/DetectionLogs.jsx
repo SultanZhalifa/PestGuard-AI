@@ -144,7 +144,7 @@ export default function DetectionLogs() {
             <button
               key={f.key}
               onClick={() => setActiveFilter(f.key)}
-              style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', fontWeight: '600', background: 'none', border: 'none', cursor: 'pointer', color: activeFilter === f.key ? 'var(--text-primary)' : 'var(--text-secondary)', borderBottom: activeFilter === f.key ? '2px solid var(--text-primary)' : '2px solid transparent', transition: 'all 0.2s ease', marginBottom: '-1px' }}
+              style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', fontWeight: '600', background: 'none', border: 'none', cursor: 'pointer', color: activeFilter === f.key ? 'var(--text-primary)' : 'var(--text-secondary)', borderBottom: activeFilter === f.key ? '2px solid var(--text-primary)' : '2px solid transparent', transition: 'color 0.2s ease, border-color 0.2s ease', marginBottom: '-1px' }}
             >
               {f.label}
               {f.key !== 'all' && (

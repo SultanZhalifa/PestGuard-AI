@@ -55,7 +55,7 @@ export default function PreferencesSettings({ notifications, darkMode, language,
                   backgroundColor: language === lang ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
                   color: language === lang ? 'var(--bg-primary)' : 'var(--text-secondary)',
                   border: `1px solid ${language === lang ? 'var(--accent-primary)' : 'var(--border-color)'}`,
-                  cursor: 'pointer', transition: 'all 0.2s ease',
+                  cursor: 'pointer', transition: 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease',
                 }}
               >
                 {lang === 'en' ? '🇬🇧 EN' : '🇮🇩 ID'}

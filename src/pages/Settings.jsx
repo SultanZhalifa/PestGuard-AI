@@ -81,9 +81,9 @@ export default function Settings() {
     <div style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '2rem' }}>
 
       {/* Page title */}
-      <div style={{ marginBottom: '2.5rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>{t.settings.title}</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>{t.settings.subtitle}</p>
+      <div style={{ marginBottom: '2rem' }}>
+        <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.4rem', letterSpacing: '-0.025em' }}>{t.settings.title}</h1>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{t.settings.subtitle}</p>
       </div>
 
       {/* Main settings card */}
@@ -175,7 +175,7 @@ export default function Settings() {
           </div>
           <h3 className="section-title">Development Team</h3>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.875rem' }}>
           {TEAM.map((m, i) => (
             <div key={i} className="team-card"
               onMouseOver={e => { e.currentTarget.style.borderColor = m.color; e.currentTarget.style.transform = 'translateY(-2px)'; }}

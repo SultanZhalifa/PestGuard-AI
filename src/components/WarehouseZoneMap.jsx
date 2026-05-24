@@ -53,7 +53,7 @@ export default function WarehouseZoneMap({ zoneData = [], recentLogs = [] }) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: selectedZone ? '2fr 1fr' : '1fr', gap: '1.5rem', transition: 'all 0.3s ease' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: selectedZone ? '2fr 1fr' : '1fr', gap: '1.5rem', transition: 'grid-template-columns 0.3s ease' }}>
         
         {/* SVG Floor Plan */}
         <div style={{ 
@@ -94,7 +94,7 @@ export default function WarehouseZoneMap({ zoneData = [], recentLogs = [] }) {
                     stroke={colors.border}
                     strokeWidth={isHovered || isSelected ? "0.6" : "0.3"}
                     opacity={isHovered || isSelected ? 1 : 0.8}
-                    style={{ transition: 'all 0.3s ease' }}
+                    style={{ transition: 'fill 0.3s ease, stroke 0.3s ease, opacity 0.3s ease' }}
                   />
 
                   {/* Pulse ring for high alert */}

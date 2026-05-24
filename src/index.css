@@ -176,7 +176,7 @@ body.dark-mode .card:hover {
   font-size: 0.9rem;
   font-weight: 600;
   position: relative;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-link.active {
@@ -417,6 +417,13 @@ body.dark-mode .nav-link.active::before {
   -webkit-overflow-scrolling: touch;
 }
 
+/* ── Camera grid: 2-col desktop, 1-col mobile ── */
+.camera-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
 /* ── Responsive grid helpers ── */
 .grid-2col {
   display: grid;
@@ -454,7 +461,7 @@ body.dark-mode .nav-link.active::before {
   color: var(--text-primary);
   cursor: pointer;
   flex-shrink: 0;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .hamburger-btn:hover {
@@ -631,6 +638,11 @@ body.dark-mode .nav-link.active::before {
     grid-template-columns: 1fr !important;
   }
 
+  /* Camera grid: single column on mobile for usable video size */
+  .camera-grid {
+    grid-template-columns: 1fr !important;
+  }
+
   /* Remove card hover lift on mobile (prevents jank) */
   .card:hover {
     transform: none;
@@ -740,6 +752,12 @@ body.dark-mode .nav-link.active::before {
   .panel-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  /* ROI slider value label narrower on small screens */
+  .roi-slider-value {
+    min-width: 56px;
+    font-size: 0.78rem;
   }
 }
 
@@ -1054,7 +1072,7 @@ body.dark-mode .login-form-panel {
   font-size: 0.9rem;
   color: var(--text-primary);
   background-color: var(--bg-primary);
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
   font-family: var(--font-family);
 }
 
@@ -1171,7 +1189,7 @@ body.dark-mode .login-input-wrap input:focus {
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: var(--font-family);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
@@ -1254,6 +1272,16 @@ body.dark-mode .login-submit {
     flex-direction: column;
     justify-content: center;
   }
+}
+
+/* ── ROI slider row value label ── */
+.roi-slider-value {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 72px;
+  text-align: right;
+  flex-shrink: 0;
 }
 
 /* ─── Page Transitions (consolidated above) ─── */
@@ -1527,7 +1555,7 @@ body.dark-mode .login-submit {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .video-viewport {
@@ -1536,7 +1564,7 @@ body.dark-mode .login-submit {
   border-radius: 20px;
   overflow: hidden;
   box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
   aspect-ratio: 4 / 3;
 }
 
@@ -1578,7 +1606,7 @@ body.dark-mode .login-submit {
   font-size: 0.7rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   display: flex;
   align-items: center;
   gap: 0.35rem;
@@ -1607,7 +1635,7 @@ body.dark-mode .login-submit {
   align-items: center;
   padding: 0.75rem 1rem;
   border-radius: 10px;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
   cursor: default;
 }
 
@@ -1673,7 +1701,7 @@ body.dark-mode .login-submit {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .count-badge {
@@ -1696,7 +1724,7 @@ body.dark-mode .login-submit {
   font-size: 0.875rem;
   color: var(--text-primary);
   background-color: var(--bg-primary);
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
   font-family: var(--font-family);
 }
@@ -1764,7 +1792,7 @@ body.dark-mode .login-submit {
   font-size: 0.9rem;
   color: var(--text-primary);
   background-color: var(--bg-primary);
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
   font-family: var(--font-family);
 }
@@ -1846,7 +1874,7 @@ body.dark-mode .login-submit {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   letter-spacing: -0.01em;
 }
 
@@ -1870,7 +1898,7 @@ body.dark-mode .login-submit {
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
   margin-left: 1rem;
   flex-shrink: 0;
 }
@@ -1881,12 +1909,12 @@ body.dark-mode .login-submit {
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  padding: 1rem;
+  padding: 0.875rem 0.75rem;
   border-radius: 14px;
   border: 1px solid var(--border-color);
-  min-width: 90px;
+  min-width: 80px;
   cursor: default;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   background-color: var(--bg-primary);
 }
 
@@ -1896,12 +1924,12 @@ body.dark-mode .login-submit {
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  padding: 1.25rem;
+  padding: 1.125rem 1rem;
   border-radius: 16px;
   border: 1px solid var(--border-color);
   background-color: var(--bg-primary);
   cursor: default;
-  transition: all 0.25s ease;
+  transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
 /* ── Version bar ── */
@@ -1941,7 +1969,7 @@ body.dark-mode .login-submit {
   font-size: 0.875rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 12px rgba(59,130,246,0.25);
   letter-spacing: -0.01em;
   white-space: nowrap;

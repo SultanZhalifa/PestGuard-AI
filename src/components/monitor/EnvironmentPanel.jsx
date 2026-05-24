@@ -103,7 +103,7 @@ export default function EnvironmentPanel() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
           <button
             onClick={() => handleQuickAction('Evacuation Alarm')}
-            style={{ padding: '0.6rem', fontSize: '0.75rem', fontWeight: '600', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s' }}
+            style={{ padding: '0.6rem', fontSize: '0.75rem', fontWeight: '600', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem', transition: 'border-color 0.2s ease, color 0.2s ease' }}
             onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--alert-danger)'; e.currentTarget.style.color = 'var(--alert-danger)'; }}
             onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
           >
@@ -113,7 +113,7 @@ export default function EnvironmentPanel() {
           
           <button
             onClick={() => handleQuickAction('Zone Lockdown')}
-            style={{ padding: '0.6rem', fontSize: '0.75rem', fontWeight: '600', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s' }}
+            style={{ padding: '0.6rem', fontSize: '0.75rem', fontWeight: '600', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem', transition: 'border-color 0.2s ease, color 0.2s ease' }}
             onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--alert-warning)'; e.currentTarget.style.color = 'var(--alert-warning)'; }}
             onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
           >
@@ -124,7 +124,7 @@ export default function EnvironmentPanel() {
 
         <button
           onClick={() => handleQuickAction('Security Dispatch')}
-          style={{ width: '100%', marginTop: '0.75rem', padding: '0.6rem', fontSize: '0.75rem', fontWeight: '600', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'all 0.2s' }}
+          style={{ width: '100%', marginTop: '0.75rem', padding: '0.6rem', fontSize: '0.75rem', fontWeight: '600', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'border-color 0.2s ease, color 0.2s ease' }}
           onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--text-primary)'; }}
           onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; }}
         >

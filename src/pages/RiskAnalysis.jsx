@@ -93,7 +93,7 @@ export default function RiskAnalysis() {
       {/* Header with PDF Export */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h2 style={{ fontSize: '1.875rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>{t.riskAnalysis.executiveSummary}</h2>
+          <h2 style={{ fontSize: 'clamp(1.375rem, 4.5vw, 1.875rem)', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>{t.riskAnalysis.executiveSummary}</h2>
         </div>
         {/* Report toast */}
         {reportToast && (
@@ -190,7 +190,7 @@ export default function RiskAnalysis() {
                       border: 'none',
                       borderRadius: '8px',
                       cursor: trendLoading ? 'wait' : 'pointer',
-                      transition: 'all 0.2s ease',
+                      transition: 'background-color 0.2s ease, color 0.2s ease',
                       letterSpacing: '0.01em',
                     }}
                   >
