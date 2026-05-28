@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
 import { useT } from '../hooks/useT';
 import api from '../lib/apiClient';
@@ -49,6 +49,7 @@ export default function UserManagement() {
     }
   }, []);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadUsers(); }, [loadUsers]);
 
   const handleDelete = async (u) => {
@@ -86,7 +87,7 @@ export default function UserManagement() {
   };
 
   return (
-    <div style={{ maxWidth: '1100px', margin: '0 auto', paddingBottom: '2rem' }}>
+    <div className="page-container">
       {toast && (
         <div style={{
           position: 'fixed', bottom: '2rem', right: '2rem',
@@ -293,14 +294,10 @@ export default function UserManagement() {
         <CreateUserModal
           onClose={() => setShowCreate(false)}
           onCreate={async (form) => {
-            try {
               await api.postJson('/users', form);
               showToast(t.userManagement.userCreated.replace('{username}', form.username));
               setShowCreate(false);
               loadUsers();
-            } catch (e) {
-              throw e;
-            }
           }}
         />
       )}
@@ -310,13 +307,9 @@ export default function UserManagement() {
         <InviteUserModal
           onClose={() => setShowInvite(false)}
           onInvite={async (form) => {
-            try {
               const data = await api.postJson('/invite-user', form);
               setShowInvite(false);
               setInviteResult({ invite_link: data.invite_link });
-            } catch (e) {
-              throw e;
-            }
           }}
         />
       )}
@@ -328,14 +321,10 @@ export default function UserManagement() {
           isSelf={currentUser && editingUser.username === currentUser.username}
           onClose={() => setEditingUser(null)}
           onSave={async (patch) => {
-            try {
               await api.patchJson(`/users/${editingUser.id}`, patch);
               showToast(t.userManagement.userUpdated);
               setEditingUser(null);
               loadUsers();
-            } catch (e) {
-              throw e;
-            }
           }}
         />
       )}
@@ -352,9 +341,10 @@ function Modal({ children, onClose }) {
     }}>
       <div onClick={e => e.stopPropagation()} style={{
         backgroundColor: 'var(--bg-secondary)', borderRadius: '20px', padding: '2rem',
-        maxWidth: '500px', width: '90%',
+        maxWidth: '500px', width: 'min(90%, 500px)',
         boxShadow: '0 25px 50px -12px rgba(0,0,0,0.4)',
         border: '1px solid var(--border-color)',
+        maxHeight: '90dvh', overflowY: 'auto',
       }}>{children}</div>
     </div>
   );

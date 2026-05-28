@@ -50,7 +50,7 @@ const SearchHint = memo(function SearchHint({ hints }) {
     const phrase = hints[phraseIdx];
     let timer;
     if (deleting) {
-      if (text === '') { setDeleting(false); setPhraseIdx(i => (i + 1) % hints.length); return; }
+      if (text === '') { setDeleting(false); setPhraseIdx(i => (i + 1) % hints.length); return; } // eslint-disable-line react-hooks/set-state-in-effect
       timer = setTimeout(() => setText(phrase.substring(0, text.length - 1)), 28);
     } else {
       if (text === phrase) { timer = setTimeout(() => setDeleting(true), 2200); return; }
@@ -79,7 +79,7 @@ export default function DashboardLayout() {
 
   // Close mobile sidebar + reset scroll on route change
   useEffect(() => {
-    setIsSidebarOpen(false);
+    setIsSidebarOpen(false); // eslint-disable-line react-hooks/set-state-in-effect
     document.querySelector('.main-content')?.scrollTo({ top: 0, behavior: 'instant' });
   }, [location.pathname]);
 
@@ -278,8 +278,8 @@ export default function DashboardLayout() {
       {/* Main Content Area */}
       <main className="main-content">
         {/* Top Header */}
-        <header className="top-nav" style={{ padding: '0 2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', height: '64px', minHeight: '64px', maxHeight: '64px', flexShrink: 0, backgroundColor: 'var(--glass-bg)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <header className="top-nav">
+          <div className="top-nav-left">
             {/* Hamburger — visible only on mobile */}
             <button
               className="hamburger-btn"
@@ -297,13 +297,13 @@ export default function DashboardLayout() {
                 </svg>
               )}
             </button>
-            <div style={{ minWidth: 0 }}>
-              <h2 style={{ fontSize: '1.0625rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pageMeta.title}</h2>
-              <p style={{ fontSize: '0.75rem', fontWeight: '500', color: 'var(--text-secondary)', margin: '0.1rem 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pageMeta.subtitle}</p>
+            <div className="top-nav-title">
+              <h2>{pageMeta.title}</h2>
+              <p className="top-nav-subtitle">{pageMeta.subtitle}</p>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div className="top-nav-right">
             {/* Command palette trigger — hidden on mobile */}
             <button
               className="top-nav-search-btn"
@@ -332,9 +332,9 @@ export default function DashboardLayout() {
               }}>{isMac ? '⌘K' : 'Ctrl+K'}</span>
             </button>
 
-            {/* User info + role badge */}
+            {/* User info + role badge — hidden on mobile (shown in sidebar) */}
             {user && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.375rem 0.75rem 0.375rem 0.5rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+              <div className="top-nav-user-badge">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '50%', backgroundColor: badge.bg, color: badge.fg, fontWeight: '700', fontSize: '0.75rem' }}>
                   {(user.name || user.username || '?').charAt(0).toUpperCase()}
                 </div>

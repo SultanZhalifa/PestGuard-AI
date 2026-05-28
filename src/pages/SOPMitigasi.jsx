@@ -162,7 +162,7 @@ function ROISection() {
             <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '0.95rem', fontWeight: '700', color: 'var(--text-primary)' }}>
               Parameter Sistem SmartWarehouse AI
             </h3>
-            {systemRows.map(({ label, state, set, step, min, max, isRupiah }) => (
+            {systemRows.map(({ label, state, set, step, min, max }) => (
               <div key={label} style={{ marginBottom: '1rem' }}>
                 <label style={{ fontSize: '0.78rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                   {label}
@@ -458,7 +458,7 @@ export default function SOPMitigasi() {
               fontSize: '0.78rem',
               fontWeight: '700',
               color: '#059669',
-              whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
           >
             PT. KAWAN LAMA GROUP
