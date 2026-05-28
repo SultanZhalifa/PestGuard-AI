@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
 import { useT } from '../hooks/useT';
 import api from '../lib/apiClient';
@@ -154,7 +154,7 @@ export default function AIPerformance() {
       
       {/* Header */}
       <div>
-        <h2 style={{ fontSize: '1.875rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>{t.aiPerformance.title}</h2>
+        <h2 style={{ fontSize: 'clamp(1.375rem, 5vw, 1.875rem)', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.025em' }}>{t.aiPerformance.title}</h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{t.aiPerformance.subtitle}</p>
       </div>
 
