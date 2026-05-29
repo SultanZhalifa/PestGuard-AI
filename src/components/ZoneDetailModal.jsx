@@ -73,6 +73,13 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
+  // Lock background scroll while the modal is open (only the overlay scrolls)
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
   // Reset player state when zone changes
   useEffect(() => {
     setRotation(0);
@@ -139,9 +146,11 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
         position: 'fixed', inset: 0, zIndex: 9999,
         backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
         overflowY: 'auto', overflowX: 'hidden',
-        // Flexbox centering clips the top of tall modals and can't scroll up to it.
-        // A scrollable overlay + auto margins centers AND keeps the whole modal reachable.
-        display: 'block', padding: '2rem',
+        // Flex + `margin: auto` on the child: centers vertically when it fits,
+        // and when the modal is taller than the viewport it stays fully scrollable
+        // from top to bottom without clipping (the classic flex-center bug).
+        display: 'flex', justifyContent: 'center',
+        padding: '2rem',
       }}
     >
       <div
@@ -149,7 +158,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
         style={{
           backgroundColor: 'var(--bg-secondary)', borderRadius: '20px',
           width: '100%', maxWidth: '1100px',
-          margin: '0 auto',
+          margin: 'auto',
           border: '1px solid var(--border-color)',
           boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
         }}
