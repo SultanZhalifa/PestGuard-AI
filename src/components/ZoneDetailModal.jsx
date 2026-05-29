@@ -145,12 +145,11 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
       style={{
         position: 'fixed', inset: 0, zIndex: 9999,
         backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
-        overflowY: 'auto', overflowX: 'hidden',
-        // Flex + `margin: auto` on the child: centers vertically when it fits,
-        // and when the modal is taller than the viewport it stays fully scrollable
-        // from top to bottom without clipping (the classic flex-center bug).
-        display: 'flex', justifyContent: 'center',
-        padding: '2rem',
+        // Overlay itself does NOT scroll — it just centers the modal in the
+        // viewport. The modal has a fixed max height and scrolls internally,
+        // so it always floats centered regardless of the page scroll position.
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '1.5rem',
       }}
     >
       <div
@@ -158,7 +157,9 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
         style={{
           backgroundColor: 'var(--bg-secondary)', borderRadius: '20px',
           width: '100%', maxWidth: '1100px',
-          margin: 'auto',
+          maxHeight: 'calc(100dvh - 3rem)',
+          display: 'flex', flexDirection: 'column',
+          overflow: 'hidden',
           border: '1px solid var(--border-color)',
           boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
         }}
@@ -167,7 +168,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
         <div style={{
           padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-color)',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          position: 'sticky', top: 0, backgroundColor: 'var(--bg-secondary)', zIndex: 10,
+          backgroundColor: 'var(--bg-secondary)', flexShrink: 0,
         }}>
           <div>
             <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '600', letterSpacing: '0.1em' }}>
@@ -184,8 +185,8 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
           }}>×</button>
         </div>
 
-        {/* Body */}
-        <div className="zone-modal-body" style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '1.5rem' }}>
+        {/* Body — scrolls internally so the modal stays a fixed centered size */}
+        <div className="zone-modal-body" style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '1.5rem', overflowY: 'auto', flex: 1 }}>
           {/* LEFT: video + stats */}
           <div>
             {/* Live Stream */}
