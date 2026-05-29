@@ -1,8 +1,8 @@
 # Sprint Reports
 
 Project: Smart Warehouse Bio Hazard and Pest Detection
-Group: 5
-Course: Agile Software Development
+Team: Andalusia
+Methodology: Agile / Scrum
 
 
 ---

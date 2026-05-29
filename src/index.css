@@ -54,6 +54,59 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ===== Premium scrollbar — thin, auto-hide on idle ===== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: transparent;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+*:hover::-webkit-scrollbar-thumb,
+*:focus::-webkit-scrollbar-thumb,
+*:active::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.55);
+}
+body.dark-mode *:hover::-webkit-scrollbar-thumb,
+body.dark-mode *:focus::-webkit-scrollbar-thumb,
+body.dark-mode *:active::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+}
+body.dark-mode *::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+*:hover {
+  scrollbar-color: rgba(100, 116, 139, 0.35) transparent;
+}
+body.dark-mode *:hover {
+  scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+}
+/* Hide horizontal scrollbar on mobile tables (still scrollable by touch) */
+@media (max-width: 768px) {
+  .table-wrap::-webkit-scrollbar,
+  .table-scroll::-webkit-scrollbar {
+    height: 0;
+    display: none;
+  }
+  .table-wrap, .table-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+}
+
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
@@ -65,6 +118,7 @@ h1, h2, h3, h4, h5, h6 {
 .app-container {
   display: flex;
   height: 100vh;
+  height: 100dvh;
   width: 100%;
   overflow: hidden;
 }
@@ -79,6 +133,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   flex-shrink: 0;
   overflow-y: auto;
   overflow-x: hidden;
@@ -90,6 +145,8 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   overflow-y: auto;
   height: 100vh;
+  height: 100dvh;
+  min-width: 0;
 }
 
 .top-nav {
@@ -168,6 +225,9 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 .dashboard-content > .page-enter {
@@ -1064,12 +1124,14 @@ html, body {
 .login-page {
   display: flex;
   min-height: 100vh;
+  min-height: 100dvh;
   font-family: var(--font-family);
   background-color: var(--bg-primary);
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
+  padding: 1.25rem;
 }
 
 /* ── Centered Form Panel ── */
@@ -1077,9 +1139,9 @@ html, body {
   width: 100%;
   max-width: 440px;
   padding: 2.5rem;
-  background-color: var(--bg-primary);
+  background-color: var(--bg-secondary);
   border-radius: 24px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08), 0 8px 16px rgba(15, 23, 42, 0.04);
   border: 1px solid var(--border-color);
   position: relative;
   z-index: 10;
@@ -1437,15 +1499,30 @@ body.dark-mode .login-submit {
 /* ── Login Responsive ── */
 @media (max-width: 768px) {
   .login-form-panel {
-    padding: 1.5rem;
-    border-radius: 0;
-    box-shadow: none;
-    border: none;
-    height: 100vh;
+    padding: 1.75rem 1.5rem;
+    border-radius: 20px;
     max-width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-page {
+    padding: 0.75rem;
+  }
+  .login-form-panel {
+    padding: 1.5rem 1.25rem;
+    border-radius: 18px;
+  }
+}
+
+/* Hide decorative gradient circles on small screens — they overflow viewport */
+@media (max-width: 600px) {
+  .login-page::before,
+  .login-page::after {
+    display: none;
   }
 }
 

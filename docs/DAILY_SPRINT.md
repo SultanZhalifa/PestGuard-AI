@@ -1,8 +1,8 @@
 # Daily Sprint Log
 
 Project: Smart Warehouse Bio Hazard and Pest Detection
-Group: 5
-Course: Agile Software Development
+Team: Andalusia
+Methodology: Agile / Scrum
 
 This file contains the daily standup logs for all three sprints. Each entry follows the same format:
 

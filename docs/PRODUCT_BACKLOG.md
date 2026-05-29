@@ -1,8 +1,8 @@
 # Product Backlog
 
 Project: Smart Warehouse Bio Hazard and Pest Detection
-Group: 5
-Course: Agile Software Development
+Team: Andalusia
+Methodology: Agile / Scrum
 
 This backlog covers everything the team committed to building for the SmartGuard AI system. Items are ordered by priority. High priority items are foundational, meaning the system simply cannot work without them. Medium priority items add important value to the demo and the real use case. Low priority items are enhancements that improve the experience but are not critical for the first working version.
 

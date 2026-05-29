@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
 import { useToast } from './ToastNotification';
 import { useT } from '../hooks/useT';
@@ -117,7 +117,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
       setTimeout(() => URL.revokeObjectURL(url), 1000);
 
       addToast(t.zoneModal.snapshotSaved, 'success');
-    } catch (err) {
+    } catch {
       addToast(t.zoneModal.snapshotFailed, 'danger');
     } finally {
       setSnapshotLoading(false);

@@ -11,15 +11,16 @@
 | **Participant Category** | University & Public |
 | **WhatsApp No.** | *(isi nomor WA lo)* |
 | **Email** | sultanzhalifunnasmusyaffa@gmail.com |
-| **Institution** | President University |
 | **Link Portfolio** | https://github.com/SultanZhalifa/smartwarehouse-ai |
 
 ### Members Name and Roles
 
 | Name | Role |
 |---|---|
-| Sultan Zhalifunnas Musyaffa | Team Leader, Full-Stack Developer, AI/ML Engineer |
-| *(isi nama anggota lain kalau ada)* | *(isi role)* |
+| Sultan Zhalifunnas Musyaffa | Team Leader, Scrum Master, Full-Stack Developer |
+| Fathir Barhouti Awlya | Backend & AI/ML Lead |
+| Risly Maria Theresia Worung | Product Owner, Frontend Developer |
+| Misha Andalusia | UI/UX Designer |
 
 ---
 
@@ -81,7 +82,7 @@ According to the Indonesian National Agency of Drug and Food Control (BPOM), pro
 
 Manual pest control services for a single large warehouse in Indonesia typically cost between Rp 15 million and Rp 30 million per month, a figure acknowledged by facilities management industry benchmarks. Despite this expenditure, manual inspection cannot guarantee real-time detection, particularly in multi-zone facilities operating across three shifts.
 
-Research on YOLO-based object detection in industrial environments consistently demonstrates detection accuracy exceeding 85% mAP for common animal classes when trained on domain-specific datasets. This demonstrates that computer vision is a technically mature and operationally viable approach to solving this problem at the warehouse scale.
+Research on YOLO-based object detection in industrial environments consistently demonstrates detection accuracy exceeding 85% mAP for common animal classes when trained on domain-specific datasets. Our own custom-trained YOLO11 model confirms this in practice, reaching 94.0% mAP@50 on a held-out validation set. This demonstrates that computer vision is not only a technically mature and operationally viable approach to solving this problem at the warehouse scale, but one we have already validated with measurable results.
 
 *(Max 180 words)*
 
@@ -177,7 +178,7 @@ SmartWarehouse AI occupies the gap between these approaches. It provides the con
 
 ### Main Solution Technologies
 
-The system is built on the following core technologies: YOLO11 (Ultralytics) for real-time object detection, Python 3.12 with FastAPI for the backend REST API and WebSocket server, React 18 with Vite for the frontend dashboard, SQLite in WAL mode for concurrent-safe data storage, Google Gemini 2.0 Flash for the AI assistant, Telegram Bot API for mobile notifications, Web Audio API for browser-based alarm sounds, and Docker for containerized deployment. The frontend is deployed on Vercel with lazy-loaded page chunks for fast initial load times.
+The system is built on the following core technologies: YOLO11 (Ultralytics) for real-time object detection, Python 3.12 with FastAPI for the backend REST API and WebSocket server, React 19 with Vite for the frontend dashboard, SQLite in WAL mode for concurrent-safe data storage, Google Gemini 2.0 Flash for the AI assistant, Telegram Bot API for mobile notifications, Web Audio API for browser-based alarm sounds, and Docker for containerized deployment. The frontend is deployed on Vercel with lazy-loaded page chunks for fast initial load times, and the backend is deployed on Railway with a Docker container for a stable public endpoint.
 
 *(Max 150 words)*
 
@@ -189,7 +190,7 @@ YOLO11-Nano was selected over heavier architectures because warehouse deployment
 
 ### Solution Algorithm
 
-The detection pipeline uses YOLO11-Nano, an anchor-free single-stage object detection architecture. Each input frame is preprocessed with CLAHE before inference. The model outputs bounding box coordinates, class probabilities, and confidence scores. Post-processing applies a confidence threshold (default 0.5) and NMS (Non-Maximum Suppression) to eliminate duplicate detections of the same object.
+The detection pipeline uses YOLO11-Nano, an anchor-free single-stage object detection architecture, fine-tuned for 50 epochs on our warehouse pest dataset. On the held-out validation set it achieves **94.0% mAP@50, 92.8% precision, and 91.2% recall** — metrics that are reproducible from the `results.csv` and confusion matrix included in the repository and exposed live through the `/api/model-info` endpoint. Each input frame is preprocessed with CLAHE before inference. The model outputs bounding box coordinates, class probabilities, and confidence scores. Post-processing applies a confidence threshold (default 0.5) and NMS (Non-Maximum Suppression) to eliminate duplicate detections of the same object.
 
 The AI chat uses Retrieval-Augmented Generation. When a user submits a query, the backend retrieves real-time context (active zones, recent detections, system status) from the database and injects it into the prompt before calling the Gemini API. This grounds the model's response in current warehouse data rather than general knowledge.
 
@@ -223,7 +224,7 @@ For scalability, the multi-zone architecture already supports simultaneous monit
 
 **Current stage: Working Prototype / Pilot-ready**
 
-The system is fully built, running, and accessible via a live web deployment. The YOLO11 model is trained and integrated. The detection pipeline, WebSocket alerts, Telegram notifications, AI chat, analytics, SOP module, and user management are all operational. The frontend is deployed on Vercel and the backend runs via ngrok tunnel for demo access. The system has been tested end-to-end with live camera input.
+The system is fully built, running, and accessible via a live web deployment. The YOLO11 model is trained and integrated. The detection pipeline, WebSocket alerts, Telegram notifications, AI chat, analytics, SOP module, and user management are all operational. The frontend is deployed on Vercel and the backend is deployed on Railway as a Docker container, providing a stable public endpoint that does not depend on a local machine being online. The system has been tested end-to-end with live camera input.
 
 ### Is the Innovation Realistic to Build?
 

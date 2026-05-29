@@ -5,6 +5,8 @@ Comprehensive test coverage for core API endpoints.
 Run with: pytest tests/ -v
 """
 
+import secrets
+
 import pytest
 from fastapi.testclient import TestClient
 from app import app
@@ -40,14 +42,13 @@ def auth_headers(client):
 class TestAuth:
     def test_login_success(self, client):
         response = client.post("/api/login", json={
-            "username": "manager",
-            "password": "manager123"
+            "username": "admin",
+            "password": "admin123"
         })
         assert response.status_code == 200
         data = response.json()
         assert "token" in data
-        assert data["user"]["name"] == "Warehouse Manager"
-        assert data["user"]["role"] == "manager"
+        assert data["user"]["role"] == "admin"
 
     def test_login_wrong_password(self, client):
         response = client.post("/api/login", json={
@@ -76,11 +77,16 @@ class TestAuth:
 
 # ─── Settings Tests ───
 class TestSettings:
-    def test_get_settings(self, client):
-        response = client.get("/api/settings")
+    def test_get_settings(self, client, auth_headers):
+        response = client.get("/api/settings", headers=auth_headers)
         assert response.status_code == 200
         data = response.json()
         assert "cameraUrl" in data or "threshold" in data
+
+    def test_get_settings_unauthorized(self, client):
+        # Settings now require authentication (security hardening)
+        response = client.get("/api/settings")
+        assert response.status_code == 401
 
     def test_update_settings(self, client, auth_headers):
         response = client.post("/api/settings", json={
@@ -154,9 +160,12 @@ class TestInviteSystem:
 
     def test_invite_user_success(self, client, auth_headers):
         """Admin can generate an invitation link."""
+        # Use a unique username/email each run so the test does not depend on
+        # leftover DB state from a previous run (invites are persisted).
+        unique = secrets.token_hex(4)
         response = client.post("/api/invite-user", json={
-            "email": "invited@example.com",
-            "username": "inviteduser",
+            "email": f"invited_{unique}@example.com",
+            "username": f"invited_{unique}",
             "role": "operator"
         }, headers=auth_headers)
         assert response.status_code == 200
@@ -178,19 +187,24 @@ class TestInviteSystem:
 # ─── Password Reset Tests ───
 class TestPasswordReset:
     def test_forgot_password_nonexistent(self, client):
+        # Security: returns generic 200 to prevent user enumeration
+        # (never reveals whether the email exists)
         response = client.post("/api/forgot-password", json={
             "email": "nobody@example.com"
         })
-        assert response.status_code == 404
+        assert response.status_code == 200
+        assert response.json()["status"] == "success"
 
     def test_forgot_password_success(self, client):
+        # Security: OTP is logged to the server console only, never returned
+        # over the network — response is identical to the nonexistent case
         response = client.post("/api/forgot-password", json={
             "email": "manager@kawanlama.com"
         })
         assert response.status_code == 200
         data = response.json()
-        assert "otp_code" in data
-        assert len(data["otp_code"]) == 6
+        assert data["status"] == "success"
+        assert "otp_code" not in data  # OTP must NOT leak in the response
 
     def test_reset_password_wrong_code(self, client):
         # First request OTP

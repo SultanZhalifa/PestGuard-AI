@@ -53,10 +53,12 @@ async function request(path, options = {}) {
     ...(options.headers || {}),
   };
 
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers,
-  });
+  let response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  } catch (e) {
+    throw new Error('Cannot reach server. Check your connection or that the backend is running.', { cause: e });
+  }
 
   // Session expired — clear storage and redirect to login
   if (response.status === 401) {
@@ -110,8 +112,8 @@ const api = {
       body: typeof body === 'string' ? body : JSON.stringify(body),
     });
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
-      throw new Error(err.detail || `API error ${res.status}`);
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || err.message || `Request failed (${res.status})`);
     }
     return res.json();
   },
@@ -141,8 +143,8 @@ const api = {
       body: typeof body === 'string' ? body : JSON.stringify(body),
     });
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
-      throw new Error(err.detail || `API error ${res.status}`);
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || err.message || `Request failed (${res.status})`);
     }
     return res.json();
   },

@@ -102,7 +102,7 @@ add_text(s, "Smart Warehouse Bio-Hazard & Pest Detection System",
 add_rect(s, 0.5, 3.3, 3.5, 0.045, fill=C_ACCENT)
 add_text(s, "AI Open Innovation Challenge 2026  ·  PT. Kawan Lama Surveillance",
          0.5, 3.5, 12, 0.4, size=13, color=C_MUTED)
-add_text(s, "Group 5  ·  Risly  ·  Sultan  ·  Fathir  ·  Misha",
+add_text(s, "Team Andalusia  ·  Sultan  ·  Fathir  ·  Risly  ·  Misha",
          0.5, 4.05, 12, 0.35, size=12, color=C_MUTED)
 
 # tech pills
@@ -443,7 +443,7 @@ for i, line in enumerate(links):
     add_text(s, line, 0.5, 3.7 + i*0.55, 12, 0.45,
              size=12, color=C_MUTED, align=PP_ALIGN.CENTER)
 
-add_text(s, "Group 5  ·  President University  ·  2026",
+add_text(s, "Team Andalusia  ·  AI Open Innovation Challenge  ·  2026",
          0.5, 6.85, 12, 0.4, size=10, color=C_MUTED, align=PP_ALIGN.CENTER)
 
 # ─────────────────────────────────────────

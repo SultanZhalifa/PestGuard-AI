@@ -76,13 +76,13 @@ using a custom-trained YOLO11 model.
 - **Thread-safe SQLite** with WAL mode for concurrent access
 - **WebSocket** push notifications with exponential backoff
 - **bcrypt** password hashing with SHA-256 auto-migration
-- **14 automated tests** via pytest
+- **29 automated tests** via pytest
 
 Built for the **AI Open Innovation Challenge 2026** — PT. Kawan Lama Group.
     """,
     contact={
-        "name": "Group 5 — Smart Warehouse Team",
-        "url": "https://github.com/smart-warehouse",
+        "name": "Team Andalusia — Smart Warehouse",
+        "url": "https://github.com/SultanZhalifa/smartwarehouse-ai",
     },
     license_info={
         "name": "MIT License",
