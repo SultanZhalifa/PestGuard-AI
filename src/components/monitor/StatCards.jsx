@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * StatCards — top-of-page KPI cards for LiveMonitor

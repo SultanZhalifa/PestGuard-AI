@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 const MAX_DISPLAY = 20;
@@ -15,7 +15,6 @@ function getAlertLatency(log) {
   if (!latencyCache.has(log.id)) {
     const receiveMs = now;
     // Parse detection time from log
-    const today = new Date().toDateString();
     const detectionMs = log.date && log.time
       ? new Date(`${log.date}T${log.time}`).getTime()
       : null;
@@ -47,9 +46,9 @@ const RISK_BGS = {
  * Props: logs, t
  */
 export default function AlertsPanel({ logs, t }) {
-  const [alertFilter, setAlertFilter] = React.useState('all');
-  const [dismissed, setDismissed] = React.useState(new Set()); // IDs of cleared alerts
-  const listRef = React.useRef(null);
+  const [alertFilter, setAlertFilter] = useState('all');
+  const [dismissed, setDismissed] = useState(new Set()); // IDs of cleared alerts
+  const listRef = useRef(null);
 
   // Filter out dismissed alerts, then apply risk filter
   const activeLogs = logs.filter(l => !dismissed.has(l.id));

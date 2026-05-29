@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * CameraSettings — camera URL, zone selector, AI threshold slider

@@ -228,4 +228,4 @@ Estimasi untuk 1 gudang PT. Kawan Lama:
 ## Team
 
 **Team Andalusia -- AI Open Innovation Challenge 2026**
-President University x PT. Kawan Lama Group
+Logistics Sector · PT. Kawan Lama Group Case Study

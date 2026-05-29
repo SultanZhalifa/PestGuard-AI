@@ -2,13 +2,13 @@
 ## Smart Warehouse — AI-Powered Bio-Hazard & Pest Detection
 ### PT. Kawan Lama Group | Case 1 — Sustainable Supply Chain Track
 
-**AI Open Innovation Challenge 2026 — President University**
+**AI Open Innovation Challenge 2026**
 
-**Group 5:**
-- Risly Maria Theresia Worung — Product Owner (001202400069)
-- Sultan Zhalifunnas Musyaffa — Scrum Master (001202400200)
-- Misha Andalusia — Frontend Lead (001202400040)
-- Fathir Barhouti Awlya — Backend & AI Lead (001202400054)
+**Team Andalusia:**
+- Sultan Zhalifunnas Musyaffa — Team Leader & Scrum Master
+- Fathir Barhouti Awlya — Backend & AI Lead
+- Risly Maria Theresia Worung — Product Owner
+- Misha Andalusia — Frontend & UI/UX Lead
 
 ---
 
@@ -142,9 +142,9 @@ PT. Kawan Lama Group's published sustainability framework focuses on five pillar
 
 ---
 
-## 8. Why Group 5 Wins This Case
+## 8. Why Team Andalusia Wins This Case
 
-1. **Custom-trained, not stock model** — we did the training work (150 epochs originally, RTX 4050, mAP50 94%) most teams will skip.
+1. **Custom-trained, not stock model** — we did the training work (50 epochs, RTX 4050, mAP50 94.0%, precision 92.8%, recall 91.2%) most teams will skip. All training artifacts (results.csv, confusion matrix, PR curves) are in the repo and exposed live via the `/api/model-info` endpoint and the AI Performance dashboard page.
 2. **Production-grade engineering** — RBAC, retention policy, modular routes, security hardening — judges from industry recognize this as deployable, not a toy.
 3. **No mock data** — every metric in the dashboard reads from a real DB. Every detection is a real inference. Every alert is a real WebSocket push.
 4. **Honest ROI** — we use conservative numbers based on real industry data, not aspirational figures. Kawan Lama can audit our math.

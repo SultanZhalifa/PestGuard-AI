@@ -1,11 +1,10 @@
-import React from 'react';
 import { useToast } from '../ToastNotification';
 import api from '../../lib/apiClient';
 
 /**
  * DangerZone — destructive actions: clear logs, reset settings
  */
-export default function DangerZone({ authToken, setLogs, onResetSuccess }) {
+export default function DangerZone({ setLogs, onResetSuccess }) {
   const { addToast } = useToast();
   const handleClearLogs = async () => {
     if (!window.confirm('Are you sure?\n\nThis will permanently delete ALL detection logs from the database. This action cannot be undone.')) return;

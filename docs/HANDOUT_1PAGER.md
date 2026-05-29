@@ -5,7 +5,7 @@
 
 ## SMART WAREHOUSE
 ### AI-Powered Bio-Hazard & Pest Detection for PT. Kawan Lama
-**Group 5 · President University · AI Open Innovation Challenge 2026**
+**Team Andalusia · AI Open Innovation Challenge 2026**
 
 ---
 

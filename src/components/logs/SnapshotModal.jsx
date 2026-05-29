@@ -1,4 +1,3 @@
-import React from 'react';
 
 /** Snapshot lightbox modal */
 export default function SnapshotModal({ src, onClose }) {

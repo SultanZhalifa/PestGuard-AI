@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useWarehouse } from '../context/WarehouseContext';
 import WarehouseZoneMap from '../components/WarehouseZoneMap';
-import { useToast } from '../components/ToastNotification';
 import { useT } from '../hooks/useT';
 import ReportGenerator from '../components/ReportGenerator';
 import PeakHoursChart from '../components/analytics/PeakHoursChart';
@@ -10,7 +9,6 @@ import api from '../lib/apiClient';
 
 export default function RiskAnalysis() {
   const { logs: recentLogs } = useWarehouse();
-  const { addToast } = useToast();
   const t = useT();
   const [reportToast, setReportToast] = useState('');
   const [reportToastType, setReportToastType] = useState('info');
@@ -37,7 +35,7 @@ export default function RiskAnalysis() {
           setZoneData(data.zone_activity);
           setLoading(false); setTrendLoading(false); setFetchError(false);
         })
-        .catch(err => {
+        .catch(() => {
           retries++;
           if (retries < maxRetries) setTimeout(doFetch, Math.pow(2, retries) * 1000);
           else { setLoading(false); setTrendLoading(false); setFetchError(true); }

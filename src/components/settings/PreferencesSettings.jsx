@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * PreferencesSettings — toggles for notifications, dark mode, language
