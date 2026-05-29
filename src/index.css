@@ -998,6 +998,13 @@ html, body {
   }
 }
 
+/* Zone detail modal — stack to single column on tablet/mobile */
+@media (max-width: 860px) {
+  .zone-modal-body {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 /* Ensure tables always have horizontal scroll on mobile */
 .table-wrap {
   width: 100%;

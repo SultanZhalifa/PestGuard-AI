@@ -138,16 +138,19 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
       style={{
         position: 'fixed', inset: 0, zIndex: 9999,
         backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '2rem', overflow: 'auto',
+        overflowY: 'auto', overflowX: 'hidden',
+        // Flexbox centering clips the top of tall modals and can't scroll up to it.
+        // A scrollable overlay + auto margins centers AND keeps the whole modal reachable.
+        display: 'block', padding: '2rem',
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
           backgroundColor: 'var(--bg-secondary)', borderRadius: '20px',
-          width: '100%', maxWidth: '1100px', maxHeight: '90vh',
-          overflow: 'auto', border: '1px solid var(--border-color)',
+          width: '100%', maxWidth: '1100px',
+          margin: '0 auto',
+          border: '1px solid var(--border-color)',
           boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
         }}
       >
@@ -173,7 +176,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
         </div>
 
         {/* Body */}
-        <div style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '1.5rem' }}>
+        <div className="zone-modal-body" style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '1.5rem' }}>
           {/* LEFT: video + stats */}
           <div>
             {/* Live Stream */}
