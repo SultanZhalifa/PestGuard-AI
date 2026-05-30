@@ -1203,6 +1203,52 @@ body.dark-mode .login-form-panel {
   z-index: 0;
 }
 
+/* ── Login logo badge ── */
+.login-logo-badge {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px -4px rgba(15, 23, 42, 0.12);
+}
+
+.login-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+/* Invert the black paw glyph so it stays visible in dark mode */
+body.dark-mode .login-logo-img {
+  filter: invert(1) brightness(1.6);
+}
+
+/* ── Login tagline ── */
+.login-tagline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  opacity: 0.85;
+}
+
+.login-tagline-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--accent-primary);
+  display: inline-block;
+  opacity: 0.6;
+}
+
 .login-form-container {
   width: 100%;
   animation: loginFormEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
