@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useWarehouse } from '../context/WarehouseContext';
 import { useT } from '../hooks/useT';
 import api from '../lib/apiClient';
@@ -88,14 +89,15 @@ export default function UserManagement() {
 
   return (
     <div className="page-container">
-      {toast && (
+      {toast && createPortal(
         <div style={{
           position: 'fixed', bottom: '2rem', right: '2rem',
           backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', padding: '1rem 1.5rem',
           borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
           fontSize: '0.875rem', fontWeight: '500', zIndex: 1000,
           animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-        }}>{toast}</div>
+        }}>{toast}</div>,
+        document.body
       )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -334,7 +336,7 @@ export default function UserManagement() {
 
 // ─── Sub-components ───
 function Modal({ children, onClose }) {
-  return (
+  return createPortal(
     <div onClick={onClose} style={{
       position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)',
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000,
@@ -346,7 +348,8 @@ function Modal({ children, onClose }) {
         border: '1px solid var(--border-color)',
         maxHeight: '90dvh', overflowY: 'auto',
       }}>{children}</div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

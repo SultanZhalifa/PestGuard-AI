@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useWarehouse } from '../context/WarehouseContext';
 import { useToast } from './ToastNotification';
 import { useT } from '../hooks/useT';
@@ -44,6 +45,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isHoveringVideo, setIsHoveringVideo] = useState(false);
   const videoContainerRef = useRef(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const isAdmin = user?.role === 'admin';
   const isLive = zone.status === 'live';
@@ -84,7 +86,8 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
   useEffect(() => {
     setRotation(0);
     setFitMode('contain');
-  }, [zone.id]);
+    setImageLoaded(false);
+  }, [zone.id, isLive]);
 
   // Sync fullscreen state
   useEffect(() => {
@@ -139,7 +142,7 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
     ? logs
     : logs.filter((l) => l.type.toLowerCase() === filter);
 
-  return (
+  return createPortal(
     <div
       onClick={onClose}
       style={{
@@ -201,31 +204,58 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
               }}
             >
               {isLive ? (
-                <img
-                  key={`detail-${zone.id}-${zone.status}`}
-                  src={api.streamUrl(`/video_feed/${zone.id}`)}
-                  alt={zone.name}
-                  style={{
-                    width: rotation % 180 === 0 ? '100%' : '100%',
-                    height: '100%',
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    objectFit: fitMode,
-                    transform: `rotate(${rotation}deg)`,
-                    transition: 'transform 0.3s ease',
-                  }}
-                />
+                <>
+                  <img
+                    key={`detail-${zone.id}-${zone.status}`}
+                    src={api.streamUrl(`/video_feed/${zone.id}`)}
+                    alt={zone.name}
+                    style={{
+                      width: rotation % 180 === 0 ? '100%' : '100%',
+                      height: '100%',
+                      maxWidth: '100%',
+                      maxHeight: '100%',
+                      objectFit: fitMode,
+                      transform: `rotate(${rotation}deg)`,
+                      transition: 'transform 0.3s ease, opacity 0.3s ease',
+                      opacity: imageLoaded ? 1 : 0,
+                    }}
+                    onLoad={() => setImageLoaded(true)}
+                  />
+                  {!imageLoaded && (
+                    <div
+                      className="skeleton"
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.75rem',
+                        borderRadius: 0,
+                        background: 'linear-gradient(90deg, #070a13 25%, #111827 50%, #070a13 75%)',
+                        backgroundSize: '200% 100%',
+                        color: '#94a3b8',
+                      }}
+                    >
+                      <span className="spinner-sm" style={{ borderLeftColor: '#f8fafc' }} />
+                      <span style={{ fontSize: '0.65rem', fontWeight: '800', letterSpacing: '0.12em', color: '#94a3b8' }}>
+                        CONNECTING LIVE FEED...
+                      </span>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div style={{
                   width: '100%', height: '100%',
                   display: 'flex', flexDirection: 'column',
                   alignItems: 'center', justifyContent: 'center',
-                  color: '#666', gap: '0.75rem',
+                  color: '#94a3b8', gap: '0.75rem',
                 }}>
-                  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}>
-                    <path d="M16.5 7.5V6a2 2 0 0 0-2-2h-5a2 2 0 0 0-2 2v0"/><path d="M2 2l20 20"/><path d="M23 7l-7 5"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2" style={{ opacity: 0.3 }}/>
+                  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
+                    <path d="M16.5 7.5V6a2 2 0 0 0-2-2h-5a2 2 0 0 0-2 2v0"/><path d="M2 2l20 20"/><path d="M23 7l-7 5"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2" style={{ opacity: 0.35 }}/>
                   </svg>
-                  <span style={{ fontSize: '0.8rem', fontWeight: '600', letterSpacing: '0.1em' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: '700', letterSpacing: '0.1em', color: '#94a3b8' }}>
                     {zone.has_source ? t.zoneModal.cameraOffline : t.zoneModal.noSourceConfigured}
                   </span>
                 </div>
@@ -500,7 +530,8 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
           50% { opacity: 0.4; }
         }
       `}</style>
-    </div>
+    </div>,
+    document.body
   );
 }
 

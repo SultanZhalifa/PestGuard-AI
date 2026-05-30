@@ -10,6 +10,7 @@ export default function CameraGrid() {
   const [zones, setZones] = useState([]);
   const [pendingZones, setPendingZones] = useState({}); // zone_id -> bool (toggle in flight)
   const [selectedZoneId, setSelectedZoneId] = useState(null);
+  const [loadedImages, setLoadedImages] = useState({}); // zone_id -> bool
   const startedZonesRef = useRef(new Set()); // tracks zones we started in this tab
 
   const fetchZones = useCallback(() => {
@@ -46,6 +47,7 @@ export default function CameraGrid() {
 
   const toggleZone = async (zoneId, turnOn) => {
     setPendingZones(p => ({ ...p, [zoneId]: true }));
+    setLoadedImages(p => ({ ...p, [zoneId]: false }));
     try {
       await api.postJson(`/cameras/${zoneId}/toggle`, { state: turnOn });
       if (turnOn) {
@@ -96,6 +98,7 @@ export default function CameraGrid() {
         const canControl = zone.has_source;
         const isPending = !!pendingZones[zone.id];
         const sourceLabel = getSourceLabel(zone.source_type);
+        const isImageLoaded = !!loadedImages[zone.id];
 
         return (
           <div
@@ -121,18 +124,50 @@ export default function CameraGrid() {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               {isLive ? (
-                <img
-                  key={`${zone.id}-${zone.status}`}
-                  src={`/api/video_feed/${zone.id}?token=${authToken}`}
-                  alt={zone.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
+                <>
+                  <img
+                    key={`${zone.id}-${zone.status}`}
+                    src={`/api/video_feed/${zone.id}?token=${authToken}`}
+                    alt={zone.name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      opacity: isImageLoaded ? 1 : 0,
+                      transition: 'opacity 0.3s ease',
+                    }}
+                    onLoad={() => setLoadedImages(prev => ({ ...prev, [zone.id]: true }))}
+                  />
+                  {!isImageLoaded && (
+                    <div
+                      className="skeleton"
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        borderRadius: 0,
+                        background: 'linear-gradient(90deg, #070a13 25%, #111827 50%, #070a13 75%)',
+                        backgroundSize: '200% 100%',
+                        color: '#94a3b8',
+                      }}
+                    >
+                      <span className="spinner-sm" style={{ borderLeftColor: '#f8fafc' }} />
+                      <span style={{ fontSize: '0.6rem', fontWeight: '800', letterSpacing: '0.1em', color: '#94a3b8' }}>
+                        CONNECTING...
+                      </span>
+                    </div>
+                  )}
+                </>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', color: '#555' }}>
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}>
-                    <path d="M16.5 7.5V6a2 2 0 0 0-2-2h-5a2 2 0 0 0-2 2v0"/><path d="M2 2l20 20"/><path d="M23 7l-7 5"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2" style={{ opacity: 0.3 }}/>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', color: '#94a3b8' }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
+                    <path d="M16.5 7.5V6a2 2 0 0 0-2-2h-5a2 2 0 0 0-2 2v0"/><path d="M2 2l20 20"/><path d="M23 7l-7 5"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2" style={{ opacity: 0.35 }}/>
                   </svg>
-                  <span style={{ fontSize: '0.7rem', fontWeight: '600', letterSpacing: '0.1em' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: '700', letterSpacing: '0.1em', color: '#94a3b8' }}>
                     {canControl ? t.cameraGrid.noSignal : t.cameraGrid.noSource}
                   </span>
                 </div>

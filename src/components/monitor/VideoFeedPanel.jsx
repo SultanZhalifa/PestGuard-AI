@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import api from '../../lib/apiClient';
 
 /**
@@ -5,8 +6,13 @@ import api from '../../lib/apiClient';
  * Props: isCameraOn, status, authToken, onToggle, t
  */
 export default function VideoFeedPanel({ isCameraOn, status, onToggle, t }) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!isCameraOn) setImageLoaded(false);
+  }, [isCameraOn]);
   return (
-    <div className="card" style={{ padding: '2rem' }}>
+    <div className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Panel Header */}
       <div className="panel-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
@@ -56,32 +62,73 @@ export default function VideoFeedPanel({ isCameraOn, status, onToggle, t }) {
         </div>
       </div>
 
-      {/* Video viewport */}
       <div
         className="video-viewport"
         style={{
-          border: isCameraOn ? '1px solid var(--border-color)' : '2px dashed var(--border-color)',
+          border: 'none',
+          position: 'relative',
+          overflow: 'hidden',
+          backgroundColor: '#0a0a0a',
+          flex: 1,
+          aspectRatio: 'auto',
+          minHeight: '340px',
         }}
       >
         {isCameraOn && (
           <img
             src={api.streamUrl('/video_feed')}
             alt="Live Warehouse Camera Feed"
-            style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#000' }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              backgroundColor: '#000',
+              opacity: imageLoaded ? 1 : 0,
+              transition: 'opacity 0.3s ease',
+            }}
+            onLoad={() => setImageLoaded(true)}
             onError={(e) => {
               e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
+              // If there's a nextSibling (placeholder or loader), handle display
+              const placeholder = e.target.parentNode.querySelector('.video-placeholder');
+              if (placeholder) placeholder.style.display = 'flex';
             }}
           />
         )}
-        <div className="video-placeholder" style={{ display: isCameraOn ? 'none' : 'flex' }}>
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
+
+        {/* Shimmering Dark Skeleton Loader */}
+        {isCameraOn && !imageLoaded && (
+          <div
+            className="skeleton"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '1rem',
+              borderRadius: 0,
+              background: 'linear-gradient(90deg, #070a13 25%, #111827 50%, #070a13 75%)',
+              backgroundSize: '200% 100%',
+              color: '#94a3b8',
+            }}
+          >
+            <span className="spinner-sm" style={{ borderLeftColor: '#f8fafc' }} />
+            <span style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.15em', color: '#94a3b8' }}>
+              INITIALIZING LIVE CAMERA FEED...
+            </span>
+          </div>
+        )}
+
+        <div className="video-placeholder" style={{ display: isCameraOn ? 'none' : 'flex', color: '#94a3b8', gap: '0.875rem' }}>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6 }}>
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
             <circle cx="12" cy="13" r="4"/>
           </svg>
           <div style={{ textAlign: 'center' }}>
-            <p style={{ fontWeight: '600', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{t.liveMonitor.surveillanceInactive}</p>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{t.liveMonitor.clickToStart}</p>
+            <p style={{ fontWeight: '700', color: '#f8fafc', marginBottom: '0.35rem', fontSize: '0.95rem', letterSpacing: '0.02em' }}>{t.liveMonitor.surveillanceInactive}</p>
+            <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: 0 }}>{t.liveMonitor.clickToStart}</p>
           </div>
         </div>
       </div>

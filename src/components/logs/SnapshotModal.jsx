@@ -1,8 +1,10 @@
 
+import { createPortal } from 'react-dom';
+
 /** Snapshot lightbox modal */
 export default function SnapshotModal({ src, onClose }) {
   if (!src) return null;
-  return (
+  return createPortal(
     <div
       onClick={onClose}
       style={{
@@ -33,6 +35,7 @@ export default function SnapshotModal({ src, onClose }) {
           </svg>
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
