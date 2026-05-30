@@ -160,7 +160,7 @@ function ROISection() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div className="card" style={{ padding: '1.5rem' }}>
             <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '0.95rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-              Parameter Sistem SmartWarehouse AI
+              Parameter Sistem PestGuard AI
             </h3>
             {systemRows.map(({ label, state, set, step, min, max }) => (
               <div key={label} style={{ marginBottom: '1rem' }}>
@@ -227,7 +227,7 @@ function ROISection() {
       <div className="card" style={{ padding: '1.25rem', background: 'rgba(5,150,105,0.06)', border: '1px solid rgba(5,150,105,0.2)' }}>
         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
           <strong style={{ color: '#059669' }}>Kesimpulan Business Case:</strong>{' '}
-          Dengan implementasi SmartWarehouse AI, PT. Kawan Lama dapat menghemat{' '}
+          Dengan implementasi PestGuard AI, PT. Kawan Lama dapat menghemat{' '}
           <strong style={{ color: 'var(--text-primary)' }}>{fmt(annualSavings)}</strong> per tahun per gudang.
           Investasi awal{' '}
           <strong style={{ color: 'var(--text-primary)' }}>{fmt(implementationCost)}</strong> akan kembali dalam{' '}
@@ -446,7 +446,7 @@ export default function SOPMitigasi() {
               Mitigasi Risiko &amp; Business Value
             </h1>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>
-              Protokol SOP penanganan insiden &amp; kalkulasi ROI implementasi SmartWarehouse AI
+              Protokol SOP penanganan insiden &amp; kalkulasi ROI implementasi PestGuard AI
             </p>
           </div>
           <div

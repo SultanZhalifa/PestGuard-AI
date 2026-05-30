@@ -197,7 +197,7 @@ export default function Settings() {
       <div className="version-bar" style={{ marginTop: '2rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <span className="version-badge">v2.0.0</span>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>SmartWarehouse Dashboard</span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>PestGuard AI Dashboard</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
           <span>Build: <strong style={{ color: 'var(--text-primary)' }}>4631948</strong></span>

@@ -9,7 +9,7 @@
 | **Team Name** | Andalusia |
 | **Team Leader Name** | Sultan Zhalifunnas Musyaffa |
 | **Participant Category** | University & Public |
-| **WhatsApp No.** | *(isi nomor WA lo)* |
+| **WhatsApp No.** | 085694229552 |
 | **Email** | sultanzhalifunnasmusyaffa@gmail.com |
 | **Link Portfolio** | https://github.com/SultanZhalifa/smartwarehouse-ai |
 
@@ -26,9 +26,9 @@
 
 ## Executive Summary
 
-SmartWarehouse AI is a real-time bio-hazard and pest detection platform built specifically for the warehouse operations of PT. Kawan Lama Group. The system uses a custom-trained YOLO11 computer vision model to automatically monitor warehouse zones through CCTV cameras, detecting the presence of hazardous animals such as snakes, cats, and reptiles 24 hours a day without human intervention.
+PestGuard AI is a real-time bio-hazard and pest detection platform built specifically for the warehouse operations of PT. Kawan Lama Group. The system uses a custom-trained YOLO11 computer vision model to automatically monitor warehouse zones through CCTV cameras, detecting the presence of hazardous animals such as snakes, cats, and reptiles 24 hours a day without human intervention.
 
-The problem this solution addresses is the inadequacy of manual inspection in large-scale warehouses. When pests enter storage areas, they pose a direct risk to product safety, employee wellbeing, and regulatory compliance. SmartWarehouse AI eliminates response delays by sending real-time alerts via dashboard, audio alarm, and Telegram the moment a threat is detected. The platform also includes an AI-powered assistant, risk analytics, SOP protocols, and an ROI calculator, creating a complete operational intelligence layer for warehouse management.
+The problem this solution addresses is the inadequacy of manual inspection in large-scale warehouses. When pests enter storage areas, they pose a direct risk to product safety, employee wellbeing, and regulatory compliance. PestGuard AI eliminates response delays by sending real-time alerts via dashboard, audio alarm, and Telegram the moment a threat is detected. The platform also includes an AI-powered assistant, risk analytics, SOP protocols, and an ROI calculator, creating a complete operational intelligence layer for warehouse management.
 
 *(Max 150 words -- trim if needed)*
 
@@ -42,7 +42,7 @@ The problem this solution addresses is the inadequacy of manual inspection in la
 
 ### Main Objectives
 
-The main objective of SmartWarehouse AI is to eliminate the detection gap caused by manual inspection in warehouse environments. Specific targets include:
+The main objective of PestGuard AI is to eliminate the detection gap caused by manual inspection in warehouse environments. Specific targets include:
 
 1. Detect bio-hazard animals (snakes, cats, geckos, lizards) in real time with confidence scoring across all active warehouse zones.
 2. Deliver alert notifications to security personnel within one second of detection via three channels: web dashboard, audio alarm, and Telegram.
@@ -64,7 +64,7 @@ Large warehouses like those operated by PT. Kawan Lama Group face a persistent a
 
 The core problem is not just the animals themselves, but the detection system. Manual inspection by security officers is inherently limited. It cannot cover all zones simultaneously, it does not operate reliably at night or during shift gaps, and it provides no historical data for pattern analysis. By the time a pest is found during a routine patrol, the contamination or safety incident may already have occurred.
 
-There is no early warning system. There is no automated response. And there is no data trail to help management understand where and when these incidents are most likely to happen. SmartWarehouse AI addresses all three of these gaps in one integrated platform.
+There is no early warning system. There is no automated response. And there is no data trail to help management understand where and when these incidents are most likely to happen. PestGuard AI addresses all three of these gaps in one integrated platform.
 
 *(Max 200 words)*
 
@@ -92,7 +92,7 @@ Research on YOLO-based object detection in industrial environments consistently 
 
 ### Main Solution
 
-SmartWarehouse AI is a complete warehouse monitoring platform that uses a custom-trained YOLO11 computer vision model to detect bio-hazard animals in real time. The system connects to warehouse cameras, processes each frame through AI inference, and immediately triggers alerts when a threat is identified.
+PestGuard AI is a complete warehouse monitoring platform that uses a custom-trained YOLO11 computer vision model to detect bio-hazard animals in real time. The system connects to warehouse cameras, processes each frame through AI inference, and immediately triggers alerts when a threat is identified.
 
 The platform operates on three levels. First, it detects and classifies threats by animal type and assigns a risk level: DANGER for snakes, WARNING for cats, and INFO for geckos and lizards. Second, it distributes those alerts instantly through the web dashboard, an audio alarm, and Telegram notifications. Third, it accumulates detection data over time and surfaces patterns through analytics, zone heatmaps, and peak hour analysis, giving management the intelligence to take proactive measures.
 
@@ -150,7 +150,7 @@ The ROI calculator built into the platform provides a living estimate of cost sa
 
 ### What Makes Your Solution Different?
 
-Most existing pest detection solutions in Indonesia are reactive: a pest control company visits the facility on a fixed schedule and addresses problems that have already occurred. SmartWarehouse AI is proactive, automated, and continuous.
+Most existing pest detection solutions in Indonesia are reactive: a pest control company visits the facility on a fixed schedule and addresses problems that have already occurred. PestGuard AI is proactive, automated, and continuous.
 
 Several features distinguish this system from generic surveillance or generic object detection implementations. The YOLO11 model is fine-tuned specifically on warehouse pest classes, not a general-purpose detection model. It includes CLAHE preprocessing to handle the low-light conditions that are common in real warehouse environments but often absent from standard training datasets. The three-channel alerting system (WebSocket, audio, Telegram) ensures that alerts reach the right person regardless of where they are at the moment of detection.
 
@@ -168,7 +168,7 @@ Generic CCTV systems with motion detection can trigger alerts but cannot classif
 
 General-purpose AI detection tools exist but are not trained on the specific pest classes relevant to warehouse environments, particularly in the partial occlusion and low-light scenarios that are common in storage areas. These tools require significant customization to be practically useful.
 
-SmartWarehouse AI occupies the gap between these approaches. It provides the continuous automated monitoring that generic CCTV systems lack, the classification specificity that general AI tools cannot deliver out of the box, and the operational tooling (SOP, ROI, analytics, AI chat) that pure detection tools do not include. It is designed to integrate into the existing security workflow rather than replace it entirely.
+PestGuard AI occupies the gap between these approaches. It provides the continuous automated monitoring that generic CCTV systems lack, the classification specificity that general AI tools cannot deliver out of the box, and the operational tooling (SOP, ROI, analytics, AI chat) that pure detection tools do not include. It is designed to integrate into the existing security workflow rather than replace it entirely.
 
 *(Max 200 words)*
 
@@ -270,7 +270,7 @@ The business model is a Software-as-a-Service (SaaS) platform licensed to wareho
 
 **GitHub Repository:** https://github.com/SultanZhalifa/smartwarehouse-ai
 
-**Live Demo:** *(masukkan link Vercel deployment lo di sini)*
+**Live Demo:** https://smartwarehouse-ai.vercel.app/
 
 **References:**
 

@@ -97,7 +97,7 @@ add_rect(s, 0, 5.2, 13.33, 2.3, fill=RGBColor(0x1A, 0x27, 0x3D))
 add_rect(s, 0, 0, 0.08, 7.5, fill=C_ACCENT)
 
 add_text(s, "SMARTGUARD AI", 0.5, 1.4, 12, 1.1, size=54, bold=True, color=C_WHITE)
-add_text(s, "Smart Warehouse Bio-Hazard & Pest Detection System",
+add_text(s, "PestGuard AI — Bio-Hazard & Pest Detection System",
          0.5, 2.55, 12, 0.55, size=20, color=C_ACCENT, bold=True)
 add_rect(s, 0.5, 3.3, 3.5, 0.045, fill=C_ACCENT)
 add_text(s, "AI Open Innovation Challenge 2026  ·  PT. Kawan Lama Surveillance",

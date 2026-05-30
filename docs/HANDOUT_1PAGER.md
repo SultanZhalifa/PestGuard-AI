@@ -1,9 +1,9 @@
-# Smart Warehouse — One-Pager Handout
+# PestGuard AI — One-Pager Handout
 > Print this on A4. Distribute to judges before pitch.
 
 ---
 
-## SMART WAREHOUSE
+## PESTGUARD AI
 ### AI-Powered Bio-Hazard & Pest Detection for PT. Kawan Lama
 **Team Andalusia · AI Open Innovation Challenge 2026**
 

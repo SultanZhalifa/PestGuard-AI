@@ -89,7 +89,7 @@ def health_check():
         "status": "healthy",
         "version": "2.0.0",
         "model_loaded": model is not None,
-        "service": "Smart Warehouse API",
+        "service": "PestGuard AI API",
     }
 
 

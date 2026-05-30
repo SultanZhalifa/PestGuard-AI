@@ -100,7 +100,7 @@ const SUGGESTIONS = [
 
 const WELCOME = {
   role: 'ai',
-  text: 'Halo! Saya **SmartWarehouse AI** — powered by **Google Gemini 2.0 Flash**.\n\nSaya memiliki akses ke data real-time gudang PT. Kawan Lama: statistik deteksi, analisis zona, pola waktu risiko, dan riwayat insiden.\n\nSilakan ajukan pertanyaan dalam Bahasa Indonesia atau English, atau pilih dari pertanyaan di bawah.',
+  text: 'Halo! Saya **PestGuard AI** — powered by **Google Gemini 2.0 Flash**.\n\nSaya memiliki akses ke data real-time gudang PT. Kawan Lama: statistik deteksi, analisis zona, pola waktu risiko, dan riwayat insiden.\n\nSilakan ajukan pertanyaan dalam Bahasa Indonesia atau English, atau pilih dari pertanyaan di bawah.',
   timestamp: new Date(),
   powered_by: 'gemini-2.0-flash',
 };
