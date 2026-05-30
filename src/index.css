@@ -1249,6 +1249,39 @@ body.dark-mode .login-logo-img {
   opacity: 0.6;
 }
 
+/* ── Co-brand (Built for PT. Kawan Lama) ── */
+.login-cobrand {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  width: 100%;
+  justify-content: center;
+}
+
+.login-cobrand-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.login-cobrand-img {
+  height: 26px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.85;
+}
+
+/* Keep the black wordmark visible in dark mode */
+body.dark-mode .login-cobrand-img {
+  filter: invert(1) brightness(1.8);
+}
+
 .login-form-container {
   width: 100%;
   animation: loginFormEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;

@@ -91,17 +91,22 @@ export default function Login() {
       <div className="login-form-panel">
         <div className="login-form-container">
 
-          {/* Brand: logo + name + tagline */}
+          {/* Brand: logo + name + tagline + co-brand */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.875rem', marginBottom: '2.25rem' }}>
             <div className="login-logo-badge">
               <img src="/Paw.svg" alt="PestGuard AI" className="login-logo-img" />
             </div>
             <div style={{ textAlign: 'center' }}>
               <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>{t.login.brand}</span>
-              <span style={{ display: 'block', fontSize: '0.8125rem', fontWeight: '500', color: 'var(--text-secondary)', marginTop: '0.125rem' }}>{t.login.brandSub}</span>
             </div>
             <div className="login-tagline">
               <span className="login-tagline-dot" /> Detect <span className="login-tagline-dot" /> Alert <span className="login-tagline-dot" /> Protect
+            </div>
+
+            {/* Co-brand: built for the case provider (not an ownership claim) */}
+            <div className="login-cobrand">
+              <span className="login-cobrand-label">Built for</span>
+              <img src="/kawanlama.svg" alt="PT. Kawan Lama Group" className="login-cobrand-img" />
             </div>
           </div>
 
