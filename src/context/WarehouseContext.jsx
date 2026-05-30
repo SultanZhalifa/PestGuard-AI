@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import api from '../lib/apiClient';
+import { IS_DEMO } from '../lib/demoData';
 
 const WarehouseContext = createContext();
 
@@ -96,9 +97,9 @@ export function WarehouseProvider({ children }) {
       });
   }, [logout, updateUser]);
 
-  // Setup WebSocket when authenticated
+  // Setup WebSocket when authenticated (skipped in demo mode — no server)
   useEffect(() => {
-    if (!authToken) return;
+    if (!authToken || IS_DEMO) return;
 
     const wsUrl = api.wsUrl('/ws/alerts');
 

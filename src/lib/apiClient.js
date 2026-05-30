@@ -6,12 +6,28 @@
  * - Handles 401 redirects (session expiry)
  * - Supports environment-based backend URL (for Vercel + ngrok/Railway deploy)
  * - Provides typed response helpers (getJson, postJson)
+ * - Demo mode: when VITE_DEMO_MODE=true (public deploy w/o backend), returns
+ *   realistic sample data so judges can explore the full dashboard.
  *
  * Environment:
  *   VITE_API_BASE_URL — override backend host for production deploys
- *   e.g. https://xxxx.ngrok-free.app  (ngrok tunnel to local backend)
- *        https://smartwarehouse.up.railway.app  (Railway deployment)
+ *   VITE_DEMO_MODE    — 'true' to serve built-in demo data (no backend needed)
  */
+
+import { getDemoResponse, IS_DEMO } from './demoData';
+
+/** Build a Response-like object so demo data flows through the same code paths. */
+function demoResponse(path, method, body) {
+  const data = getDemoResponse(path, method, body);
+  const ok = data !== undefined;
+  return {
+    ok,
+    status: ok ? 200 : 404,
+    json: async () => (ok ? data : { detail: 'Not found (demo mode)' }),
+    blob: async () => new Blob([], { type: 'application/octet-stream' }),
+    text: async () => JSON.stringify(data ?? {}),
+  };
+}
 
 /**
  * Resolve base URL from environment or fall back to same-origin /api proxy.
@@ -45,6 +61,15 @@ function getToken() {
  * @returns {Promise<Response>}
  */
 async function request(path, options = {}) {
+  // Demo mode: short-circuit to built-in sample data (no network).
+  if (IS_DEMO) {
+    let body = null;
+    try { body = options.body ? JSON.parse(options.body) : null; } catch { /* non-JSON body */ }
+    // Small artificial latency so loaders/skeletons still show naturally.
+    await new Promise(r => setTimeout(r, 180));
+    return demoResponse(path, options.method || 'GET', body);
+  }
+
   const token = getToken();
 
   const headers = {
