@@ -10,9 +10,10 @@ export default function Login() {
   const { login: setAuthToken, authToken } = useWarehouse();
   const t = useT();
   const [mode, setMode] = useState('login'); // 'login' | 'forgot' | 'reset'
-  const [username, setUsername] = useState('');
+  // In demo mode, prefill credentials so judges can sign in with one click.
+  const [username, setUsername] = useState(IS_DEMO ? 'demo' : '');
   const [recoveryEmail, setRecoveryEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(IS_DEMO ? 'demo' : '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -64,13 +65,16 @@ export default function Login() {
         return;
       }
 
-      // Login
-      if (!username.trim()) {
+      // Login — in demo mode any credentials work (default to a demo user)
+      if (!username.trim() && !IS_DEMO) {
         setError(t.login.enterUsername);
         setIsLoading(false);
         return;
       }
-      const data = await api.postJson('/login', { username, password });
+      const data = await api.postJson('/login', {
+        username: username.trim() || (IS_DEMO ? 'demo' : username),
+        password,
+      });
       setAuthToken(data.token, data.user);
       if (data.user?.must_change_password) {
         navigate('/change-password');
@@ -87,11 +91,17 @@ export default function Login() {
       <div className="login-form-panel">
         <div className="login-form-container">
 
-          {/* Title */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginBottom: '2.5rem' }}>
+          {/* Brand: logo + name + tagline */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.875rem', marginBottom: '2.25rem' }}>
+            <div className="login-logo-badge">
+              <img src="/Paw.svg" alt="PestGuard AI" className="login-logo-img" />
+            </div>
             <div style={{ textAlign: 'center' }}>
               <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>{t.login.brand}</span>
-              <span style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--text-secondary)' }}>{t.login.brandSub}</span>
+              <span style={{ display: 'block', fontSize: '0.8125rem', fontWeight: '500', color: 'var(--text-secondary)', marginTop: '0.125rem' }}>{t.login.brandSub}</span>
+            </div>
+            <div className="login-tagline">
+              <span className="login-tagline-dot" /> Detect <span className="login-tagline-dot" /> Alert <span className="login-tagline-dot" /> Protect
             </div>
           </div>
 
