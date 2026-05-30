@@ -63,6 +63,32 @@ function renderMarkdown(text) {
   });
 }
 
+/* ─── Typewriter effect for simulated streaming responses ─── */
+function Typewriter({ text, speed = 15, onComplete }) {
+  const [displayedText, setDisplayedText] = useState('');
+
+  useEffect(() => {
+    const words = text.split(' ');
+    let currentIdx = 0;
+    
+    setDisplayedText(words[0] || '');
+
+    const interval = setInterval(() => {
+      currentIdx++;
+      if (currentIdx >= words.length) {
+        clearInterval(interval);
+        onComplete?.();
+        return;
+      }
+      setDisplayedText(prev => prev + ' ' + words[currentIdx]);
+    }, speed);
+
+    return () => clearInterval(interval);
+  }, [text, speed, onComplete]);
+
+  return <>{renderMarkdown(displayedText)}</>;
+}
+
 /* ─── Suggestion chips ─── */
 const SUGGESTIONS = [
   { Icon: Icon.MapPin,       text: 'Zona mana yang paling berbahaya?' },
@@ -120,13 +146,14 @@ export default function AskAI() {
       const data = await api.postJson('/chat', { message: q });
       if (data.powered_by) setPoweredBy(data.powered_by);
       setMessages(prev => [...prev, {
-        role: 'ai', text: data.answer, powered_by: data.powered_by, timestamp: new Date(),
+        role: 'ai', text: data.answer, powered_by: data.powered_by, timestamp: new Date(), animate: true
       }]);
     } catch {
       setMessages(prev => [...prev, {
         role: 'ai',
         text: 'Terjadi kesalahan saat menghubungi server. Pastikan backend berjalan dan coba lagi.',
         timestamp: new Date(),
+        animate: true
       }]);
     } finally {
       setLoading(false);
@@ -185,7 +212,15 @@ export default function AskAI() {
               fontSize: '0.9rem', lineHeight: '1.6',
               boxShadow: msg.role === 'user' ? '0 4px 12px rgba(0,0,0,0.1)' : '0 2px 8px rgba(0,0,0,0.04)',
             }}>
-              {msg.role === 'ai' ? renderMarkdown(msg.text) : msg.text}
+              {msg.role === 'ai' ? (
+                msg.animate ? (
+                  <Typewriter text={msg.text} onComplete={() => { msg.animate = false; }} />
+                ) : (
+                  renderMarkdown(msg.text)
+                )
+              ) : (
+                msg.text
+              )}
               <div style={{ fontSize: '0.65rem', marginTop: '0.5rem', opacity: 0.5, textAlign: msg.role === 'user' ? 'right' : 'left' }}>
                 {msg.timestamp?.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
               </div>
