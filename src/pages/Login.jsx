@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useWarehouse } from '../context/WarehouseContext';
 import { useT } from '../hooks/useT';
 import api from '../lib/apiClient';
+import { IS_DEMO } from '../lib/demoData';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -93,6 +94,24 @@ export default function Login() {
               <span style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--text-secondary)' }}>{t.login.brandSub}</span>
             </div>
           </div>
+
+          {/* Demo-mode banner — only on the public deployment (no backend) */}
+          {IS_DEMO && mode === 'login' && (
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: '0.625rem',
+              padding: '0.75rem 0.875rem', marginBottom: '1.25rem',
+              backgroundColor: 'rgba(59, 130, 246, 0.08)',
+              border: '1px solid rgba(59, 130, 246, 0.25)', borderRadius: '12px',
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                <strong style={{ color: 'var(--text-primary)' }}>Live Preview</strong> — explore the dashboard with sample data.
+                Click <strong style={{ color: 'var(--text-primary)' }}>Sign in</strong> to enter (any credentials work).
+              </div>
+            </div>
+          )}
 
           <div className="login-form-header">
             {mode !== 'login' && (
