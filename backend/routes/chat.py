@@ -46,7 +46,7 @@ def _get_gemini():
         _gemini_model = genai.GenerativeModel(
             model_name="gemini-2.0-flash",
             system_instruction=(
-                "Kamu adalah AI Security Assistant untuk sistem Smart Warehouse PT. Kawan Lama Group. "
+                "Kamu adalah AI Security Assistant untuk sistem PestGuard AI PT. Kawan Lama Group. "
                 "Spesialisasimu adalah analisis keamanan gudang berbasis Computer Vision dan AI.\n\n"
 
                 "Konteks sistem:\n"
@@ -377,23 +377,23 @@ async def chat(req: ChatRequest, session=Depends(verify_token)):
         if gemini is None:
             # Graceful fallback ke rule-based NLP
             answer = _fallback_response(message, cursor)
-            responder = "SmartWarehouse AI v2.0 (Rule-based — set GEMINI_API_KEY for Gemini)"
+            responder = "PestGuard AI v2.0 (Rule-based — set GEMINI_API_KEY for Gemini)"
             powered_by = "rule-based"
         else:
             try:
                 prompt = (
-                    f"Berikut adalah data real-time dari sistem Smart Warehouse:\n\n"
+                    f"Berikut adalah data real-time dari sistem PestGuard AI:\n\n"
                     f"{context}\n\n"
                     f"Pertanyaan dari operator gudang: {message}"
                 )
                 response = gemini.generate_content(prompt)
                 answer = response.text
-                responder = "SmartWarehouse AI v3.0 — Powered by Google Gemini 2.0 Flash"
+                responder = "PestGuard AI v3.0 — Powered by Google Gemini 2.0 Flash"
                 powered_by = "gemini-2.0-flash"
             except Exception as e:
                 logging.error("[GEMINI] Generation error: %s", e)
                 answer = _fallback_response(message, cursor)
-                responder = "SmartWarehouse AI v2.0 (Gemini error — fallback)"
+                responder = "PestGuard AI v2.0 (Gemini error — fallback)"
                 powered_by = "rule-based-fallback"
 
     return {

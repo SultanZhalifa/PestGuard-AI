@@ -65,13 +65,13 @@ export default function AcceptInvite() {
           
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginBottom: '2.5rem' }}>
             <div style={{ textAlign: 'center' }}>
-              <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>SmartWarehouse</span>
+              <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>PestGuard AI</span>
               <span style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--text-secondary)' }}>PT. Kawan Lama Group</span>
             </div>
           </div>
 
           <div className="login-form-header" style={{ textAlign: 'center' }}>
-            <p>Welcome! Please complete your account setup to access the Smart Warehouse Dashboard.</p>
+            <p>Welcome! Please complete your account setup to access the PestGuard AI Dashboard.</p>
           </div>
 
           {error && (

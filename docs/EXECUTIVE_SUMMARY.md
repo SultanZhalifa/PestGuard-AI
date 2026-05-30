@@ -1,5 +1,5 @@
 # Executive Summary
-## Smart Warehouse — AI-Powered Bio-Hazard & Pest Detection
+## PestGuard AI — AI-Powered Bio-Hazard & Pest Detection
 ### PT. Kawan Lama Group | Case 1 — Sustainable Supply Chain Track
 
 **AI Open Innovation Challenge 2026**
@@ -58,7 +58,7 @@ A real-time, AI-powered surveillance system that **detects bio-hazard and pest i
 
 ## 3. Technical Differentiators
 
-| Aspect | Smart Warehouse Approach | Why It Matters for Kawan Lama |
+| Aspect | PestGuard AI Approach | Why It Matters for Kawan Lama |
 |--------|--------------------------|-------------------------------|
 | **Custom training** | 16,047 images, 4 classes, mAP50 94% | Generic pretrained models give 60-70% accuracy on these classes — false positives = alert fatigue |
 | **Architecture** | Modular FastAPI (8 route modules, 3 services), multi-zone worker threads | Production-grade — survives engineering review, not toy |
@@ -86,7 +86,7 @@ A real-time, AI-powered surveillance system that **detects bio-hazard and pest i
 
 ## 5. ROI Calculation (Per Distribution Center, Annual)
 
-### Cost Side — Smart Warehouse Deployment
+### Cost Side — PestGuard AI Deployment
 
 | Item | Estimated Cost (Year 1) |
 |------|-------------------------|

@@ -1,6 +1,6 @@
 # Product Backlog
 
-Project: Smart Warehouse Bio Hazard and Pest Detection
+Project: PestGuard AI — Bio Hazard and Pest Detection
 Team: Andalusia
 Methodology: Agile / Scrum
 

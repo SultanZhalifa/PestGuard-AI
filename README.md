@@ -1,4 +1,4 @@
-# SmartWarehouse AI
+# PestGuard AI
 ### AI-Powered Bio-Hazard & Pest Detection System
 **AI Open Innovation Challenge 2026 -- PT. Kawan Lama Group | Logistics Category**
 
@@ -21,7 +21,7 @@
 
 Gudang PT. Kawan Lama Group menghadapi risiko bio-hazard dan kontaminasi akibat masuknya hewan liar (ular, kucing, gecko/kadal) ke area penyimpanan produk. Sistem inspeksi manual tidak efektif untuk gudang berskala besar dan tidak beroperasi 24/7.
 
-SmartWarehouse AI menyelesaikan masalah ini dengan sistem deteksi real-time berbasis Computer Vision (YOLO11) yang memantau seluruh zona gudang secara otomatis, 24 jam sehari.
+PestGuard AI menyelesaikan masalah ini dengan sistem deteksi real-time berbasis Computer Vision (YOLO11) yang memantau seluruh zona gudang secara otomatis, 24 jam sehari.
 
 ---
 
@@ -218,7 +218,7 @@ Estimasi untuk 1 gudang PT. Kawan Lama:
 | Metric | Value |
 |---|---|
 | Biaya pest control manual | Rp 15-30 juta per bulan |
-| OPEX SmartWarehouse AI | Rp 3 juta per bulan |
+| OPEX PestGuard AI | Rp 3 juta per bulan |
 | **Penghematan per tahun** | **Rp 144-324 juta per gudang** |
 | Break-even period | 4-6 bulan |
 | ROI 3 tahun | lebih dari 200% |

@@ -1,5 +1,5 @@
 /**
- * Smart Warehouse — Centralized API Client
+ * PestGuard AI — Centralized API Client
  * ==========================================
  * Single source of truth for all API calls.
  * - Auto-injects auth headers

@@ -75,7 +75,7 @@ def send_telegram_alert(
             f"Objek Terdeteksi: `{class_name}`\n"
             f"Zona: `{zone_name}`\n"
             f"Confidence AI: `{conf_pct}%` [{bar}]\n\n"
-            f"Sistem: SmartWarehouse AI\n"
+            f"Sistem: PestGuard AI\n"
             f"PT. Kawan Lama Group"
             f"{sop}"
         )

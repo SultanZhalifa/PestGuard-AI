@@ -21,7 +21,7 @@ export const en = {
     hints: ['Quick search', 'Find anything', 'Jump to...', 'Try "Logs"', 'Try "Users"'],
   },
   login: {
-    brand: 'SmartWarehouse',
+    brand: 'PestGuard AI',
     brandSub: 'PT. Kawan Lama Group',
     signInDesc: 'Sign in to access the monitoring dashboard.',
     resetDesc: 'Enter your registered recovery email to receive a reset code.',

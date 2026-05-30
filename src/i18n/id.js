@@ -21,7 +21,7 @@ export const id = {
     hints: ['Cari cepat', 'Temukan apapun', 'Loncat ke...', 'Coba "Log"', 'Coba "Pengguna"'],
   },
   login: {
-    brand: 'SmartWarehouse',
+    brand: 'PestGuard AI',
     brandSub: 'PT. Kawan Lama Group',
     signInDesc: 'Masuk untuk mengakses dashboard pemantauan.',
     resetDesc: 'Masukkan email pemulihan terdaftar Anda untuk menerima kode reset.',

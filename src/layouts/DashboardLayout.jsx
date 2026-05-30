@@ -186,7 +186,7 @@ export default function DashboardLayout() {
           <div style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <img src="/Paw.svg" alt="Paw Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
-          <span style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.03em' }}>SmartWarehouse</span>
+          <span style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.03em' }}>PestGuard AI</span>
         </div>
 
         {/* Nav — scrollable middle section */}

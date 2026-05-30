@@ -60,7 +60,7 @@ export default function ReportGenerator({ onSuccess }) {
       doc.setFontSize(22);
       doc.setFont('helvetica', 'bold');
       setColor(doc, '#ffffff');
-      doc.text('Smart Warehouse', ML + 18, 27);
+      doc.text('PestGuard AI', ML + 18, 27);
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
       setColor(doc, '#94a3b8');
@@ -220,7 +220,7 @@ export default function ReportGenerator({ onSuccess }) {
       doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
       setColor(doc, '#94a3b8');
-      doc.text('Smart Warehouse  •  AI Incident Report', ML, 9);
+      doc.text('PestGuard AI  •  AI Incident Report', ML, 9);
       doc.text(`Hal. 2  •  ${dateStr}`, PW - MR, 9, { align: 'right' });
 
       y = 24;
@@ -390,7 +390,7 @@ export default function ReportGenerator({ onSuccess }) {
       doc.setFontSize(7.5);
       doc.setFont('helvetica', 'normal');
       setColor(doc, HEX.secondary);
-      doc.text('Smart Warehouse AI  •  PT. Kawan Lama Surveillance System  •  Confidential', PW / 2, footerY, { align: 'center' });
+      doc.text('PestGuard AI  •  PT. Kawan Lama Surveillance System  •  Confidential', PW / 2, footerY, { align: 'center' });
       doc.text(`Digenerate otomatis pada ${dateStr} ${now.toLocaleTimeString(locale)}`, PW / 2, footerY + 5, { align: 'center' });
 
       // ── Save ──

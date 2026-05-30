@@ -58,7 +58,7 @@ async def lifespan(application: FastAPI):
 
 # ─── Create Application ───    
 app = FastAPI(
-    title="Smart Warehouse API",
+    title="PestGuard AI API",
     version="2.0.0",
     description="""
 ## AI-Powered Bio-Hazard & Pest Detection System
