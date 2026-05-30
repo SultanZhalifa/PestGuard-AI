@@ -197,7 +197,7 @@ export default function RiskAnalysis() {
                 ))}
               </div>
             </div>
-            <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+            <div style={{ width: '100%', height: 230, position: 'relative' }}>
               {trendLoading && (
                 <div style={{
                   position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -207,7 +207,7 @@ export default function RiskAnalysis() {
                 </div>
               )}
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={trendData} margin={{ top: 20, right: 30, left: -20, bottom: 10 }}>
+                <BarChart data={trendData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" opacity={0.5} />
                   <XAxis
                     dataKey="name" axisLine={false} tickLine={false}
@@ -218,37 +218,45 @@ export default function RiskAnalysis() {
                   />
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} allowDecimals={false} />
                   <Tooltip cursor={{ fill: 'var(--bg-tertiary)' }} contentStyle={{ borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
-                  <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '20px', color: 'var(--text-secondary)' }} />
-                  <Bar dataKey="Gecko" stackId="a" fill="var(--alert-success)" radius={[0, 0, 4, 4]} barSize={activeRange === 'monthly' ? 12 : activeRange === 'daily' ? 14 : 28} />
-                  <Bar dataKey="Cat" stackId="a" fill="var(--alert-warning)" />
-                  <Bar dataKey="Snake" stackId="a" fill="var(--alert-danger)" radius={[4, 4, 0, 0]} />
+                  <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', paddingTop: '15px', color: 'var(--text-secondary)' }} />
+                  <Bar dataKey="Gecko" stackId="a" fill="#22c55e" radius={[0, 0, 4, 4]} barSize={activeRange === 'monthly' ? 12 : activeRange === 'daily' ? 14 : 28} />
+                  <Bar dataKey="Cat" stackId="a" fill="#f59e0b" />
+                  <Bar dataKey="Snake" stackId="a" fill="#ef4444" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
-
+ 
           {/* Risk Distribution Chart */}
           <div className="card" style={{ minHeight: '320px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
             <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--text-primary)' }}>{t.riskAnalysis.riskDistribution}</h3>
-            <div style={{ flex: 1, minHeight: 0 }}>
+            <div style={{ width: '100%', height: 230 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={distributionData}
                     cx="50%"
-                    cy="50%"
-                    innerRadius={90}
-                    outerRadius={130}
+                    cy="45%"
+                    innerRadius={55}
+                    outerRadius={85}
                     paddingAngle={5}
                     dataKey="value"
                     stroke="none"
                   >
-                    {distributionData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.1))' }} />
-                    ))}
+                    {distributionData.map((entry, index) => {
+                      const colors = {
+                        'var(--alert-danger)': '#ef4444',
+                        'var(--alert-warning)': '#f59e0b',
+                        'var(--alert-success)': '#22c55e',
+                      };
+                      const fillColor = colors[entry.color] || entry.color;
+                      return (
+                        <Cell key={`cell-${index}`} fill={fillColor} style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.15))' }} />
+                      );
+                    })}
                   </Pie>
                   <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
-                  <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', color: 'var(--text-secondary)' }} />
+                  <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', paddingTop: '10px', color: 'var(--text-secondary)' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
