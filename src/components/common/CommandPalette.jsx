@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useWarehouse } from '../context/WarehouseContext';
-import { useT } from '../hooks/useT';
+import { useWarehouse } from '../../context/WarehouseContext';
+import { useT } from '../../hooks/useT';
 
 /* All commands; some are role-gated and filtered before render. */
 function buildCommands({ navigate, logout, hasRole, t }) {

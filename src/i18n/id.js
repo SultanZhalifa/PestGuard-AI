@@ -51,6 +51,8 @@ export const id = {
     serverError: 'Tidak dapat terhubung ke server. Pastikan backend sedang berjalan.',
     invalidCredentials: 'Nama pengguna atau kata sandi salah.',
     sendCodeFailed: 'Gagal mengirim kode reset.',
+    demoTitle: 'Pratinjau Langsung',
+    demoDesc: 'Jelajahi dashboard lengkap dengan data sampel. Gunakan kredensial di bawah untuk masuk.',
   },
   liveMonitor: {
     systemStatus: 'Status Sistem',

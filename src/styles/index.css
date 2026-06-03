@@ -1,0 +1,19 @@
+/* ==============================================================
+   PestGuard AI — Main Stylesheet
+   Enterprise-grade design system with warm-tone palette
+   
+   Architecture:
+   1. variables.css  — Design tokens (colors, spacing, radius, shadows)
+   2. base.css       — Reset, typography, scrollbar, animations
+   3. layout.css     — App container, sidebar, top nav, grids
+   4. components.css — Shared UI components (cards, buttons, badges)
+   5. pages.css      — Page-specific styles (login, settings)
+   6. responsive.css — All media queries & breakpoints
+   ============================================================== */
+
+@import './variables.css';
+@import './base.css';
+@import './layout.css';
+@import './components.css';
+@import './pages.css';
+@import './responsive.css';

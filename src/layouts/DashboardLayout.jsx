@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useWarehouse } from '../context/WarehouseContext';
-import CommandPalette from '../components/CommandPalette';
+import CommandPalette from '../components/common/CommandPalette';
 import { useT } from '../hooks/useT';
 
 const ROLE_BADGE_COLORS = {
-  admin:    { bg: 'rgba(239, 68, 68, 0.15)', fg: '#dc2626', label: 'Admin' },
-  manager:  { bg: 'rgba(59, 130, 246, 0.15)', fg: '#2563eb', label: 'Manager' },
-  operator: { bg: 'rgba(16, 185, 129, 0.15)', fg: '#059669', label: 'Operator' },
+  admin:    { bg: 'rgba(185, 28, 28, 0.12)', fg: '#b91c1c', label: 'Admin' },
+  manager:  { bg: 'rgba(109, 40, 217, 0.12)', fg: '#6d28d9', label: 'Manager' },
+  operator: { bg: 'rgba(4, 120, 87, 0.12)',   fg: '#047857', label: 'Operator' },
 };
 
 const PAGE_META = {
@@ -71,6 +71,9 @@ const SearchHint = memo(function SearchHint({ hints }) {
 
 export default function DashboardLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    try { return localStorage.getItem('pestguard_sidebar_collapsed') === 'true'; } catch { return false; }
+  });
   const { alerts, logout, authToken, user, hasRole } = useWarehouse();
   const t = useT();
   const navigate = useNavigate();
@@ -79,9 +82,17 @@ export default function DashboardLayout() {
 
   // Close mobile sidebar + reset scroll on route change
   useEffect(() => {
-    setIsSidebarOpen(false); // eslint-disable-line react-hooks/set-state-in-effect
+    setIsSidebarOpen(false);
     document.querySelector('.main-content')?.scrollTo({ top: 0, behavior: 'instant' });
   }, [location.pathname]);
+
+  const toggleSidebarCollapse = () => {
+    setIsSidebarCollapsed(prev => {
+      const next = !prev;
+      try { localStorage.setItem('pestguard_sidebar_collapsed', String(next)); } catch {}
+      return next;
+    });
+  };
 
   // ── Browser Audio Alarm for DANGER alerts ──────────────────────────────
   useEffect(() => {
@@ -180,66 +191,72 @@ export default function DashboardLayout() {
       </div>
 
       {/* Sidebar Navigation */}
-      <aside className={`sidebar${isSidebarOpen ? ' sidebar--open' : ''}`} style={{ display: 'flex', flexDirection: 'column' }}>
+      <aside className={`sidebar${isSidebarOpen ? ' sidebar--open' : ''}${isSidebarCollapsed ? ' sidebar--collapsed' : ''}`}>
+        {/* Collapse toggle (desktop only) */}
+        <button className="sidebar-collapse-btn" onClick={toggleSidebarCollapse} aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'} title={isSidebarCollapsed ? 'Expand' : 'Collapse'}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isSidebarCollapsed ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }}>
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
         {/* Logo */}
         <div className="logo" style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '2rem', flexShrink: 0 }}>
-          <div style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <img src="/Paw.svg" alt="Paw Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
-          <span style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.03em' }}>PestGuard AI</span>
+          <span className="sidebar-logo-text" style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.03em' }}>PestGuard AI</span>
         </div>
 
         {/* Nav — scrollable middle section */}
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
           {/* Main */}
-          <p style={{ fontSize: '0.6rem', fontWeight: '800', letterSpacing: '0.12em', color: 'var(--text-secondary)', opacity: 0.5, margin: '0 0 0.4rem 0.6rem', textTransform: 'uppercase' }}>{t.nav.main}</p>
+          <p className="nav-section-label">{t.nav.main}</p>
           <NavLink to="/" end className={({ isActive }) => isActive ? "nav-link active" : "nav-link inactive"}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12h4l2-9 5 18 3-9h6"/></svg>
-            {t.nav.liveMonitor}
+            <span className="nav-label">{t.nav.liveMonitor}</span>
           </NavLink>
           <NavLink to="/logs" className={({ isActive }) => isActive ? "nav-link active" : "nav-link inactive"}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-            {t.nav.detectionLogs}
+            <span className="nav-label">{t.nav.detectionLogs}</span>
           </NavLink>
           <NavLink to="/ask-ai" style={{ position: 'relative' }} className={({ isActive }) => isActive ? "nav-link active" : "nav-link inactive"}>
             {({ isActive }) => (
               <>
                 <img src="/ask ai.svg" alt="Ask AI" style={{ width: 18, height: 18, objectFit: 'contain', borderRadius: 4, flexShrink: 0, filter: isActive ? 'brightness(0) invert(1)' : 'none' }} />
-                Ask AI
+                <span className="nav-label">Ask AI</span>
               </>
             )}
           </NavLink>
           <NavLink to="/sop-mitigasi" className={({ isActive }) => isActive ? "nav-link active" : "nav-link inactive"}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            SOP & ROI
+            <span className="nav-label">SOP & ROI</span>
           </NavLink>
 
           {/* Analytics — only admin/manager */}
           {hasRole && hasRole('admin', 'manager') && (<>
-            <p style={{ fontSize: '0.6rem', fontWeight: '800', letterSpacing: '0.12em', color: 'var(--text-secondary)', opacity: 0.5, margin: '1rem 0 0.4rem 0.6rem', textTransform: 'uppercase' }}>{t.nav.analytics}</p>
+            <p className="nav-section-label">{t.nav.analytics}</p>
             <NavLink to="/analysis" className={({ isActive }) => isActive ? "nav-link active" : "nav-link inactive"}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-              {t.nav.riskAnalysis}
+              <span className="nav-label">{t.nav.riskAnalysis}</span>
             </NavLink>
             <NavLink to="/ai-performance" className={({ isActive }) => isActive ? "nav-link active" : "nav-link inactive"}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-              {t.nav.aiPerformance}
+              <span className="nav-label">{t.nav.aiPerformance}</span>
             </NavLink>
           </>)}
 
           {/* Admin */}
           {hasRole && hasRole('admin') && (<>
-            <p style={{ fontSize: '0.6rem', fontWeight: '800', letterSpacing: '0.12em', color: 'var(--text-secondary)', opacity: 0.5, margin: '1rem 0 0.4rem 0.6rem', textTransform: 'uppercase' }}>{t.nav.admin}</p>
+            <p className="nav-section-label">{t.nav.admin}</p>
             <NavLink to="/users" className={({ isActive }) => isActive ? "nav-link active" : "nav-link inactive"}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              {t.nav.userManagement}
+              <span className="nav-label">{t.nav.userManagement}</span>
             </NavLink>
           </>)}
 
           {hasRole && hasRole('admin', 'manager') && (
             <NavLink to="/settings" className={({ isActive }) => isActive ? "nav-link active" : "nav-link inactive"}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-              {t.nav.settings}
+              <span className="nav-label">{t.nav.settings}</span>
             </NavLink>
           )}
         </nav>
@@ -248,16 +265,17 @@ export default function DashboardLayout() {
         {user && (
           <div style={{ flexShrink: 0, paddingTop: '1rem', borderTop: '1px solid var(--border-color)', marginTop: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', backgroundColor: badge.bg, color: badge.fg, fontWeight: '800', fontSize: '0.8rem', flexShrink: 0 }}>
+              <div className="sidebar-user-avatar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', backgroundColor: badge.bg, color: badge.fg, fontWeight: '800', fontSize: '0.8rem', flexShrink: 0 }}>
                 {(user.name || user.username || '?').charAt(0).toUpperCase()}
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name || user.username}</p>
-                <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: '700', color: badge.fg, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{badge.label}</p>
+              <div className="sidebar-user-info" style={{ flex: 1, minWidth: 0 }}>
+                <p className="sidebar-user-name" style={{ margin: 0, fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name || user.username}</p>
+                <p className="sidebar-user-role" style={{ margin: 0, fontSize: '0.65rem', fontWeight: '700', color: badge.fg, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{badge.label}</p>
               </div>
             </div>
             <button
               onClick={handleSignOut}
+              className="sidebar-signout-btn"
               style={{
                 width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem',
                 padding: '0.5rem 0.75rem', borderRadius: '8px',
@@ -265,11 +283,11 @@ export default function DashboardLayout() {
                 color: 'var(--text-secondary)', cursor: 'pointer',
                 fontSize: '0.8rem', fontWeight: '600', transition: 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease',
               }}
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239,68,68,0.08)'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)'; }}
+              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--fn-danger-bg)'; e.currentTarget.style.color = 'var(--fn-danger)'; e.currentTarget.style.borderColor = 'var(--fn-danger-border)'; }}
               onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              {t.nav.signOut}
+              <span className="sidebar-signout-text">{t.nav.signOut}</span>
             </button>
           </div>
         )}

@@ -51,6 +51,8 @@ export const en = {
     serverError: 'Cannot connect to server. Please ensure the backend is running.',
     invalidCredentials: 'Invalid username or password.',
     sendCodeFailed: 'Failed to send reset code.',
+    demoTitle: 'Live Preview',
+    demoDesc: 'Explore the full dashboard with sample data. Use the credentials below to sign in.',
   },
   liveMonitor: {
     systemStatus: 'System Status',

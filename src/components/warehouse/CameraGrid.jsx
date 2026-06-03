@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useWarehouse } from '../context/WarehouseContext';
+import { useWarehouse } from '../../context/WarehouseContext';
 import ZoneDetailModal from './ZoneDetailModal';
-import { useT } from '../hooks/useT';
-import api from '../lib/apiClient';
+import { useT } from '../../hooks/useT';
+import api from '../../lib/apiClient';
 
 export default function CameraGrid() {
   const { authToken } = useWarehouse();
@@ -69,8 +69,8 @@ export default function CameraGrid() {
   };
 
   const getStatusColor = (status) => {
-    if (status === 'live') return '#22c55e';
-    if (status === 'standby') return '#f59e0b';
+    if (status === 'live') return '#047857';
+    if (status === 'standby') return '#b45309';
     return '#6b7280';
   };
 
@@ -84,6 +84,7 @@ export default function CameraGrid() {
     if (sourceType === 'webcam') return 'Webcam';
     if (sourceType === 'video') return 'Video';
     if (sourceType === 'stream') return 'Stream';
+    if (sourceType === 'cctv') return 'CCTV';
     return null;
   };
 
@@ -216,9 +217,9 @@ export default function CameraGrid() {
               {zone.detection_count > 0 && (
                 <div style={{
                   position: 'absolute', bottom: '0.5rem', right: '0.5rem',
-                  backgroundColor: zone.last_risk === 'danger' ? 'rgba(239,68,68,0.92)'
-                    : zone.last_risk === 'warning' ? 'rgba(245,158,11,0.92)'
-                    : 'rgba(59,130,246,0.92)',
+                  backgroundColor: zone.last_risk === 'danger' ? 'rgba(185,28,28,0.92)'
+                    : zone.last_risk === 'warning' ? 'rgba(180,83,9,0.92)'
+                    : 'rgba(15,118,110,0.92)',
                   padding: '0.15rem 0.5rem',
                   borderRadius: '10px', fontSize: '0.6rem', fontWeight: '700', color: '#fff',
                 }}>

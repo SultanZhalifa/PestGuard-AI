@@ -1,4 +1,4 @@
-import { useToast } from '../ToastNotification';
+import { useToast } from '../common/ToastNotification';
 import api from '../../lib/apiClient';
 
 /**
@@ -38,13 +38,13 @@ export default function DangerZone({ setLogs, onResetSuccess }) {
   return (
     <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '20px', padding: '2rem 2.5rem', border: '1px solid rgba(239,68,68,0.2)', marginTop: '2rem', boxShadow: '0 4px 6px -1px rgba(239,68,68,0.03)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-        <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(239,68,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
+        <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(185,28,28,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#b91c1c' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
             <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
         </div>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#ef4444', margin: 0 }}>Danger Zone</h3>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#b91c1c', margin: 0 }}>Danger Zone</h3>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -57,8 +57,8 @@ export default function DangerZone({ setLogs, onResetSuccess }) {
             <button
               onClick={action.onClick}
               className="danger-btn"
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ef4444'; e.currentTarget.style.color = '#fff'; }}
-              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#ef4444'; }}
+              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#b91c1c'; e.currentTarget.style.color = '#fff'; }}
+              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#b91c1c'; }}
             >
               {action.label}
             </button>

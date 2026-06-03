@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { jsPDF } from 'jspdf';
-import api from '../lib/apiClient';
+import api from '../../lib/apiClient';
 
 /* ─── Color helpers ─── */
-const HEX = { danger: '#dc2626', warning: '#d97706', success: '#059669', primary: '#0f172a', secondary: '#64748b', border: '#e2e8f0' };
+const HEX = { danger: '#b91c1c', warning: '#b45309', success: '#047857', primary: '#0f172a', secondary: '#64748b', border: '#e2e8f0' };
 const hexToRgb = (hex) => {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);

@@ -30,9 +30,9 @@ function getAlertLatency(log) {
 }
 
 const RISK_COLORS = {
-  danger: '#ef4444',
-  warning: '#f59e0b',
-  info: '#3b82f6',
+  danger: '#b91c1c',
+  warning: '#b45309',
+  info: '#0f766e',
 };
 const RISK_BGS = {
   danger: 'rgba(239,68,68,0.08)',
@@ -70,9 +70,9 @@ export default function AlertsPanel({ logs, t }) {
 
   const filterButtons = [
     { key: 'all',     label: t.liveMonitor.all,     color: null },
-    { key: 'danger',  label: t.liveMonitor.danger,   color: '#ef4444' },
-    { key: 'warning', label: t.liveMonitor.warning,  color: '#f59e0b' },
-    { key: 'info',    label: t.liveMonitor.info,     color: '#3b82f6' },
+    { key: 'danger',  label: t.liveMonitor.danger,   color: '#b91c1c' },
+    { key: 'warning', label: t.liveMonitor.warning,  color: '#b45309' },
+    { key: 'info',    label: t.liveMonitor.info,     color: '#0f766e' },
   ];
 
   return (
@@ -112,7 +112,7 @@ export default function AlertsPanel({ logs, t }) {
         {filteredLogs.length > 0 && (
           <span
             style={{
-              background: alertFilter === 'danger' ? '#ef4444' : alertFilter === 'warning' ? '#f59e0b' : 'var(--accent-primary)',
+              background: alertFilter === 'danger' ? '#b91c1c' : alertFilter === 'warning' ? '#b45309' : 'var(--accent-primary)',
               color: '#fff',
               fontSize: '0.7rem',
               fontWeight: 700,
@@ -145,7 +145,7 @@ export default function AlertsPanel({ logs, t }) {
               gap: 4,
               transition: 'background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease',
             }}
-            onMouseOver={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
+            onMouseOver={e => { e.currentTarget.style.borderColor = '#b91c1c'; e.currentTarget.style.color = '#b91c1c'; }}
             onMouseOut={e => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
           >
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
@@ -204,7 +204,7 @@ export default function AlertsPanel({ logs, t }) {
         }}
       >
         {filteredLogs.map((log) => {
-          const riskColor = RISK_COLORS[log.risk] || '#3b82f6';
+          const riskColor = RISK_COLORS[log.risk] || '#0f766e';
           const riskBg    = RISK_BGS[log.risk]    || 'rgba(59,130,246,0.08)';
           const riskLabel =
             log.risk === 'danger'  ? 'HAZARD' :
@@ -256,7 +256,7 @@ export default function AlertsPanel({ logs, t }) {
                   {(() => {
                     const lat = getAlertLatency(log);
                     if (!lat || lat <= 0) return null;
-                    const latColor = lat < 1000 ? '#22c55e' : lat < 3000 ? '#f59e0b' : '#ef4444';
+                    const latColor = lat < 1000 ? '#047857' : lat < 3000 ? '#b45309' : '#b91c1c';
                     return (
                       <span style={{
                         marginLeft: 4, fontSize: '0.62rem', fontWeight: '700',
@@ -306,7 +306,7 @@ export default function AlertsPanel({ logs, t }) {
                       fontSize: '0.75rem',
                       lineHeight: 1,
                     }}
-                    onMouseOver={e => Object.assign(e.currentTarget.style, shareBtnHover('#ef4444'))}
+                            onMouseOver={e => Object.assign(e.currentTarget.style, shareBtnHover('#b91c1c'))}
                     onMouseOut={e => Object.assign(e.currentTarget.style, shareBtn('#999'))}
                   >
                     ×

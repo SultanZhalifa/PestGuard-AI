@@ -1,0 +1,319 @@
+/* ==============================================================
+   PestGuard AI — Layout System
+   App container, sidebar, main content, top nav, dashboard grid
+   ============================================================== */
+
+/* ── App Container ── */
+.app-container {
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  max-width: 100vw;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid var(--glass-border);
+  padding: var(--space-xl) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  flex-shrink: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  transition: width 0.3s var(--ease-smooth), padding 0.3s var(--ease-smooth);
+}
+
+/* ── Sidebar Collapsed (Desktop) ── */
+.sidebar.sidebar--collapsed {
+  width: var(--sidebar-collapsed-width);
+  padding: var(--space-xl) var(--space-sm);
+}
+
+.sidebar.sidebar--collapsed .nav-label,
+.sidebar.sidebar--collapsed .nav-section-label,
+.sidebar.sidebar--collapsed .sidebar-user-name,
+.sidebar.sidebar--collapsed .sidebar-user-role,
+.sidebar.sidebar--collapsed .sidebar-logo-text,
+.sidebar.sidebar--collapsed .sidebar-signout-text {
+  display: none;
+}
+
+.sidebar.sidebar--collapsed .logo {
+  justify-content: center;
+  gap: 0;
+}
+
+.sidebar.sidebar--collapsed .nav-link {
+  justify-content: center;
+  padding: 0.75rem;
+  gap: 0;
+}
+
+.sidebar.sidebar--collapsed .sidebar-user-info {
+  display: none;
+}
+
+.sidebar.sidebar--collapsed .sidebar-user-avatar {
+  margin: 0 auto;
+}
+
+.sidebar.sidebar--collapsed .sidebar-signout-btn {
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+/* ── Sidebar Collapse Toggle Button ── */
+.sidebar-collapse-btn {
+  position: absolute;
+  top: 50%;
+  right: -12px;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  color: var(--text-secondary);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-collapse-btn:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+
+/* ── Mobile Sidebar Overlay ── */
+.sidebar-backdrop {
+  display: none;
+}
+
+/* ── Hamburger Button (hidden on desktop) ── */
+.hamburger-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.hamburger-btn:hover {
+  border-color: var(--accent-primary);
+}
+
+/* ── Main Content ── */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  height: 100vh;
+  height: 100dvh;
+  min-width: 0;
+}
+
+/* ── Top Navigation ── */
+.top-nav {
+  height: var(--header-height);
+  min-height: var(--header-height);
+  max-height: var(--header-height);
+  flex-shrink: 0;
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-2xl);
+  border-bottom: 1px solid var(--glass-border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  gap: 0.75rem;
+}
+
+.top-nav-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-width: 0;
+  flex: 1;
+}
+
+.top-nav-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-shrink: 0;
+}
+
+.top-nav-title {
+  min-width: 0;
+  flex: 1;
+}
+
+.top-nav-title h2 {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-nav-subtitle {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0.1rem 0 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-nav-user-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.375rem 0.75rem 0.375rem 0.5rem;
+  background-color: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+/* ── Dashboard Content ── */
+.dashboard-content {
+  padding: var(--space-xl) var(--space-2xl) var(--space-2xl) var(--space-2xl);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+.dashboard-content > .page-enter {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ── Logo ── */
+.logo {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: var(--space-2xl);
+  letter-spacing: -0.025em;
+}
+
+/* ── Grid Layout ── */
+.grid-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.grid-2col { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-md); }
+.grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); }
+.grid-4col { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); }
+
+.camera-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.roi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+.roi-results-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+/* ── Page Container ── */
+.page-container {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: var(--space-xl);
+}
+
+.page-container-wide {
+  max-width: 100%;
+  padding-bottom: var(--space-xl);
+}
+
+/* ── Table Scroll Wrapper ── */
+.table-scroll,
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrap {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+}
+
+.table-wrap table {
+  min-width: 560px;
+}
+
+/* ── Page Header ── */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-xl);
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.page-header-actions {
+  display: flex;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+}

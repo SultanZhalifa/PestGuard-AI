@@ -119,9 +119,9 @@ function ROISection() {
   ];
 
   const results = [
-    { label: 'Penghematan / Bulan', value: fmt(monthlySavings),           color: '#059669', sub: 'vs biaya manual' },
-    { label: 'Penghematan / Tahun', value: fmt(annualSavings),            color: '#2563eb', sub: 'proyeksi tahunan' },
-    { label: 'Break-Even Period',   value: `${paybackMonths.toFixed(1)} bulan`, color: '#d97706', sub: 'payback period' },
+    { label: 'Penghematan / Bulan', value: fmt(monthlySavings),           color: '#047857', sub: 'vs biaya manual' },
+    { label: 'Penghematan / Tahun', value: fmt(annualSavings),            color: '#0f766e', sub: 'proyeksi tahunan' },
+    { label: 'Break-Even Period',   value: `${paybackMonths.toFixed(1)} bulan`, color: '#b45309', sub: 'payback period' },
     { label: 'ROI 3 Tahun',        value: `${roi3Year.toFixed(0)}%`,      color: '#7c3aed', sub: 'return on investment' },
   ];
 
@@ -197,9 +197,9 @@ function ROISection() {
                   step={5}
                   value={reductionRate}
                   onChange={(e) => setReductionRate(Number(e.target.value))}
-                  style={{ flex: 1, accentColor: '#059669' }}
+                  style={{ flex: 1, accentColor: '#047857' }}
                 />
-                <span className="roi-slider-value" style={{ color: '#059669' }}>
+                <span className="roi-slider-value" style={{ color: '#047857' }}>
                   {reductionRate}%
                 </span>
               </div>
@@ -226,12 +226,12 @@ function ROISection() {
       {/* Business Case Summary */}
       <div className="card" style={{ padding: '1.25rem', background: 'rgba(5,150,105,0.06)', border: '1px solid rgba(5,150,105,0.2)' }}>
         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-          <strong style={{ color: '#059669' }}>Kesimpulan Business Case:</strong>{' '}
+          <strong style={{ color: '#047857' }}>Kesimpulan Business Case:</strong>{' '}
           Dengan implementasi PestGuard AI, PT. Kawan Lama dapat menghemat{' '}
           <strong style={{ color: 'var(--text-primary)' }}>{fmt(annualSavings)}</strong> per tahun per gudang.
           Investasi awal{' '}
           <strong style={{ color: 'var(--text-primary)' }}>{fmt(implementationCost)}</strong> akan kembali dalam{' '}
-          <strong style={{ color: '#d97706' }}>{paybackMonths.toFixed(1)} bulan</strong> dengan ROI 3 tahun sebesar{' '}
+          <strong style={{ color: '#b45309' }}>{paybackMonths.toFixed(1)} bulan</strong> dengan ROI 3 tahun sebesar{' '}
           <strong style={{ color: '#7c3aed' }}>{roi3Year.toFixed(0)}%</strong>.
         </p>
       </div>
@@ -437,11 +437,11 @@ export default function SOPMitigasi() {
               flexShrink: 0,
             }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ flex: '1 1 200px' }}>
             <h1 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>
               Mitigasi Risiko &amp; Business Value
             </h1>
@@ -457,7 +457,7 @@ export default function SOPMitigasi() {
               border: '1px solid rgba(5,150,105,0.2)',
               fontSize: '0.78rem',
               fontWeight: '700',
-              color: '#059669',
+              color: '#047857',
               flexShrink: 0,
             }}
           >
@@ -478,7 +478,7 @@ export default function SOPMitigasi() {
               fontSize: '0.88rem',
               fontWeight: '700',
               border: `2px solid ${activeTab === tab.id ? 'var(--accent-primary)' : 'var(--border-color)'}`,
-              backgroundColor: activeTab === tab.id ? 'rgba(99,102,241,0.08)' : 'transparent',
+              backgroundColor: activeTab === tab.id ? 'var(--bg-tertiary)' : 'transparent',
               color: activeTab === tab.id ? 'var(--accent-primary)' : 'var(--text-secondary)',
               cursor: 'pointer',
               transition: 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease',

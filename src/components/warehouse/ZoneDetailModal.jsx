@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useWarehouse } from '../context/WarehouseContext';
-import { useToast } from './ToastNotification';
-import { useT } from '../hooks/useT';
-import api from '../lib/apiClient';
+import { useWarehouse } from '../../context/WarehouseContext';
+import { useToast } from '../common/ToastNotification';
+import { useT } from '../../hooks/useT';
+import api from '../../lib/apiClient';
 
 const TRACKED_CLASSES = ['snake', 'cat', 'gecko', 'lizard'];
 
@@ -25,11 +25,11 @@ const ControlBtn = ({ onClick, title, children, active }) => (
 );
 
 const RISK_COLORS = {
-  danger: '#ef4444',
-  warning: '#f59e0b',
-  info: '#3b82f6',
-  monitoring: '#3b82f6',
-  contamination: '#f59e0b',
+  danger: '#b91c1c',
+  warning: '#b45309',
+  info: '#0f766e',
+  monitoring: '#0f766e',
+  contamination: '#b45309',
 };
 
 export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) {
@@ -270,10 +270,10 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
               }}>
                 <span style={{
                   width: 8, height: 8, borderRadius: '50%',
-                  backgroundColor: isLive ? '#22c55e' : '#f59e0b',
+                  backgroundColor: isLive ? '#047857' : '#b45309',
                   animation: isLive ? 'pulse 2s infinite' : 'none',
                 }} />
-                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: isLive ? '#22c55e' : '#f59e0b', letterSpacing: '0.1em' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: isLive ? '#047857' : '#b45309', letterSpacing: '0.1em' }}>
                   {isLive ? t.zoneModal.live : t.zoneModal.standby}
                 </span>
               </div>

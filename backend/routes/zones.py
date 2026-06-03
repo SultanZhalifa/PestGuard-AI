@@ -147,7 +147,9 @@ def _classify_source(source: str) -> str:
         return "none"
     if source in ("0", "1") or source.isdigit():
         return "webcam"
-    if source.lower().startswith(("rtsp://", "http://", "https://")):
+    if source.lower().startswith("rtsp://"):
+        return "cctv"
+    if source.lower().startswith(("http://", "https://")):
         return "stream"
     return "video"
 
@@ -200,3 +202,54 @@ def update_camera_zone(zone_id: str, data: ZoneUpdateRequest, auth: bool = Depen
             )
 
     return {"status": "success", "message": f"Zone {zone_id} updated."}
+
+
+# ─── Test Camera Source Connectivity ───
+@router.post("/cameras/{zone_id}/test")
+def test_camera_source(zone_id: str, auth: bool = Depends(verify_token)):
+    """Quick stream validation: open capture, read 1 frame, report result."""
+    try:
+        import cv2
+    except ImportError:
+        raise HTTPException(
+            status_code=503,
+            detail="Camera features require OpenCV. Run the backend locally."
+        )
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT source FROM camera_zones WHERE id=?", (zone_id,))
+        row = cursor.fetchone()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Zone not found")
+
+    source = row[0]
+    if not source:
+        raise HTTPException(status_code=400, detail="No source configured for this zone.")
+
+    cap = None
+    try:
+        if source.isdigit():
+            cap = cv2.VideoCapture(int(source))
+        else:
+            cap = cv2.VideoCapture(source)
+
+        if not cap or not cap.isOpened():
+            return {"status": "fail", "message": f"Cannot open source: {source}"}
+
+        success, frame = cap.read()
+        if not success or frame is None:
+            return {"status": "fail", "message": "Source opened but no frame received."}
+
+        h, w = frame.shape[:2]
+        return {
+            "status": "ok",
+            "message": f"Connection successful. Frame: {w}x{h}.",
+            "resolution": f"{w}x{h}",
+        }
+    except Exception as e:
+        return {"status": "fail", "message": str(e)}
+    finally:
+        if cap:
+            cap.release()

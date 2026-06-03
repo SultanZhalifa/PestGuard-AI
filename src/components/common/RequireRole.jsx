@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useWarehouse } from '../context/WarehouseContext';
+import { useWarehouse } from '../../context/WarehouseContext';
 
 export default function RequireRole({ roles, children }) {
   const { user, authToken } = useWarehouse();

@@ -1,10 +1,9 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import DashboardLayout from './layouts/DashboardLayout';
-import RequireRole from './components/RequireRole';
+import RequireRole from './components/common/RequireRole';
 import { WarehouseProvider } from './context/WarehouseContext';
-import { ToastProvider } from './components/ToastNotification';
-import './index.css';
+import { ToastProvider } from './components/common/ToastNotification';
 
 const LiveMonitor    = lazy(() => import('./pages/LiveMonitor'));
 const DetectionLogs  = lazy(() => import('./pages/DetectionLogs'));

@@ -54,7 +54,7 @@ export default function CameraSettings({ cameraUrl, cameraZone, threshold, onUrl
             <span style={{
               padding: '0.25rem 0.75rem', borderRadius: '20px', fontSize: '0.875rem', fontWeight: '700', border: '1px solid',
               backgroundColor: threshold < 50 ? 'rgba(34,197,94,0.1)' : threshold < 75 ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)',
-              color: threshold < 50 ? '#16a34a' : threshold < 75 ? '#d97706' : '#dc2626',
+              color: threshold < 50 ? '#047857' : threshold < 75 ? '#b45309' : '#b91c1c',
               borderColor: threshold < 50 ? 'rgba(34,197,94,0.3)' : threshold < 75 ? 'rgba(245,158,11,0.3)' : 'rgba(239,68,68,0.3)',
             }}>{threshold}%</span>
           </div>
@@ -62,14 +62,14 @@ export default function CameraSettings({ cameraUrl, cameraZone, threshold, onUrl
             type="range" min="30" max="95"
             value={threshold}
             onChange={(e) => onThresholdChange(Number(e.target.value))}
-            style={{ width: '100%', cursor: 'pointer', height: '6px', borderRadius: '4px', accentColor: threshold < 50 ? '#22c55e' : threshold < 75 ? '#f59e0b' : '#ef4444' }}
+            style={{ width: '100%', cursor: 'pointer', height: '6px', borderRadius: '4px', accentColor: threshold < 50 ? '#047857' : threshold < 75 ? '#b45309' : '#b91c1c' }}
           />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: '500' }}>
             <span style={{ color: '#16a34a' }}>{t.settings.sensitiveLow}</span>
-            <span style={{ color: threshold < 50 ? '#16a34a' : threshold < 75 ? '#d97706' : '#dc2626', fontWeight: '700' }}>
+            <span style={{ color: threshold < 50 ? '#047857' : threshold < 75 ? '#b45309' : '#b91c1c', fontWeight: '700' }}>
               {threshold < 50 ? t.settings.highSensitivity : threshold < 75 ? t.settings.balanced : t.settings.strict}
             </span>
-            <span style={{ color: '#dc2626' }}>{t.settings.sensitiveHigh}</span>
+            <span style={{ color: '#b91c1c' }}>{t.settings.sensitiveHigh}</span>
           </div>
         </div>
       </div>

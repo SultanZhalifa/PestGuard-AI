@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useWarehouse } from '../context/WarehouseContext';
-import WarehouseZoneMap from '../components/WarehouseZoneMap';
+import WarehouseZoneMap from '../components/warehouse/WarehouseZoneMap';
 import { useT } from '../hooks/useT';
-import ReportGenerator from '../components/ReportGenerator';
+import ReportGenerator from '../components/warehouse/ReportGenerator';
 import PeakHoursChart from '../components/analytics/PeakHoursChart';
 import api from '../lib/apiClient';
 
@@ -95,7 +95,7 @@ export default function RiskAnalysis() {
         </div>
         {/* Report toast */}
         {reportToast && (
-          <div style={{ fontSize: '0.875rem', padding: '0.625rem 1rem', borderRadius: '10px', backgroundColor: reportToastType === 'danger' ? 'rgba(239,68,68,0.08)' : 'rgba(34,197,94,0.08)', border: `1px solid ${reportToastType === 'danger' ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)'}`, color: reportToastType === 'danger' ? '#ef4444' : '#16a34a', fontWeight: '600' }}>
+          <div style={{ fontSize: '0.875rem', padding: '0.625rem 1rem', borderRadius: '10px', backgroundColor: reportToastType === 'danger' ? 'rgba(185,28,28,0.08)' : 'rgba(4,120,87,0.08)', border: `1px solid ${reportToastType === 'danger' ? 'rgba(185,28,28,0.2)' : 'rgba(4,120,87,0.2)'}`, color: reportToastType === 'danger' ? '#b91c1c' : '#047857', fontWeight: '600' }}>
             {reportToast}
           </div>
         )}
@@ -103,7 +103,7 @@ export default function RiskAnalysis() {
       </div>
 
       {/* Report Content (captured for PDF) */}
-      <div ref={reportRef} style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+      <div ref={reportRef} style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', width: '100%', minWidth: 0, maxWidth: '100%' }}>
 
         {/* Executive Summary Text */}
         <div style={{ backgroundColor: 'var(--bg-primary)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.6' }}>
@@ -118,7 +118,7 @@ export default function RiskAnalysis() {
         {/* Risk Matrix Table */}
         <div className="card" style={{ padding: '2rem' }}>
           <h3 style={{ fontSize: '1.125rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{t.riskAnalysis.riskMatrix}</h3>
-          <div style={{ overflowX: 'auto' }}>
+          <div className="table-wrap">
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
               <thead>
                 <tr style={{ backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)' }}>
@@ -132,9 +132,9 @@ export default function RiskAnalysis() {
               </thead>
               <tbody>
                 {[
-                  { type: 'Snake', cat: t.riskAnalysis.biohazard, severity: t.riskAnalysis.critical, likelihood: t.riskAnalysis.low, score: t.riskAnalysis.high, scoreColor: '#ef4444', response: t.riskAnalysis.evacuate },
-                  { type: 'Cat', cat: t.riskAnalysis.contamination, severity: t.riskAnalysis.moderate, likelihood: t.riskAnalysis.high, score: t.riskAnalysis.moderate, scoreColor: '#f59e0b', response: t.riskAnalysis.logDispatch },
-                  { type: 'Gecko/Lizard', cat: t.riskAnalysis.contamination, severity: t.riskAnalysis.low, likelihood: t.riskAnalysis.high, score: t.riskAnalysis.low, scoreColor: '#22c55e', response: t.riskAnalysis.monitorLog },
+                  { type: 'Snake', cat: t.riskAnalysis.biohazard, severity: t.riskAnalysis.critical, likelihood: t.riskAnalysis.low, score: t.riskAnalysis.high, scoreColor: '#b91c1c', response: t.riskAnalysis.evacuate },
+                  { type: 'Cat', cat: t.riskAnalysis.contamination, severity: t.riskAnalysis.moderate, likelihood: t.riskAnalysis.high, score: t.riskAnalysis.moderate, scoreColor: '#b45309', response: t.riskAnalysis.logDispatch },
+                  { type: 'Gecko/Lizard', cat: t.riskAnalysis.contamination, severity: t.riskAnalysis.low, likelihood: t.riskAnalysis.high, score: t.riskAnalysis.low, scoreColor: '#047857', response: t.riskAnalysis.monitorLog },
                 ].map((row, i) => (
                   <tr key={i} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background-color 0.2s' }}
                     onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--bg-primary)'}
@@ -161,7 +161,7 @@ export default function RiskAnalysis() {
         <div className="grid-2col">
 
           {/* Detection Trend Chart with Range Toggle */}
-          <div className="card" style={{ minHeight: '320px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
+          <div className="card" style={{ minHeight: '320px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem', minWidth: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
               <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>
                 {t.riskAnalysis.detectionTrend}
@@ -219,16 +219,16 @@ export default function RiskAnalysis() {
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} allowDecimals={false} />
                   <Tooltip cursor={{ fill: 'var(--bg-tertiary)' }} contentStyle={{ borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
                   <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', paddingTop: '15px', color: 'var(--text-secondary)' }} />
-                  <Bar dataKey="Gecko" stackId="a" fill="#22c55e" radius={[0, 0, 4, 4]} barSize={activeRange === 'monthly' ? 12 : activeRange === 'daily' ? 14 : 28} />
-                  <Bar dataKey="Cat" stackId="a" fill="#f59e0b" />
-                  <Bar dataKey="Snake" stackId="a" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Gecko" stackId="a" fill="#047857" radius={[0, 0, 4, 4]} barSize={activeRange === 'monthly' ? 12 : activeRange === 'daily' ? 14 : 28} />
+                  <Bar dataKey="Cat" stackId="a" fill="#b45309" />
+                  <Bar dataKey="Snake" stackId="a" fill="#b91c1c" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
  
           {/* Risk Distribution Chart */}
-          <div className="card" style={{ minHeight: '320px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem' }}>
+          <div className="card" style={{ minHeight: '320px', display: 'flex', flexDirection: 'column', padding: '1.5rem 2rem', minWidth: 0 }}>
             <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--text-primary)' }}>{t.riskAnalysis.riskDistribution}</h3>
             <div style={{ width: '100%', height: 230 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -245,9 +245,9 @@ export default function RiskAnalysis() {
                   >
                     {distributionData.map((entry, index) => {
                       const colors = {
-                        'var(--alert-danger)': '#ef4444',
-                        'var(--alert-warning)': '#f59e0b',
-                        'var(--alert-success)': '#22c55e',
+                        'var(--alert-danger)': '#b91c1c',
+                        'var(--alert-warning)': '#b45309',
+                        'var(--alert-success)': '#047857',
                       };
                       const fillColor = colors[entry.color] || entry.color;
                       return (
