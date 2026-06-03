@@ -4,7 +4,7 @@
  */
 export default function PreferencesSettings({ notifications, darkMode, language, onNotifToggle, onDarkToggle, onLangChange, t }) {
   const toggles = [
-    { label: t.settings.pushNotifications, desc: t.settings.pushNotificationsDesc, value: notifications, toggle: onNotifToggle, color: '#22c55e' },
+    { label: t.settings.pushNotifications, desc: t.settings.pushNotificationsDesc, value: notifications, toggle: onNotifToggle, color: '#047857' },
     { label: t.settings.darkModeLabel, desc: t.settings.darkModeDesc, value: darkMode, toggle: onDarkToggle, color: '#6366f1' },
   ];
 

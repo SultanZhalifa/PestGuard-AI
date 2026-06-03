@@ -12,18 +12,18 @@ export const DETECTION_RISK_MAP = {
   Lizard: 'info',
 };
 
-/** Risk level color tokens */
+/** Risk level color tokens (warm-toned) */
 export const RISK_COLORS = {
-  danger: '#dc2626',
-  warning: '#d97706',
-  info:    '#2563eb',
+  danger: '#b91c1c',
+  warning: '#b45309',
+  info:    '#0f766e',
 };
 
-/** Risk level background tokens */
+/** Risk level background tokens (warm-toned) */
 export const RISK_BGS = {
-  danger:  'rgba(220,38,38,0.08)',
-  warning: 'rgba(217,119,6,0.08)',
-  info:    'rgba(37,99,235,0.08)',
+  danger:  'rgba(185,28,28,0.08)',
+  warning: 'rgba(180,83,9,0.08)',
+  info:    'rgba(15,118,110,0.08)',
 };
 
 /** Human-readable risk labels */
@@ -42,9 +42,9 @@ export const SOP_PROTOCOLS = {
   Snake: {
     title: 'SOP Bio-Hazard — Ular Terdeteksi',
     urgency: 'KRITIS',
-    color: '#dc2626',
-    bgColor: 'rgba(220,38,38,0.08)',
-    borderColor: 'rgba(220,38,38,0.3)',
+    color: '#b91c1c',
+    bgColor: 'rgba(185,28,28,0.08)',
+    borderColor: 'rgba(185,28,28,0.3)',
     steps: [
       {
         time: '0–30 detik',
@@ -83,9 +83,9 @@ export const SOP_PROTOCOLS = {
   Cat: {
     title: 'SOP Kontaminasi — Kucing Terdeteksi',
     urgency: 'SEDANG',
-    color: '#d97706',
-    bgColor: 'rgba(217,119,6,0.08)',
-    borderColor: 'rgba(217,119,6,0.3)',
+    color: '#b45309',
+    bgColor: 'rgba(180,83,9,0.08)',
+    borderColor: 'rgba(180,83,9,0.3)',
     steps: [
       {
         time: '0–5 menit',
@@ -123,9 +123,9 @@ export const SOP_PROTOCOLS = {
   Gecko: {
     title: 'SOP Monitoring — Gecko / Kadal Terdeteksi',
     urgency: 'RENDAH',
-    color: '#059669',
-    bgColor: 'rgba(5,150,105,0.08)',
-    borderColor: 'rgba(5,150,105,0.3)',
+    color: '#047857',
+    bgColor: 'rgba(4,120,87,0.08)',
+    borderColor: 'rgba(4,120,87,0.3)',
     steps: [
       {
         time: 'Hari ini',

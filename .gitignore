@@ -1,78 +1,69 @@
-# Logs
-logs
-!src/**/logs
+# ==============================================================
+# PestGuard AI — .gitignore
+# ==============================================================
+
+# ── Dependencies ──
+node_modules/
+
+# ── Build output ──
+dist/
+dist-ssr/
+
+# ── Environment variables ──
+.env
+.env.local
+.env.production.local
+*.local
+backend/.env
+
+# ── Logs ──
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
+backend/server.log
+backend/uvicorn.log
+backend/uvicorn.err.log
 
-node_modules
-dist
-dist-ssr
-*.local
+# ── Python ──
+backend/venv/
+**/__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# ── Database (runtime) ──
+backend/*.db
+
+# ── Model weights (too large for git) ──
+# Only warehouse_pest.pt (custom-trained) should be committed.
+backend/*.pt
+!backend/warehouse_pest.pt
+
+# ── Training data & artifacts ──
+backend/dataset/
+backend/dataset_merged/
+backend/runs/
+
+# ── Runtime artifacts ──
+backend/snapshots/
+
+# ── OS / IDE ──
 .DS_Store
+Thumbs.db
+desktop.ini
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+.vscode/*
+!.vscode/extensions.json
+.idea/
 
-# Python
-backend/venv/
-backend/__pycache__/
-**/__pycache__/
-*.pyc
-*.pyo
+# ── Development tool caches ──
+.vercel/
+.claude/
 
-# Database
-backend/*.db
-*.db
-
-# Model weights (too large for git)
-backend/*.pt
-*.pt
-
-# Environment variables
-.env
-backend/.env
-.env.production.local
-.env.local
-
-# Training data & artifacts (too large for git)
-backend/dataset/
-backend/dataset_merged/
-backend/runs/
-
-# Demo videos — kept in repo so collaborators can test immediately
-# (Total ~8.6MB, well under GitHub 100MB per-file limit)
-
-# OS / IDE leftovers
-Thumbs.db
-.DS_Store
-desktop.ini
-
-# Test artifacts
-backend/tests/__pycache__/
-.pytest_cache/
-
-# Snapshots downloaded by user
-backend/snapshots/
-
-# Server logs
-backend/server.log
-
-# Unused/extra model weights (keep only active model: warehouse_pest.pt)
-backend/yolo11m.pt
-backend/yolo26n.pt
-backend/yolo11n.pt
-
-# Scripts output
-backend/scripts/__pycache__/
-.vercel
+# ── Screenshots (development artifacts, don't commit) ──
+Screenshot*.png

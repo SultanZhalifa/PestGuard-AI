@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useToast } from '../ToastNotification';
+import { useToast } from '../common/ToastNotification';
 import { useWarehouse } from '../../context/WarehouseContext';
 import api from '../../lib/apiClient';
 
@@ -27,7 +27,7 @@ export default function EnvironmentPanel() {
 
   // Derived "load" from inference time: 0–80ms → 0–100%
   const inferenceLoad = Math.min(100, Math.round((inferenceMs / 80) * 100));
-  const loadColor = inferenceLoad > 70 ? 'var(--alert-danger)' : inferenceLoad > 40 ? 'var(--alert-warning)' : '#22c55e';
+  const loadColor = inferenceLoad > 70 ? 'var(--alert-danger)' : inferenceLoad > 40 ? 'var(--alert-warning)' : '#047857';
 
   const handleQuickAction = (actionName) => {
     addToast(`${actionName} triggered. Security team notified.`, 'success');
@@ -67,12 +67,12 @@ export default function EnvironmentPanel() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem', fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
               <span>Active Detection Zones</span>
-              <span style={{ color: activeZoneCount > 0 ? '#22c55e' : 'var(--text-secondary)' }}>
+              <span style={{ color: activeZoneCount > 0 ? '#047857' : 'var(--text-secondary)' }}>
                 {activeZoneCount} zone{activeZoneCount !== 1 ? 's' : ''}
               </span>
             </div>
             <div style={{ width: '100%', height: '6px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ width: `${(activeZoneCount / 4) * 100}%`, height: '100%', backgroundColor: '#22c55e', borderRadius: '3px', transition: 'width 0.5s ease' }} />
+              <div style={{ width: `${(activeZoneCount / 4) * 100}%`, height: '100%', backgroundColor: '#047857', borderRadius: '3px', transition: 'width 0.5s ease' }} />
             </div>
           </div>
 
@@ -149,7 +149,7 @@ export default function EnvironmentPanel() {
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '0.75rem', borderBottom: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e' }} />
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#047857' }} />
             <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-primary)' }}>
               {user?.name || user?.username || 'Operator'}
             </span>
@@ -161,7 +161,7 @@ export default function EnvironmentPanel() {
         
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.75rem' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>System Link</span>
-          <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>Secured (AES-256)</span>
+          <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#047857', backgroundColor: 'rgba(4,120,87,0.1)', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>Secured (AES-256)</span>
         </div>
       </div>
     </div>

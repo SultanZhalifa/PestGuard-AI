@@ -188,8 +188,8 @@ export default function AskAI() {
               Gemini 2.0
             </div>
           )}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.68rem', fontWeight: '700', color: '#22c55e', background: 'rgba(34,197,94,0.08)', padding: '0.25rem 0.6rem', borderRadius: '99px', border: '1px solid rgba(34,197,94,0.2)', whiteSpace: 'nowrap' }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#22c55e', display: 'inline-block', animation: 'pulse-ring 2s infinite' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.68rem', fontWeight: '700', color: '#047857', background: 'rgba(4,120,87,0.08)', padding: '0.25rem 0.6rem', borderRadius: '99px', border: '1px solid rgba(4,120,87,0.2)', whiteSpace: 'nowrap' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#047857', display: 'inline-block', animation: 'pulse-ring 2s infinite' }} />
             ONLINE
           </div>
         </div>

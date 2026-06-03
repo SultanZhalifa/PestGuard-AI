@@ -1,0 +1,424 @@
+/* ==============================================================
+   PestGuard AI — Page-Specific Styles
+   Login, Settings, and other page-level styles
+   ============================================================== */
+
+/* ── Login Page ── */
+.login-page {
+  display: flex;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: var(--font-family);
+  background-color: var(--bg-primary);
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 1.25rem;
+}
+
+.login-page::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(194, 65, 12, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-page::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  left: -10%;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(109, 40, 217, 0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-form-panel {
+  width: 100%;
+  max-width: 440px;
+  padding: 2.5rem;
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--glass-border);
+  position: relative;
+  z-index: 10;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.dark-mode .login-form-panel {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.login-logo-badge {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px -4px rgba(28, 25, 23, 0.12);
+}
+
+.login-logo-img { width: 32px; height: 32px; object-fit: contain; }
+body.dark-mode .login-logo-img { filter: invert(1) brightness(1.6); }
+
+.login-tagline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  opacity: 0.85;
+}
+
+.login-tagline-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--fn-action);
+  display: inline-block;
+  opacity: 0.6;
+}
+
+.login-cobrand {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-top: 0.5rem;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-color);
+  width: 100%;
+  justify-content: center;
+}
+
+.login-cobrand-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.login-cobrand-img {
+  height: 96px;
+  width: auto;
+  margin-top: -35px;
+  margin-bottom: -35px;
+  object-fit: contain;
+  opacity: 0.95;
+  transition: transform 0.25s var(--ease-smooth);
+}
+
+.login-cobrand-img:hover { transform: scale(1.05); }
+body.dark-mode .login-cobrand-img { filter: invert(1) brightness(1.8); }
+
+.login-form-container {
+  width: 100%;
+  animation: loginFormEnter 0.5s var(--ease-out) forwards;
+}
+
+.login-brand.center-brand { justify-content: center; margin-bottom: var(--space-xl); }
+.login-brand-name { color: var(--text-primary); }
+
+.login-form-header { margin-bottom: var(--space-xl); text-align: center; }
+.login-form-header h2 { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; margin: 0 0 0.5rem 0; }
+.login-form-header p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; line-height: 1.5; }
+
+.login-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.875rem var(--space-md);
+  border-radius: var(--radius-lg);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin-bottom: 1.25rem;
+  animation: loginAlertIn 0.3s ease-out;
+}
+
+.login-alert svg { flex-shrink: 0; margin-top: 1px; }
+.login-alert-error   { background-color: var(--fn-danger-bg);  color: var(--fn-danger);  border: 1px solid var(--fn-danger-border); }
+.login-alert-success { background-color: var(--fn-success-bg); color: var(--fn-success); border: 1px solid var(--fn-success-border); }
+.login-alert-demo    { background-color: var(--fn-ai-bg);      color: var(--fn-ai);      border: 1px solid var(--fn-ai-border); }
+
+.login-form { display: flex; flex-direction: column; gap: 1.25rem; }
+.login-field label { display: block; font-size: 0.8125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; }
+.login-field-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.login-field-header label { margin-bottom: 0; }
+
+.login-input-wrap { position: relative; display: flex; align-items: center; }
+.login-input-wrap > svg:first-child { position: absolute; left: 0.875rem; color: var(--text-secondary); pointer-events: none; z-index: 1; opacity: 0.5; }
+
+.login-input-wrap input {
+  width: 100%;
+  padding: 0.8rem var(--space-md) 0.8rem 2.5rem;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--border-color);
+  outline: none;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  font-family: var(--font-family);
+}
+
+.login-input-wrap input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 4px rgba(41, 37, 36, 0.08);
+  background-color: var(--bg-secondary);
+}
+
+body.dark-mode .login-input-wrap input:focus {
+  box-shadow: 0 0 0 4px rgba(214, 211, 209, 0.12);
+}
+
+.login-input-wrap input:disabled { opacity: 0.5; cursor: not-allowed; }
+.login-input-wrap input::placeholder { color: var(--text-secondary); opacity: 0.5; }
+
+.login-pw-toggle {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 0.25rem;
+  display: flex;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.login-pw-toggle:hover { opacity: 1; }
+
+.login-link {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-family);
+  transition: color 0.2s ease;
+}
+
+.login-link:hover { color: var(--text-primary); }
+
+.login-remember { display: flex; justify-content: space-between; align-items: center; }
+.login-remember span { font-size: 0.875rem; color: var(--text-secondary); font-weight: 600; }
+
+.login-toggle {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background-color: var(--border-color);
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease-smooth);
+}
+
+.login-toggle.active { background-color: var(--fn-action); }
+
+.login-toggle-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: white;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: left 0.2s var(--ease-smooth);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.login-toggle.active .login-toggle-thumb { left: 22px; }
+
+.login-submit {
+  width: 100%;
+  padding: 0.875rem;
+  margin-top: 0.25rem;
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth), background-color 0.2s var(--ease-smooth);
+  font-family: var(--font-family);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.login-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); background-color: var(--accent-hover); }
+.login-submit:active:not(:disabled) { transform: translateY(1px); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06); }
+.login-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+body.dark-mode .login-submit { color: var(--bg-primary); }
+
+.login-spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255, 255, 255, 0.25); border-top-color: white; border-radius: 50%; animation: loginSpin 0.5s linear infinite; }
+
+.login-back {
+  width: 100%;
+  padding: 0.625rem;
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-family);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  transition: color 0.2s ease;
+}
+
+.login-back:hover { color: var(--text-primary); }
+
+/* ── Login Shake Animation ── */
+@keyframes loginShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 50%, 90% { transform: translateX(-6px); }
+  30%, 70% { transform: translateX(6px); }
+}
+
+.login-shake {
+  animation: loginShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* ── Login Input Error State ── */
+.login-input-error input {
+  border-color: var(--fn-danger) !important;
+  box-shadow: 0 0 0 3px var(--fn-danger-bg) !important;
+}
+
+.login-input-error > svg:first-child {
+  color: var(--fn-danger) !important;
+  opacity: 0.8 !important;
+}
+
+.login-footer { text-align: center; margin-top: var(--space-xl); font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7; }
+
+/* ── Settings Page ── */
+.settings-card {
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl) 2.5rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+}
+
+.settings-divider { height: 1px; background-color: var(--border-color); margin: var(--space-xl) 0; }
+
+.settings-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  border-radius: var(--radius-lg);
+  background-color: rgba(4, 120, 87, 0.08);
+  border: 1px solid rgba(4, 120, 87, 0.2);
+  margin-bottom: var(--space-lg);
+  animation: slideUp 0.3s ease-out;
+}
+
+.section-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.section-title { font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin: 0; }
+
+.field-label { display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.625rem; }
+
+.field-input {
+  width: 100%;
+  padding: 0.75rem var(--space-md);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  outline: none;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  font-family: var(--font-family);
+}
+
+.field-select {
+  width: 100%;
+  padding: 0.75rem var(--space-md);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  outline: none;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  cursor: pointer;
+  font-family: var(--font-family);
+  transition: border-color 0.2s ease;
+}
+
+.field-hint { margin: 0.5rem 0 0 0; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+
+.pref-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem var(--space-md);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.toggle-track {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  border-radius: 13px;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: left 0.2s ease;
+}

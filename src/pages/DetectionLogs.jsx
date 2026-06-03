@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
-import { useToast } from '../components/ToastNotification';
+import { useToast } from '../components/common/ToastNotification';
 import { useT } from '../hooks/useT';
 import LogsTable from '../components/logs/LogsTable';
 import SnapshotModal from '../components/logs/SnapshotModal';
@@ -98,9 +98,9 @@ export default function DetectionLogs() {
       <div className="grid-4col">
         {[
           { label: t.detectionLogs.totalDetections, value: counts.total, color: 'var(--text-primary)' },
-          { label: t.detectionLogs.hazardEvents, value: counts.danger, color: '#ef4444' },
-          { label: t.detectionLogs.contamination, value: counts.warning, color: '#f59e0b' },
-          { label: t.detectionLogs.monitoring, value: counts.info, color: '#22c55e' },
+          { label: t.detectionLogs.hazardEvents, value: counts.danger, color: '#b91c1c' },
+          { label: t.detectionLogs.contamination, value: counts.warning, color: '#b45309' },
+          { label: t.detectionLogs.monitoring, value: counts.info, color: '#047857' },
         ].map((s, i) => (
           <div key={i} className="card" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
             <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</span>

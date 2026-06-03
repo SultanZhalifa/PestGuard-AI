@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWarehouse } from '../context/WarehouseContext';
-import { useToast } from '../components/ToastNotification';
-import CameraGrid from '../components/CameraGrid';
+import { useToast } from '../components/common/ToastNotification';
+import CameraGrid from '../components/warehouse/CameraGrid';
 import StatCards from '../components/monitor/StatCards';
 import VideoFeedPanel from '../components/monitor/VideoFeedPanel';
 import AlertsPanel from '../components/monitor/AlertsPanel';

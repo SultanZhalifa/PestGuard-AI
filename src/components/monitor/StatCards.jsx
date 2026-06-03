@@ -10,9 +10,9 @@ function LatencyGauge({ ms }) {
   // Color thresholds: green <50ms, yellow <120ms, red >=120ms
   const color = numMs === 0
     ? 'var(--text-secondary)'
-    : numMs < 50 ? '#22c55e'
-    : numMs < 120 ? '#f59e0b'
-    : '#ef4444';
+    : numMs < 50 ? '#047857'
+    : numMs < 120 ? '#b45309'
+    : '#b91c1c';
 
   const label = numMs === 0
     ? 'Idle'

@@ -109,35 +109,35 @@ def init_db():
         )
 
         # ── Seed Default Users (idempotent: only inserts users that don't exist) ──
-        # Security: generate random passwords instead of hardcoded ones
+        # Default passwords for development convenience.
+        # must_change_password=1 ensures users are prompted to change on first login.
         seed_users = [
-            ("admin",    "admin",   "IT Administrator",  "admin@kawanlama.com"),
-            ("manager",  "manager", "Warehouse Manager", "manager@kawanlama.com"),
-            ("operator", "operator", "Shift Operator",   "operator@kawanlama.com"),
+            ("admin",    "admin",   "IT Administrator",  "admin@kawanlama.com",    "admin123"),
+            ("manager",  "manager", "Warehouse Manager", "manager@kawanlama.com",  "manager123"),
+            ("operator", "operator", "Shift Operator",   "operator@kawanlama.com", "operator123"),
         ]
         seeded_any = False
-        for username, role, name, email in seed_users:
+        for username, role, name, email, default_pw in seed_users:
             cursor.execute(
                 "SELECT id FROM users WHERE username = ? COLLATE NOCASE",
                 (username,)
             )
             if cursor.fetchone():
                 continue
-            plain_pw = secrets.token_urlsafe(10)  # Random 10-char password
-            pw_hash, salt = _hash_password(plain_pw)
+            pw_hash, salt = _hash_password(default_pw)
             try:
                 cursor.execute(
                     "INSERT INTO users (username, email, password_hash, salt, name, role, must_change_password) "
                     "VALUES (?, ?, ?, ?, ?, ?, 1)",
                     (username, email, pw_hash, salt, name, role)
                 )
-                logging.warning("[SETUP] Created user '%s' (role=%s) — password: %s", username, role, plain_pw)
+                logging.warning("[SETUP] Created user '%s' (role=%s) — password: %s", username, role, default_pw)
                 seeded_any = True
             except sqlite3.IntegrityError:
                 # Email already taken (e.g., legacy row with this email but different username)
                 pass
         if seeded_any:
-            logging.warning("[SETUP] WARNING: Save these passwords -- they won't be shown again!")
+            logging.warning("[SETUP] Default credentials → admin/admin123, manager/manager123, operator/operator123")
 
         # ── Seed Default Settings ──
         cursor.execute("SELECT COUNT(*) FROM settings")

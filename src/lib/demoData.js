@@ -10,8 +10,11 @@
  * unaffected.
  */
 
+const DEMO_USERNAME = 'demo';
+const DEMO_PASSWORD = 'demo123';
+
 const DEMO_USER = {
-  username: 'demo',
+  username: DEMO_USERNAME,
   name: 'Demo Reviewer',
   role: 'admin',
   must_change_password: false,
@@ -163,10 +166,33 @@ export function getDemoResponse(path, method = 'GET', body = null) {
 
   // ─── Auth ───
   if (p === '/login' && method === 'POST') {
+    // Validate real credentials — reject wrong username/password
+    if (
+      !body ||
+      body.username !== DEMO_USERNAME ||
+      body.password !== DEMO_PASSWORD
+    ) {
+      return { __demo_error: true, status: 401, detail: 'Invalid username or password.' };
+    }
     return { token: 'demo-token-pestguard', user: DEMO_USER };
   }
   if (p === '/verify-token') return { status: 'valid', user: DEMO_USER };
   if (p === '/logout') return { status: 'success' };
+
+  // ─── Forgot Password (demo: returns a fixed OTP for realistic flow) ───
+  if (p === '/forgot-password' && method === 'POST') {
+    return {
+      status: 'success',
+      message: 'Demo mode — reset code generated.',
+      otp_code: '123456',
+    };
+  }
+  if (p === '/reset-password' && method === 'POST') {
+    if (!body || body.code !== '123456') {
+      return { __demo_error: true, status: 400, detail: 'Invalid reset code.' };
+    }
+    return { status: 'success', message: 'Password updated successfully (demo mode).' };
+  }
 
   // ─── Core data ───
   if (p === '/logs') return DEMO_LOGS;

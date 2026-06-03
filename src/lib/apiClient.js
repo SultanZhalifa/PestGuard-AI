@@ -19,6 +19,16 @@ import { getDemoResponse, IS_DEMO } from './demoData';
 /** Build a Response-like object so demo data flows through the same code paths. */
 function demoResponse(path, method, body) {
   const data = getDemoResponse(path, method, body);
+  // Handle demo-mode error responses (e.g. invalid credentials)
+  if (data && data.__demo_error) {
+    return {
+      ok: false,
+      status: data.status || 400,
+      json: async () => ({ detail: data.detail || 'Request failed' }),
+      blob: async () => new Blob([], { type: 'application/octet-stream' }),
+      text: async () => JSON.stringify({ detail: data.detail }),
+    };
+  }
   const ok = data !== undefined;
   return {
     ok,

@@ -13,11 +13,12 @@ export default function Login() {
   // In demo mode, prefill credentials so judges can sign in with one click.
   const [username, setUsername] = useState(IS_DEMO ? 'demo' : '');
   const [recoveryEmail, setRecoveryEmail] = useState('');
-  const [password, setPassword] = useState(IS_DEMO ? 'demo' : '');
+  const [password, setPassword] = useState(IS_DEMO ? 'demo123' : '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [showPw, setShowPw] = useState(false);
+  const [shakeForm, setShakeForm] = useState(false);
 
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -34,6 +35,19 @@ export default function Login() {
     localStorage.removeItem('sw_remembered_email');
   }, []);
 
+  // Auto-dismiss error after 5 seconds
+  useEffect(() => {
+    if (!error) return;
+    const timer = setTimeout(() => setError(''), 5000);
+    return () => clearTimeout(timer);
+  }, [error]);
+
+  const triggerError = (msg) => {
+    setError(msg);
+    setShakeForm(true);
+    setTimeout(() => setShakeForm(false), 600);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -44,7 +58,7 @@ export default function Login() {
       if (mode === 'forgot') {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(recoveryEmail)) {
-          setError(t.login.invalidEmail);
+          triggerError(t.login.invalidEmail);
           setIsLoading(false);
           return;
         }
@@ -65,14 +79,14 @@ export default function Login() {
         return;
       }
 
-      // Login — in demo mode any credentials work (default to a demo user)
-      if (!username.trim() && !IS_DEMO) {
-        setError(t.login.enterUsername);
+      // Login
+      if (!username.trim()) {
+        triggerError(t.login.enterUsername);
         setIsLoading(false);
         return;
       }
       const data = await api.postJson('/login', {
-        username: username.trim() || (IS_DEMO ? 'demo' : username),
+        username: username.trim(),
         password,
       });
       setAuthToken(data.token, data.user);
@@ -81,14 +95,14 @@ export default function Login() {
       } else {
         navigate('/');
       }
-    } catch (e) { setError(e.message || t.login.serverError); }
+    } catch (err) { triggerError(err.message || t.login.serverError); }
     setIsLoading(false);
   };
 
   return (
     <div className="login-page center-layout">
       {/* ─── Form Panel ─── */}
-      <div className="login-form-panel">
+      <div className={`login-form-panel${shakeForm ? ' login-shake' : ''}`}>
         <div className="login-form-container">
 
           {/* Brand: logo + name + tagline + co-brand */}
@@ -115,15 +129,21 @@ export default function Login() {
             <div style={{
               display: 'flex', alignItems: 'flex-start', gap: '0.625rem',
               padding: '0.75rem 0.875rem', marginBottom: '1.25rem',
-              backgroundColor: 'rgba(59, 130, 246, 0.08)',
-              border: '1px solid rgba(59, 130, 246, 0.25)', borderRadius: '12px',
+              backgroundColor: 'var(--fn-info-bg)',
+              border: '1px solid var(--fn-info-border)', borderRadius: '12px',
             }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fn-info)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
               </svg>
               <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                <strong style={{ color: 'var(--text-primary)' }}>Live Preview</strong> — explore the dashboard with sample data.
-                Click <strong style={{ color: 'var(--text-primary)' }}>Sign in</strong> to enter (any credentials work).
+                <strong style={{ color: 'var(--text-primary)' }}>{t.login.demoTitle}</strong> — {t.login.demoDesc}
+                <div style={{ marginTop: '0.375rem', fontFamily: '"Fira Code", monospace', fontSize: '0.75rem', letterSpacing: '0.02em' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>Username:</span>{' '}
+                  <strong style={{ color: 'var(--text-primary)' }}>demo</strong>
+                  <span style={{ margin: '0 0.5rem', opacity: 0.3 }}>|</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>Password:</span>{' '}
+                  <strong style={{ color: 'var(--text-primary)' }}>demo123</strong>
+                </div>
               </div>
             </div>
           )}
@@ -179,7 +199,7 @@ export default function Login() {
             {mode === 'login' && (
               <div className="login-field">
                 <label htmlFor="login-username">{t.login.usernameLabel}</label>
-                <div className="login-input-wrap">
+                <div className={`login-input-wrap${error ? ' login-input-error' : ''}`}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                   </svg>
@@ -188,7 +208,7 @@ export default function Login() {
                     type="text"
                     placeholder={t.login.usernamePlaceholder}
                     value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    onChange={(e) => { setUsername(e.target.value); setError(''); }}
                     required
                     autoComplete="username"
                     autoCapitalize="none"
@@ -230,7 +250,7 @@ export default function Login() {
                     {t.login.forgotPassword}
                   </button>
                 </div>
-                <div className="login-input-wrap">
+                <div className={`login-input-wrap${error ? ' login-input-error' : ''}`}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                   </svg>
@@ -239,7 +259,7 @@ export default function Login() {
                     type={showPw ? 'text' : 'password'}
                     placeholder={t.login.passwordPlaceholder}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => { setPassword(e.target.value); setError(''); }}
                     required
                     autoComplete="current-password"
                   />

@@ -11,9 +11,9 @@ const ROLE_OPTIONS = [
 ];
 
 const ROLE_COLOR = {
-  admin:    '#dc2626',
-  manager:  '#2563eb',
-  operator: '#059669',
+  admin:    '#b91c1c',
+  manager:  '#6d28d9',
+  operator: '#047857',
 };
 
 export default function UserManagement() {
@@ -193,9 +193,9 @@ export default function UserManagement() {
                   </td>
                   <td style={td}>
                     {u.must_change_password ? (
-                      <span style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: '600' }}>{t.userManagement.pendingPasswordChange}</span>
+                      <span style={{ fontSize: '0.75rem', color: '#b45309', fontWeight: '600' }}>{t.userManagement.pendingPasswordChange}</span>
                     ) : (
-                      <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: '600' }}>{t.userManagement.active}</span>
+                      <span style={{ fontSize: '0.75rem', color: '#047857', fontWeight: '600' }}>{t.userManagement.active}</span>
                     )}
                   </td>
                   <td style={{ ...td, textAlign: 'right' }}>
