@@ -26,8 +26,7 @@
   height: 100vh;
   height: 100dvh;
   flex-shrink: 0;
-  overflow-y: auto;
-  overflow-x: visible;
+  overflow: visible;
   position: relative;
   transition: width 0.3s var(--ease-smooth), padding 0.3s var(--ease-smooth);
 }
