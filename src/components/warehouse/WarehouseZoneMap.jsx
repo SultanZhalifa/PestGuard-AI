@@ -20,7 +20,7 @@ export default function WarehouseZoneMap({ zoneData = [], recentLogs = [] }) {
     const intensity = getZoneIntensity(zoneId);
     if (intensity > 70) return { bg: 'rgba(185, 28, 28, 0.12)', border: '#b91c1c', text: '#b91c1c' };
     if (intensity > 40) return { bg: 'rgba(180, 83, 9, 0.12)', border: '#b45309', text: '#b45309' };
-    return { bg: 'rgba(4, 120, 87, 0.10)', border: '#047857', text: '#047857' };
+    return { bg: 'rgba(41, 37, 36, 0.10)', border: '#292524', text: '#292524' };
   };
 
   const getZoneLogs = (zoneId) => {
@@ -41,8 +41,8 @@ export default function WarehouseZoneMap({ zoneData = [], recentLogs = [] }) {
           <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Interactive floor plan with real-time threat visualization.</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem', fontSize: '0.7rem', fontWeight: '600' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: '#047857' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#047857' }}></span> CLEAR
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: '#292524' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#292524' }}></span> CLEAR
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: '#b45309' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#b45309' }}></span> MODERATE
@@ -189,8 +189,8 @@ export default function WarehouseZoneMap({ zoneData = [], recentLogs = [] }) {
               <span style={{ 
                 fontSize: '0.7rem', fontWeight: '600', 
                 padding: '0.2rem 0.5rem', borderRadius: '6px',
-                backgroundColor: ZONES.find(z => z.id === selectedZone)?.camera ? 'rgba(4,120,87,0.12)' : 'var(--bg-tertiary)',
-                color: ZONES.find(z => z.id === selectedZone)?.camera ? '#047857' : 'var(--text-secondary)'
+                backgroundColor: ZONES.find(z => z.id === selectedZone)?.camera ? 'rgba(41, 37, 36,0.12)' : 'var(--bg-tertiary)',
+                color: ZONES.find(z => z.id === selectedZone)?.camera ? '#292524' : 'var(--text-secondary)'
               }}>
                 {ZONES.find(z => z.id === selectedZone)?.camera ? 'ONLINE' : 'OFFLINE'}
               </span>

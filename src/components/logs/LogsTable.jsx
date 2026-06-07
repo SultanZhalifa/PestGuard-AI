@@ -16,7 +16,7 @@ const AnimalIcon = ({ type }) => {
     </svg>
   );
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#047857" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#292524" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 8c-2 0-3 1-3 3v2c0 1-1 2-3 2H9"/>
       <path d="M6 15c-1.5 0-3 .5-3 2s1.5 2 3 2"/>
       <circle cx="19" cy="5" r="2"/><path d="M9 15l-3 4"/><path d="M9 15l3 4"/>
@@ -57,7 +57,7 @@ export default function LogsTable({ logs, loading, onSnapshotClick, t }) {
             </thead>
             <tbody>
               {logs.map((log) => {
-                const riskColor = log.risk === 'danger' ? '#b91c1c' : log.risk === 'warning' ? '#b45309' : '#0f766e';
+                const riskColor = log.risk === 'danger' ? '#b91c1c' : log.risk === 'warning' ? '#b45309' : '#57534e';
                 return (
                   <tr
                     key={log.id}

@@ -9,18 +9,18 @@ import api from '../lib/apiClient';
 
 /* ─── System Architecture section (static info, kept inline for clarity) ─── */
 const ARCH_ITEMS = [
-  { name: 'Camera/Video', sub: 'OpenCV', color: '#6366f1', icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z' },
-  { name: 'YOLO11 AI', sub: 'Inference', color: '#b91c1c', icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' },
-  { name: 'FastAPI', sub: 'Backend', color: '#047857', icon: 'M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01' },
-  { name: 'SQLite', sub: 'Database', color: '#0ea5e9', icon: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4' },
-  { name: 'WebSocket', sub: 'Real-time', color: '#b45309', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
-  { name: 'React', sub: 'Dashboard', color: '#0f766e', icon: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+  { name: 'Camera/Video', sub: 'OpenCV', color: '#44403c', icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z' },
+  { name: 'YOLO11 AI', sub: 'Inference', color: '#1c1917', icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' },
+  { name: 'FastAPI', sub: 'Backend', color: '#292524', icon: 'M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01' },
+  { name: 'SQLite', sub: 'Database', color: '#57534e', icon: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4' },
+  { name: 'WebSocket', sub: 'Real-time', color: '#78716c', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
+  { name: 'React', sub: 'Dashboard', color: '#57534e', icon: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
 ];
 const TEAM = [
-  { name: 'Sultan', role: 'Scrum Master', color: '#0f766e', initials: 'SZ' },
-  { name: 'Fathir', role: 'Backend & AI Lead', color: '#b91c1c', initials: 'FF' },
-  { name: 'Risly', role: 'Frontend Dev', color: '#8b5cf6', initials: 'RM' },
-  { name: 'Misha', role: 'UI/UX Designer', color: '#b45309', initials: 'MS' },
+  { name: 'Sultan', role: 'Scrum Master', color: '#57534e', initials: 'SZ' },
+  { name: 'Fathir', role: 'Backend & AI Lead', color: '#1c1917', initials: 'FF' },
+  { name: 'Risly', role: 'Frontend Dev', color: '#44403c', initials: 'RM' },
+  { name: 'Misha', role: 'UI/UX Designer', color: '#78716c', initials: 'MS' },
 ];
 
 export default function Settings() {
@@ -203,7 +203,7 @@ export default function Settings() {
           <span>Build: <strong style={{ color: 'var(--text-primary)' }}>4631948</strong></span>
           <span>Stack: <strong style={{ color: 'var(--text-primary)' }}>React 19 + FastAPI</strong></span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#047857', display: 'inline-block' }} />
+            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#292524', display: 'inline-block' }} />
             All systems operational
           </span>
         </div>

@@ -81,8 +81,8 @@ using a custom-trained YOLO11 model.
 Built for the **AI Open Innovation Challenge 2026** — PT. Kawan Lama Group.
     """,
     contact={
-        "name": "Team Andalusia — Smart Warehouse",
-        "url": "https://github.com/SultanZhalifa/smartwarehouse-ai",
+        "name": "Team Andalusia — PestGuard AI",
+        "url": "https://github.com/SultanZhalifa/PestGuard-AI",
     },
     license_info={
         "name": "MIT License",

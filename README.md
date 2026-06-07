@@ -8,7 +8,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.136-009688?style=for-the-badge&logo=fastapi)
-![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
 ![YOLO11](https://img.shields.io/badge/YOLO11-Custom_Trained-00FFFF?style=for-the-badge)
 ![Gemini](https://img.shields.io/badge/Gemini_2.0_Flash-AI_Chat-4285F4?style=for-the-badge&logo=google)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)
@@ -49,7 +49,7 @@ PestGuard AI menyelesaikan masalah ini dengan sistem deteksi real-time berbasis 
 
 ```
 +-------------------------------------------------------------+
-|                    SMARTWAREHOUSE AI                        |
+|                       PESTGUARD AI                          |
 +------------------+------------------+-----------------------+
 |   CAMERA LAYER   |   AI/ML LAYER    |   ALERT LAYER         |
 |                  |                  |                       |
@@ -114,7 +114,7 @@ PestGuard AI menyelesaikan masalah ini dengan sistem deteksi real-time berbasis 
 
 | Layer | Technology | Purpose |
 |---|---|---|
-| **Frontend** | React 18, Vite, Recharts | Dashboard & visualisasi |
+| **Frontend** | React 19, Vite, Recharts | Dashboard & visualisasi |
 | **Backend** | Python 3.12, FastAPI | REST API + WebSocket |
 | **AI/CV** | YOLO11, OpenCV, CLAHE | Object detection & preprocessing |
 | **Database** | SQLite (WAL mode) | Detection logs & settings |
@@ -130,8 +130,8 @@ PestGuard AI menyelesaikan masalah ini dengan sistem deteksi real-time berbasis 
 ### Option 1: Docker (Recommended)
 
 ```bash
-git clone https://github.com/SultanZhalifa/smartwarehouse-ai
-cd smartwarehouse-ai
+git clone https://github.com/SultanZhalifa/PestGuard-AI
+cd PestGuard-AI
 cp backend/.env.example backend/.env
 # Edit backend/.env: tambahkan GEMINI_API_KEY dan TELEGRAM_BOT_TOKEN
 docker-compose up --build
@@ -157,6 +157,21 @@ npm run dev
 - Dashboard: http://localhost:5173
 - API Docs: http://localhost:8000/docs
 
+### Testing & Quality
+
+```bash
+# Frontend: lint, unit tests, production build
+npm run lint
+npm test
+npm run build
+
+# Backend: API test suite (isolated temp DB, no setup needed)
+cd backend && pytest -q
+```
+
+Continuous integration (GitHub Actions, `.github/workflows/ci.yml`) runs all of
+the above on every push and pull request to `main`.
+
 ### Default Login
 
 | Username | Password | Role |
@@ -170,7 +185,7 @@ npm run dev
 ## Project Structure
 
 ```
-smartwarehouse-ai/
+PestGuard-AI/
 ├── backend/
 │   ├── routes/
 │   │   ├── auth.py              # Login, register, password reset

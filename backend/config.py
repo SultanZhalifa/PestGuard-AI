@@ -22,11 +22,28 @@ BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = os.getenv("DB_PATH", str(BASE_DIR / "warehouse.db"))
 
 # ─── Security ───
-SECRET_KEY = os.getenv("SECRET_KEY", "smartwarehouse-dev-key-change-in-production")
+_DEFAULT_SECRET_KEY = "pestguard-dev-key-change-in-production"
+SECRET_KEY = os.getenv("SECRET_KEY", _DEFAULT_SECRET_KEY)
 CORS_ORIGINS = [o.strip() for o in os.getenv(
     "CORS_ORIGINS",
     "http://localhost:5173,http://localhost:3000,https://smartwarehouse-ai.vercel.app"
 ).split(",")]
+
+# Warn loudly if running with the built-in dev secret against a non-local origin
+# (i.e. a production-looking deployment). Session tokens are random per-login, so
+# this key is reserved for any future signed-token use — keep it secret in prod.
+if SECRET_KEY == _DEFAULT_SECRET_KEY:
+    _looks_production = any(
+        not o.startswith(("http://localhost", "http://127.0.0.1"))
+        for o in CORS_ORIGINS
+    )
+    if _looks_production:
+        import logging
+        logging.getLogger("uvicorn.error").warning(
+            "[SECURITY] Using the default SECRET_KEY in a production-looking "
+            "deployment. Set a strong SECRET_KEY env var: "
+            'python -c "import secrets; print(secrets.token_hex(32))"'
+        )
 
 # ─── AI Detection Scope (Case 1: Bio-Hazard & Pest Detection) ───
 TRACKED_CLASSES = {"Snake", "Cat", "Gecko", "Lizard"}

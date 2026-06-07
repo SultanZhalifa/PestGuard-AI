@@ -143,10 +143,10 @@ export default function AIPerformance() {
   const artifacts = modelInfo.artifacts || [];
 
   const metricCards = metrics ? [
-    { label: t.aiPerformance.mAP50, targetValue: metrics.mAP50, desc: t.aiPerformance.meanAvgPrecision, color: '#047857', iconFn: Icons.target },
-    { label: t.aiPerformance.mAP5095, targetValue: metrics.mAP50_95, desc: t.aiPerformance.strictMap, color: '#0f766e', iconFn: Icons.barChart },
-    { label: t.aiPerformance.precision, targetValue: metrics.precision, desc: t.aiPerformance.truePositiveRate, color: '#6d28d9', iconFn: Icons.checkCircle },
-    { label: t.aiPerformance.recall, targetValue: metrics.recall, desc: t.aiPerformance.detectionCoverage, color: '#b45309', iconFn: Icons.search },
+    { label: t.aiPerformance.mAP50, targetValue: metrics.mAP50, desc: t.aiPerformance.meanAvgPrecision, color: '#292524', iconFn: Icons.target },
+    { label: t.aiPerformance.mAP5095, targetValue: metrics.mAP50_95, desc: t.aiPerformance.strictMap, color: '#57534e', iconFn: Icons.barChart },
+    { label: t.aiPerformance.precision, targetValue: metrics.precision, desc: t.aiPerformance.truePositiveRate, color: '#44403c', iconFn: Icons.checkCircle },
+    { label: t.aiPerformance.recall, targetValue: metrics.recall, desc: t.aiPerformance.detectionCoverage, color: '#78716c', iconFn: Icons.search },
   ] : [];
 
   return (
@@ -236,12 +236,12 @@ export default function AIPerformance() {
                 <AreaChart data={training.training_curve} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="mapGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#047857" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#047857" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#292524" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#292524" stopOpacity={0}/>
                     </linearGradient>
                     <linearGradient id="map95Grad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#0f766e" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#0f766e" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#57534e" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#57534e" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" opacity={0.5} />
@@ -249,8 +249,8 @@ export default function AIPerformance() {
                   <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} unit="%" />
                   <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', boxShadow: '0 10px 25px rgba(0,0,0,0.15)' }} />
                   <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                  <Area type="monotone" dataKey="mAP50" name="mAP@50" stroke="#047857" fill="url(#mapGrad)" strokeWidth={2} dot={false} />
-                  <Area type="monotone" dataKey="mAP50_95" name="mAP@50-95" stroke="#0f766e" fill="url(#map95Grad)" strokeWidth={2} dot={false} />
+                  <Area type="monotone" dataKey="mAP50" name="mAP@50" stroke="#292524" fill="url(#mapGrad)" strokeWidth={2} dot={false} />
+                  <Area type="monotone" dataKey="mAP50_95" name="mAP@50-95" stroke="#57534e" fill="url(#map95Grad)" strokeWidth={2} dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -267,8 +267,8 @@ export default function AIPerformance() {
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} />
                   <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', boxShadow: '0 10px 25px rgba(0,0,0,0.15)' }} />
                   <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                  <Line type="monotone" dataKey="val_box_loss" name="Box Loss" stroke="#b91c1c" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="val_cls_loss" name="Class Loss" stroke="#b45309" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="val_box_loss" name="Box Loss" stroke="#1c1917" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="val_cls_loss" name="Class Loss" stroke="#a8a29e" strokeWidth={2} dot={false} strokeDasharray="5 3" />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -382,9 +382,9 @@ export default function AIPerformance() {
       {/* Dataset Card */}
       <div className="card" style={{ padding: '2rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-          <div style={{ width: 40, height: 40, borderRadius: '10px', backgroundColor: 'rgba(109, 40, 217, 0.08)',
+          <div style={{ width: 40, height: 40, borderRadius: '10px', backgroundColor: 'rgba(41, 37, 36, 0.08)',
             display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#44403c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
             </svg>
           </div>
@@ -397,10 +397,10 @@ export default function AIPerformance() {
           <div>
             <p style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-secondary)', letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 0.75rem 0' }}>Data Sources</p>
             {[
-              { label: 'Roboflow Snake Detection', tag: 'Public Dataset', color: '#6d28d9' },
-              { label: 'Roboflow Cat & Lizard', tag: 'Public Dataset', color: '#6d28d9' },
-              { label: 'Custom Warehouse Footage', tag: 'Internal', color: '#047857' },
-              { label: 'Low-light Augmented', tag: 'Synthetic', color: '#f59e0b' },
+              { label: 'Roboflow Snake Detection', tag: 'Public Dataset', color: '#44403c' },
+              { label: 'Roboflow Cat & Lizard', tag: 'Public Dataset', color: '#44403c' },
+              { label: 'Custom Warehouse Footage', tag: 'Internal', color: '#292524' },
+              { label: 'Low-light Augmented', tag: 'Synthetic', color: '#78716c' },
             ].map((s, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '0.6rem 0.875rem', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)',
@@ -424,7 +424,7 @@ export default function AIPerformance() {
               <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '0.5rem 0.875rem', borderRadius: '8px', marginBottom: '0.4rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: '#047857', fontSize: '0.9rem' }}>✓</span>
+                  <span style={{ color: '#292524', fontSize: '0.9rem' }}>✓</span>
                   <span style={{ fontSize: '0.83rem', color: 'var(--text-primary)', fontWeight: '600' }}>{a.tech}</span>
                 </div>
                 <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{a.detail}</span>
@@ -433,9 +433,9 @@ export default function AIPerformance() {
           </div>
         </div>
         <div style={{ marginTop: '1.25rem', padding: '0.875rem 1rem', borderRadius: '10px',
-          backgroundColor: 'rgba(109, 40, 217, 0.06)', border: '1px solid rgba(109, 40, 217, 0.2)' }}>
+          backgroundColor: 'rgba(41, 37, 36, 0.06)', border: '1px solid rgba(41, 37, 36, 0.2)' }}>
           <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-            <strong style={{ color: '#6d28d9' }}>Anti False-Positive Measure:</strong> Dataset mencakup gambar <strong style={{ color: 'var(--text-primary)' }}>tali, selang, dan kabel</strong> yang <em>tidak</em> di-label sebagai ular — memastikan model belajar membedakan objek serupa. Dikombinasikan dengan aspect-ratio bounding box filter di inference time.
+            <strong style={{ color: '#44403c' }}>Anti False-Positive Measure:</strong> Dataset mencakup gambar <strong style={{ color: 'var(--text-primary)' }}>tali, selang, dan kabel</strong> yang <em>tidak</em> di-label sebagai ular — memastikan model belajar membedakan objek serupa. Dikombinasikan dengan aspect-ratio bounding box filter di inference time.
           </p>
         </div>
       </div>
@@ -447,7 +447,7 @@ export default function AIPerformance() {
           {[
             { cls: 'Snake', risk: 'DANGER', color: 'var(--alert-danger)', bg: 'var(--alert-danger-bg)', action: t.aiPerformance.immediateEvacuation, iconFn: Icons.snake },
             { cls: 'Cat', risk: 'WARNING', color: 'var(--alert-warning)', bg: 'var(--alert-warning-bg)', action: t.aiPerformance.contaminationAlert, iconFn: Icons.cat },
-            { cls: 'Gecko / Lizard', risk: 'MONITOR', color: '#0f766e', bg: 'rgba(15,118,110,0.12)', action: t.aiPerformance.logInspect, iconFn: Icons.lizard },
+            { cls: 'Gecko / Lizard', risk: 'MONITOR', color: '#57534e', bg: 'rgba(41, 37, 36,0.12)', action: t.aiPerformance.logInspect, iconFn: Icons.lizard },
           ].map((item, i) => (
             <div key={i} style={{ padding: '1.25rem', borderRadius: '12px', backgroundColor: item.bg, border: `1px solid ${item.color}22`, display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: `${item.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

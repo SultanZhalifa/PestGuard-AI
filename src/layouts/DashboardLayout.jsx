@@ -5,9 +5,9 @@ import CommandPalette from '../components/common/CommandPalette';
 import { useT } from '../hooks/useT';
 
 const ROLE_BADGE_COLORS = {
-  admin:    { bg: 'rgba(185, 28, 28, 0.12)', fg: '#b91c1c', label: 'Admin' },
-  manager:  { bg: 'rgba(109, 40, 217, 0.12)', fg: '#6d28d9', label: 'Manager' },
-  operator: { bg: 'rgba(4, 120, 87, 0.12)',   fg: '#047857', label: 'Operator' },
+  admin:    { bg: 'rgba(28, 25, 23, 0.14)', fg: '#1c1917', label: 'Admin' },
+  manager:  { bg: 'rgba(68, 64, 60, 0.10)', fg: '#44403c', label: 'Manager' },
+  operator: { bg: 'rgba(120, 113, 108, 0.10)', fg: '#78716c', label: 'Operator' },
 };
 
 const PAGE_META = {
@@ -89,7 +89,7 @@ export default function DashboardLayout() {
   const toggleSidebarCollapse = () => {
     setIsSidebarCollapsed(prev => {
       const next = !prev;
-      try { localStorage.setItem('pestguard_sidebar_collapsed', String(next)); } catch {}
+      try { localStorage.setItem('pestguard_sidebar_collapsed', String(next)); } catch { /* storage unavailable (private mode) — ignore */ }
       return next;
     });
   };

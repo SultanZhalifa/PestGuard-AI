@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useWarehouse } from '../context/WarehouseContext';
 import WarehouseZoneMap from '../components/warehouse/WarehouseZoneMap';
@@ -21,7 +21,7 @@ export default function RiskAnalysis() {
   const [trendLoading, setTrendLoading] = useState(false);
   const reportRef = useRef(null);
 
-  const fetchAnalytics = (range = 'weekly', isInitial = false) => {
+  const fetchAnalytics = useCallback((range = 'weekly', isInitial = false) => {
     if (!isInitial) setTrendLoading(true);
     let retries = 0;
     const maxRetries = 3;
@@ -42,9 +42,13 @@ export default function RiskAnalysis() {
         });
     };
     doFetch();
-  };
+  }, []);
 
-  useEffect(() => { fetchAnalytics('weekly', true); }, []);
+  // Initial load. With isInitial=true, fetchAnalytics never calls setState
+  // synchronously — all updates happen inside async fetch callbacks — so the
+  // set-state-in-effect rule is a false positive here.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { fetchAnalytics('weekly', true); }, [fetchAnalytics]);
 
   const handleRangeChange = (range) => { setActiveRange(range); fetchAnalytics(range); };
 
@@ -95,7 +99,7 @@ export default function RiskAnalysis() {
         </div>
         {/* Report toast */}
         {reportToast && (
-          <div style={{ fontSize: '0.875rem', padding: '0.625rem 1rem', borderRadius: '10px', backgroundColor: reportToastType === 'danger' ? 'rgba(185,28,28,0.08)' : 'rgba(4,120,87,0.08)', border: `1px solid ${reportToastType === 'danger' ? 'rgba(185,28,28,0.2)' : 'rgba(4,120,87,0.2)'}`, color: reportToastType === 'danger' ? '#b91c1c' : '#047857', fontWeight: '600' }}>
+          <div style={{ fontSize: '0.875rem', padding: '0.625rem 1rem', borderRadius: '10px', backgroundColor: reportToastType === 'danger' ? 'rgba(185,28,28,0.08)' : 'rgba(41, 37, 36,0.08)', border: `1px solid ${reportToastType === 'danger' ? 'rgba(185,28,28,0.2)' : 'rgba(41, 37, 36,0.2)'}`, color: reportToastType === 'danger' ? '#b91c1c' : '#292524', fontWeight: '600' }}>
             {reportToast}
           </div>
         )}
@@ -134,7 +138,7 @@ export default function RiskAnalysis() {
                 {[
                   { type: 'Snake', cat: t.riskAnalysis.biohazard, severity: t.riskAnalysis.critical, likelihood: t.riskAnalysis.low, score: t.riskAnalysis.high, scoreColor: '#b91c1c', response: t.riskAnalysis.evacuate },
                   { type: 'Cat', cat: t.riskAnalysis.contamination, severity: t.riskAnalysis.moderate, likelihood: t.riskAnalysis.high, score: t.riskAnalysis.moderate, scoreColor: '#b45309', response: t.riskAnalysis.logDispatch },
-                  { type: 'Gecko/Lizard', cat: t.riskAnalysis.contamination, severity: t.riskAnalysis.low, likelihood: t.riskAnalysis.high, score: t.riskAnalysis.low, scoreColor: '#047857', response: t.riskAnalysis.monitorLog },
+                  { type: 'Gecko/Lizard', cat: t.riskAnalysis.contamination, severity: t.riskAnalysis.low, likelihood: t.riskAnalysis.high, score: t.riskAnalysis.low, scoreColor: '#292524', response: t.riskAnalysis.monitorLog },
                 ].map((row, i) => (
                   <tr key={i} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background-color 0.2s' }}
                     onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--bg-primary)'}
@@ -219,7 +223,7 @@ export default function RiskAnalysis() {
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} allowDecimals={false} />
                   <Tooltip cursor={{ fill: 'var(--bg-tertiary)' }} contentStyle={{ borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
                   <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', paddingTop: '15px', color: 'var(--text-secondary)' }} />
-                  <Bar dataKey="Gecko" stackId="a" fill="#047857" radius={[0, 0, 4, 4]} barSize={activeRange === 'monthly' ? 12 : activeRange === 'daily' ? 14 : 28} />
+                  <Bar dataKey="Gecko" stackId="a" fill="#292524" radius={[0, 0, 4, 4]} barSize={activeRange === 'monthly' ? 12 : activeRange === 'daily' ? 14 : 28} />
                   <Bar dataKey="Cat" stackId="a" fill="#b45309" />
                   <Bar dataKey="Snake" stackId="a" fill="#b91c1c" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -247,7 +251,7 @@ export default function RiskAnalysis() {
                       const colors = {
                         'var(--alert-danger)': '#b91c1c',
                         'var(--alert-warning)': '#b45309',
-                        'var(--alert-success)': '#047857',
+                        'var(--alert-success)': '#292524',
                       };
                       const fillColor = colors[entry.color] || entry.color;
                       return (

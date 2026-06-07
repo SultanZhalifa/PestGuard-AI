@@ -112,7 +112,7 @@ const BotAvatar = ({ size = 34 }) => (
     borderRadius: size > 40 ? '16px' : '10px',
     flexShrink: 0,
     overflow: 'hidden',
-    boxShadow: size > 40 ? '0 4px 16px rgba(59,130,246,0.25)' : 'none',
+    boxShadow: size > 40 ? '0 4px 16px rgba(41, 37, 36,0.25)' : 'none',
   }}>
     <img
       src="/ask ai.svg"
@@ -182,14 +182,14 @@ export default function AskAI() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
           {poweredBy && poweredBy.includes('gemini') && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.68rem', fontWeight: '700',
-              color: '#6366f1', background: 'rgba(99,102,241,0.08)', padding: '0.25rem 0.6rem',
-              borderRadius: '99px', border: '1px solid rgba(99,102,241,0.25)', whiteSpace: 'nowrap' }}>
+              color: '#44403c', background: 'rgba(41, 37, 36,0.08)', padding: '0.25rem 0.6rem',
+              borderRadius: '99px', border: '1px solid rgba(41, 37, 36,0.25)', whiteSpace: 'nowrap' }}>
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               Gemini 2.0
             </div>
           )}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.68rem', fontWeight: '700', color: '#047857', background: 'rgba(4,120,87,0.08)', padding: '0.25rem 0.6rem', borderRadius: '99px', border: '1px solid rgba(4,120,87,0.2)', whiteSpace: 'nowrap' }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#047857', display: 'inline-block', animation: 'pulse-ring 2s infinite' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.68rem', fontWeight: '700', color: '#292524', background: 'rgba(41, 37, 36,0.08)', padding: '0.25rem 0.6rem', borderRadius: '99px', border: '1px solid rgba(41, 37, 36,0.2)', whiteSpace: 'nowrap' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#292524', display: 'inline-block', animation: 'pulse-ring 2s infinite' }} />
             ONLINE
           </div>
         </div>

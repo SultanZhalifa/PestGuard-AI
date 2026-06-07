@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import { jsPDF } from 'jspdf';
 import api from '../../lib/apiClient';
+// jsPDF is loaded on demand (see generate()) so the ~200 kB PDF library is only
+// fetched when a user actually exports a report — keeping the page bundle lean.
 
 /* ─── Color helpers ─── */
-const HEX = { danger: '#b91c1c', warning: '#b45309', success: '#047857', primary: '#0f172a', secondary: '#64748b', border: '#e2e8f0' };
+// Monochrome report palette. Risk tiers keep functional color (danger/warning);
+// the third tier ("success"/Monitoring) and all base tones are warm grayscale.
+const HEX = { danger: '#b91c1c', warning: '#b45309', success: '#57534e', primary: '#1c1917', secondary: '#78716c', border: '#e7e5e4' };
 const hexToRgb = (hex) => {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
@@ -16,13 +19,14 @@ const setDraw = (doc, hex) => { const [r, g, b] = hexToRgb(hex); doc.setDrawColo
 
 export default function ReportGenerator({ onSuccess }) {
   const [loading, setLoading] = useState(false);
-  const locale = localStorage.getItem('sw_language') === 'id' ? locale : 'en-US';
+  const locale = localStorage.getItem('sw_language') === 'id' ? 'id-ID' : 'en-US';
 
   const generate = async () => {
     setLoading(true);
     try {
-      // ── Fetch all data in parallel ──
-      const [analytics, logs, modelInfo, peakHours] = await Promise.all([
+      // ── Fetch data + load the PDF library in parallel ──
+      const [{ jsPDF }, analytics, logs, modelInfo, peakHours] = await Promise.all([
+        import('jspdf'),
         api.getJson('/analytics?time_range=weekly'),
         api.getJson('/logs'),
         api.getJson('/model-info'),
@@ -40,7 +44,7 @@ export default function ReportGenerator({ onSuccess }) {
       // ════════════════════════════════
 
       // Cover gradient header
-      setFill(doc, '#0f172a');
+      setFill(doc, '#1c1917');
       doc.rect(0, 0, PW, 80, 'F');
 
       // Decorative circle
@@ -49,7 +53,7 @@ export default function ReportGenerator({ onSuccess }) {
       doc.circle(10, 90, 30, 'F');
 
       // Logo area
-      doc.setFillColor(59, 130, 246);
+      doc.setFillColor(41, 37, 36);
       doc.roundedRect(ML, 18, 14, 14, 3, 3, 'F');
       setColor(doc, '#ffffff');
       doc.setFontSize(9);
@@ -63,7 +67,7 @@ export default function ReportGenerator({ onSuccess }) {
       doc.text('PestGuard AI', ML + 18, 27);
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      setColor(doc, '#94a3b8');
+      setColor(doc, '#a8a29e');
       doc.text('Bio-Hazard & Pest Detection System', ML + 18, 34);
 
       // Report title
@@ -77,14 +81,14 @@ export default function ReportGenerator({ onSuccess }) {
       const now = new Date();
       const dateStr = now.toLocaleDateString(locale, { day: '2-digit', month: 'long', year: 'numeric' });
       doc.setFontSize(9);
-      setColor(doc, '#94a3b8');
+      setColor(doc, '#a8a29e');
       doc.text(`Generated: ${dateStr}  •  ${now.toLocaleTimeString(locale)}`, ML, 76);
 
       y = 95;
 
       // ── Executive Summary box ──
-      setFill(doc, '#f8fafc');
-      setDraw(doc, '#e2e8f0');
+      setFill(doc, '#faf9f7');
+      setDraw(doc, '#e7e5e4');
       doc.roundedRect(ML, y, CW, 42, 4, 4, 'FD');
 
       doc.setFontSize(11);
@@ -164,7 +168,7 @@ export default function ReportGenerator({ onSuccess }) {
         setColor(doc, HEX.secondary);
         doc.text(bar.label, ML, y + 4);
 
-        setFill(doc, '#f1f5f9');
+        setFill(doc, '#f5f3f0');
         doc.roundedRect(ML + 58, y - 0.5, CW - 60, 7, 2, 2, 'F');
         setFill(doc, bar.color);
         doc.roundedRect(ML + 58, y - 0.5, barW, 7, 2, 2, 'F');
@@ -195,7 +199,7 @@ export default function ReportGenerator({ onSuccess }) {
           setColor(doc, HEX.secondary);
           doc.text(`${medal} ${z.zone}`, ML, y + 4);
 
-          setFill(doc, '#f1f5f9');
+          setFill(doc, '#f5f3f0');
           doc.roundedRect(ML + 45, y - 0.5, CW - 48, 7, 2, 2, 'F');
           setFill(doc, zColor);
           doc.roundedRect(ML + 45, y - 0.5, zBarW, 7, 2, 2, 'F');
@@ -215,11 +219,11 @@ export default function ReportGenerator({ onSuccess }) {
       y = 20;
 
       // ── AI Model Info ──
-      setFill(doc, '#0f172a');
+      setFill(doc, '#1c1917');
       doc.rect(0, 0, PW, 14, 'F');
       doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
-      setColor(doc, '#94a3b8');
+      setColor(doc, '#a8a29e');
       doc.text('PestGuard AI  •  AI Incident Report', ML, 9);
       doc.text(`Hal. 2  •  ${dateStr}`, PW - MR, 9, { align: 'right' });
 
@@ -240,7 +244,7 @@ export default function ReportGenerator({ onSuccess }) {
           ['mAP@50', modelInfo.map50 != null ? `${(modelInfo.map50 * 100).toFixed(1)}%` : 'N/A'],
         ];
         modelRows.forEach(([k, v], idx) => {
-          setFill(doc, idx % 2 === 0 ? '#f8fafc' : '#ffffff');
+          setFill(doc, idx % 2 === 0 ? '#faf9f7' : '#ffffff');
           doc.rect(ML, y, CW, 8, 'F');
           doc.setFontSize(8.5);
           doc.setFont('helvetica', 'bold');
@@ -271,8 +275,8 @@ export default function ReportGenerator({ onSuccess }) {
       if (peakHours.peak_hours?.length) {
         const medals = ['#1 Paling Sering', '#2 Kedua', '#3 Ketiga'];
         peakHours.peak_hours.forEach((p, i) => {
-          setFill(doc, i === 0 ? '#fef2f2' : i === 1 ? '#fffbeb' : '#f0fdf4');
-          setDraw(doc, i === 0 ? '#fecaca' : i === 1 ? '#fde68a' : '#bbf7d0');
+          setFill(doc, i === 0 ? '#fef2f2' : i === 1 ? '#fffbeb' : '#f5f3f0');
+          setDraw(doc, i === 0 ? '#fecaca' : i === 1 ? '#fde68a' : '#e7e5e4');
           doc.roundedRect(ML + i * (CW / 3 + 1.5), y, CW / 3 - 1, 22, 3, 3, 'FD');
           const cx = ML + i * (CW / 3 + 1.5) + (CW / 3 - 1) / 2;
           doc.setFontSize(9);
@@ -302,7 +306,7 @@ export default function ReportGenerator({ onSuccess }) {
       y += 8;
 
       // Table header
-      setFill(doc, '#0f172a');
+      setFill(doc, '#1c1917');
       doc.rect(ML, y, CW, 9, 'F');
       const cols = [
         { label: 'Tipe', x: ML + 3, w: 25 },
@@ -320,7 +324,7 @@ export default function ReportGenerator({ onSuccess }) {
 
       const recentLogs = (logs || []).slice(0, 20);
       if (recentLogs.length === 0) {
-        setFill(doc, '#f8fafc');
+        setFill(doc, '#faf9f7');
         doc.rect(ML, y, CW, 10, 'F');
         doc.setFontSize(8.5);
         doc.setFont('helvetica', 'normal');
@@ -330,7 +334,7 @@ export default function ReportGenerator({ onSuccess }) {
       } else {
         recentLogs.forEach((log, idx) => {
           if (y > PH - 30) { doc.addPage(); y = 20; }
-          const rowBg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+          const rowBg = idx % 2 === 0 ? '#ffffff' : '#faf9f7';
           setFill(doc, rowBg);
           doc.rect(ML, y, CW, 8, 'F');
 
@@ -362,13 +366,13 @@ export default function ReportGenerator({ onSuccess }) {
       // ── Recommendations ──
       if (y > PH - 60) { doc.addPage(); y = 20; }
       y += 8;
-      setFill(doc, '#eff6ff');
-      setDraw(doc, '#bfdbfe');
+      setFill(doc, '#f5f3f0');
+      setDraw(doc, '#e7e5e4');
       doc.roundedRect(ML, y, CW, 42, 4, 4, 'FD');
 
       doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      setColor(doc, '#1d4ed8');
+      setColor(doc, HEX.primary);
       doc.text('Rekomendasi Tindakan', ML + 6, y + 9);
 
       const recs = dangerCount > 0
@@ -378,7 +382,7 @@ export default function ReportGenerator({ onSuccess }) {
       recs.forEach((rec, i) => {
         doc.setFontSize(8.5);
         doc.setFont('helvetica', 'normal');
-        setColor(doc, '#1d4ed8');
+        setColor(doc, HEX.secondary);
         doc.text(`${i + 1}. ${rec}`, ML + 6, y + 17 + i * 7);
       });
       y += 50;
