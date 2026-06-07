@@ -437,9 +437,11 @@ export default function SOPMitigasi() {
               flexShrink: 0,
             }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
+            <img 
+              src="/mitigasi-risk.svg" 
+              alt="Mitigasi Risiko" 
+              style={{ width: '32px', height: '32px', objectFit: 'contain' }} 
+            />
           </div>
           <div style={{ flex: '1 1 200px' }}>
             <h1 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>
