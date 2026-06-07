@@ -252,8 +252,15 @@ export default function RiskAnalysis() {
                         'var(--alert-danger)': '#b91c1c',
                         'var(--alert-warning)': '#b45309',
                         'var(--alert-success)': '#292524',
+                        'danger': '#b91c1c',
+                        'warning': '#b45309',
+                        'info': '#292524',
+                        'success': '#292524',
                       };
-                      const fillColor = colors[entry.color] || entry.color;
+                      const val = entry.color || entry.risk || entry.name || '';
+                      const key = val.toLowerCase();
+                      const fillColor = colors[entry.color] || colors[key] || 
+                        (key.includes('snake') ? '#b91c1c' : key.includes('cat') ? '#b45309' : '#292524');
                       return (
                         <Cell key={`cell-${index}`} fill={fillColor} style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.15))' }} />
                       );

@@ -85,20 +85,37 @@ function buildAnalytics(range = 'weekly') {
   const buckets = range === 'daily' ? 24 : range === 'monthly' ? 30 : 7;
   const labelFor = (i) => {
     if (range === 'daily') return `${pad(i)}:00`;
-    if (range === 'monthly') return `D${i + 1}`;
-    return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i % 7];
+    if (range === 'monthly') {
+      const d = new Date();
+      d.setDate(d.getDate() - (29 - i));
+      return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
+    }
+    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return dayNames[d.getDay() === 0 ? 6 : d.getDay() - 1];
   };
-  const trend = Array.from({ length: buckets }, (_, i) => ({
-    label: labelFor(i),
-    detections: Math.floor(2 + Math.random() * 12),
-  }));
+
+  const trend = Array.from({ length: buckets }, (_, i) => {
+    // Generate realistic random distribution of counts
+    const s = Math.random() < 0.3 ? Math.floor(Math.random() * 2) : 0;
+    const c = Math.random() < 0.5 ? Math.floor(Math.random() * 4) : 0;
+    const g = Math.floor(Math.random() * 6);
+    return {
+      name: labelFor(i),
+      Snake: s,
+      Cat: c,
+      Gecko: g,
+    };
+  });
+
   return {
     trend,
     distribution: [
-      { name: 'Snake', value: 9, risk: 'danger' },
-      { name: 'Cat', value: 21, risk: 'warning' },
-      { name: 'Gecko', value: 18, risk: 'info' },
-      { name: 'Lizard', value: 16, risk: 'info' },
+      { name: 'Snake', value: 9, risk: 'danger', color: 'var(--alert-danger)' },
+      { name: 'Cat', value: 21, risk: 'warning', color: 'var(--alert-warning)' },
+      { name: 'Gecko', value: 18, risk: 'info', color: 'var(--alert-success)' },
+      { name: 'Lizard', value: 16, risk: 'info', color: 'var(--alert-success)' },
     ],
     zone_activity: ZONES.map((z, i) => ({ zone: z, detections: [18, 12, 9, 25][i] })),
   };
