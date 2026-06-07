@@ -1,6 +1,8 @@
 /* ==============================================================
    PestGuard AI — Design System Variables
-   Warm-tone black/white palette with functional color coding
+   Monochrome (warm black/white/stone) palette.
+   Color is reserved for FUNCTION only: risk levels (danger / warning
+   / info). Decorative roles (success, AI, action/CTA) are grayscale.
    ============================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -30,7 +32,7 @@
   --border-color: #e7e5e4;
   --border-hover: #d6d3d1;
 
-  /* ── Functional Colors (consistent across light/dark) ── */
+  /* ── Functional Colors — RISK ONLY keeps real color (safety signalling) ── */
   /* Danger — Snake / Bio-Hazard / Evacuation */
   --fn-danger: #b91c1c;
   --fn-danger-bg: rgba(185, 28, 28, 0.08);
@@ -41,25 +43,26 @@
   --fn-warning-bg: rgba(180, 83, 9, 0.08);
   --fn-warning-border: rgba(180, 83, 9, 0.2);
 
-  /* Success — Online / Safe / Connected */
-  --fn-success: #047857;
-  --fn-success-bg: rgba(4, 120, 87, 0.08);
-  --fn-success-border: rgba(4, 120, 87, 0.2);
-
   /* Info — Gecko / Monitoring / Informational */
-  --fn-info: #0f766e;
-  --fn-info-bg: rgba(15, 118, 110, 0.08);
-  --fn-info-border: rgba(15, 118, 110, 0.2);
+  --fn-info: #57534e;
+  --fn-info-bg: rgba(87, 83, 78, 0.08);
+  --fn-info-border: rgba(87, 83, 78, 0.2);
 
-  /* AI — Chat / Gemini / AI Performance */
-  --fn-ai: #6d28d9;
-  --fn-ai-bg: rgba(109, 40, 217, 0.08);
-  --fn-ai-border: rgba(109, 40, 217, 0.2);
+  /* ── Decorative roles → neutral grayscale (monochrome) ── */
+  /* Success — Online / Safe / Connected (neutral dark stone) */
+  --fn-success: #292524;
+  --fn-success-bg: rgba(41, 37, 36, 0.06);
+  --fn-success-border: rgba(41, 37, 36, 0.18);
 
-  /* Action — CTAs / Toggle active / Interactive */
-  --fn-action: #c2410c;
-  --fn-action-bg: rgba(194, 65, 12, 0.08);
-  --fn-action-border: rgba(194, 65, 12, 0.2);
+  /* AI — Chat / Gemini / AI Performance (neutral) */
+  --fn-ai: #44403c;
+  --fn-ai-bg: rgba(68, 64, 60, 0.06);
+  --fn-ai-border: rgba(68, 64, 60, 0.18);
+
+  /* Action — CTAs / Toggle active / Interactive (near-black) */
+  --fn-action: #1c1917;
+  --fn-action-bg: rgba(28, 25, 23, 0.06);
+  --fn-action-border: rgba(28, 25, 23, 0.18);
 
   /* ── Legacy aliases (backwards-compat with existing components) ── */
   --alert-danger: var(--fn-danger);
@@ -127,7 +130,7 @@ body.dark-mode {
   --border-color: #292524;
   --border-hover: #44403c;
 
-  /* Functional colors stay the same (slightly boosted for dark bg) */
+  /* Risk colors stay colored (boosted for dark bg); decorative → grayscale */
   --fn-danger: #dc2626;
   --fn-danger-bg: rgba(220, 38, 38, 0.12);
   --fn-danger-border: rgba(220, 38, 38, 0.3);
@@ -136,21 +139,25 @@ body.dark-mode {
   --fn-warning-bg: rgba(217, 119, 6, 0.12);
   --fn-warning-border: rgba(217, 119, 6, 0.3);
 
-  --fn-success: #059669;
-  --fn-success-bg: rgba(5, 150, 105, 0.12);
-  --fn-success-border: rgba(5, 150, 105, 0.3);
+  /* Info → light neutral on dark */
+  --fn-info: #a8a29e;
+  --fn-info-bg: rgba(168, 162, 158, 0.12);
+  --fn-info-border: rgba(168, 162, 158, 0.3);
 
-  --fn-info: #14b8a6;
-  --fn-info-bg: rgba(20, 184, 166, 0.12);
-  --fn-info-border: rgba(20, 184, 166, 0.3);
+  /* Success (online/safe) → light neutral */
+  --fn-success: #d6d3d1;
+  --fn-success-bg: rgba(214, 211, 209, 0.1);
+  --fn-success-border: rgba(214, 211, 209, 0.28);
 
-  --fn-ai: #8b5cf6;
-  --fn-ai-bg: rgba(139, 92, 246, 0.12);
-  --fn-ai-border: rgba(139, 92, 246, 0.3);
+  /* AI → light neutral */
+  --fn-ai: #d6d3d1;
+  --fn-ai-bg: rgba(214, 211, 209, 0.1);
+  --fn-ai-border: rgba(214, 211, 209, 0.28);
 
-  --fn-action: #ea580c;
-  --fn-action-bg: rgba(234, 88, 12, 0.12);
-  --fn-action-border: rgba(234, 88, 12, 0.3);
+  /* Action/CTA → near-white */
+  --fn-action: #f5f5f4;
+  --fn-action-bg: rgba(245, 245, 244, 0.1);
+  --fn-action-border: rgba(245, 245, 244, 0.28);
 
   /* Shadows for dark mode */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);

@@ -69,7 +69,7 @@ export default function CameraGrid() {
   };
 
   const getStatusColor = (status) => {
-    if (status === 'live') return '#047857';
+    if (status === 'live') return '#292524';
     if (status === 'standby') return '#b45309';
     return '#6b7280';
   };
@@ -153,22 +153,22 @@ export default function CameraGrid() {
                         borderRadius: 0,
                         background: 'linear-gradient(90deg, #070a13 25%, #111827 50%, #070a13 75%)',
                         backgroundSize: '200% 100%',
-                        color: '#94a3b8',
+                        color: '#a8a29e',
                       }}
                     >
                       <span className="spinner-sm" style={{ borderLeftColor: '#f8fafc' }} />
-                      <span style={{ fontSize: '0.6rem', fontWeight: '800', letterSpacing: '0.1em', color: '#94a3b8' }}>
+                      <span style={{ fontSize: '0.6rem', fontWeight: '800', letterSpacing: '0.1em', color: '#a8a29e' }}>
                         CONNECTING...
                       </span>
                     </div>
                   )}
                 </>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', color: '#94a3b8' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', color: '#a8a29e' }}>
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
                     <path d="M16.5 7.5V6a2 2 0 0 0-2-2h-5a2 2 0 0 0-2 2v0"/><path d="M2 2l20 20"/><path d="M23 7l-7 5"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2" style={{ opacity: 0.35 }}/>
                   </svg>
-                  <span style={{ fontSize: '0.7rem', fontWeight: '700', letterSpacing: '0.1em', color: '#94a3b8' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: '700', letterSpacing: '0.1em', color: '#a8a29e' }}>
                     {canControl ? t.cameraGrid.noSignal : t.cameraGrid.noSource}
                   </span>
                 </div>
@@ -219,7 +219,7 @@ export default function CameraGrid() {
                   position: 'absolute', bottom: '0.5rem', right: '0.5rem',
                   backgroundColor: zone.last_risk === 'danger' ? 'rgba(185,28,28,0.92)'
                     : zone.last_risk === 'warning' ? 'rgba(180,83,9,0.92)'
-                    : 'rgba(15,118,110,0.92)',
+                    : 'rgba(41, 37, 36,0.92)',
                   padding: '0.15rem 0.5rem',
                   borderRadius: '10px', fontSize: '0.6rem', fontWeight: '700', color: '#fff',
                 }}>

@@ -27,8 +27,8 @@ const ControlBtn = ({ onClick, title, children, active }) => (
 const RISK_COLORS = {
   danger: '#b91c1c',
   warning: '#b45309',
-  info: '#0f766e',
-  monitoring: '#0f766e',
+  info: '#57534e',
+  monitoring: '#57534e',
   contamination: '#b45309',
 };
 
@@ -235,11 +235,11 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
                         borderRadius: 0,
                         background: 'linear-gradient(90deg, #070a13 25%, #111827 50%, #070a13 75%)',
                         backgroundSize: '200% 100%',
-                        color: '#94a3b8',
+                        color: '#a8a29e',
                       }}
                     >
                       <span className="spinner-sm" style={{ borderLeftColor: '#f8fafc' }} />
-                      <span style={{ fontSize: '0.65rem', fontWeight: '800', letterSpacing: '0.12em', color: '#94a3b8' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: '800', letterSpacing: '0.12em', color: '#a8a29e' }}>
                         CONNECTING LIVE FEED...
                       </span>
                     </div>
@@ -250,12 +250,12 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
                   width: '100%', height: '100%',
                   display: 'flex', flexDirection: 'column',
                   alignItems: 'center', justifyContent: 'center',
-                  color: '#94a3b8', gap: '0.75rem',
+                  color: '#a8a29e', gap: '0.75rem',
                 }}>
                   <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
                     <path d="M16.5 7.5V6a2 2 0 0 0-2-2h-5a2 2 0 0 0-2 2v0"/><path d="M2 2l20 20"/><path d="M23 7l-7 5"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2" style={{ opacity: 0.35 }}/>
                   </svg>
-                  <span style={{ fontSize: '0.8rem', fontWeight: '700', letterSpacing: '0.1em', color: '#94a3b8' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: '700', letterSpacing: '0.1em', color: '#a8a29e' }}>
                     {zone.has_source ? t.zoneModal.cameraOffline : t.zoneModal.noSourceConfigured}
                   </span>
                 </div>
@@ -270,10 +270,10 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
               }}>
                 <span style={{
                   width: 8, height: 8, borderRadius: '50%',
-                  backgroundColor: isLive ? '#047857' : '#b45309',
+                  backgroundColor: isLive ? '#292524' : '#b45309',
                   animation: isLive ? 'pulse 2s infinite' : 'none',
                 }} />
-                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: isLive ? '#047857' : '#b45309', letterSpacing: '0.1em' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: isLive ? '#292524' : '#b45309', letterSpacing: '0.1em' }}>
                   {isLive ? t.zoneModal.live : t.zoneModal.standby}
                 </span>
               </div>

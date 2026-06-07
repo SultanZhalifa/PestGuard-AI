@@ -32,10 +32,16 @@ function useTypingPlaceholder(phrases) {
       timer = setTimeout(() => setText(phrase.substring(0, text.length + 1)), speed);
     }
     return () => clearTimeout(timer);
-  }, [text, deleting, phraseIdx]);
+  }, [text, deleting, phraseIdx, phrases]);
 
   return text + (cursor ? '|' : '');
 }
+
+/* Module-level constant → stable identity, safe as an effect dependency. */
+const SEARCH_PLACEHOLDERS = [
+  "Search 'Snake'...", "Filter by 'Zone A'...", "Try 'Cat' or 'Gecko'...",
+  "Search 'danger'...", "Find 'Lizard'...",
+];
 
 export default function DetectionLogs() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -46,10 +52,7 @@ export default function DetectionLogs() {
   const { addToast } = useToast();
   const t = useT();
 
-  const placeholder = useTypingPlaceholder([
-    "Search 'Snake'...", "Filter by 'Zone A'...", "Try 'Cat' or 'Gecko'...",
-    "Search 'danger'...", "Find 'Lizard'...",
-  ]);
+  const placeholder = useTypingPlaceholder(SEARCH_PLACEHOLDERS);
 
   const RISK_FILTERS = [
     { key: 'all', label: t.detectionLogs.allDetections },
@@ -100,7 +103,7 @@ export default function DetectionLogs() {
           { label: t.detectionLogs.totalDetections, value: counts.total, color: 'var(--text-primary)' },
           { label: t.detectionLogs.hazardEvents, value: counts.danger, color: '#b91c1c' },
           { label: t.detectionLogs.contamination, value: counts.warning, color: '#b45309' },
-          { label: t.detectionLogs.monitoring, value: counts.info, color: '#047857' },
+          { label: t.detectionLogs.monitoring, value: counts.info, color: '#292524' },
         ].map((s, i) => (
           <div key={i} className="card" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
             <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</span>

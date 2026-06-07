@@ -22,6 +22,9 @@ export default function LiveMonitor() {
 
   const prevLogCountRef = useRef(allLogs.length);
   const isCameraOnRef = useRef(false);
+  // Refs let mount-only effects read the latest values without re-subscribing.
+  const allLogsRef = useRef(allLogs);
+  const toggleCameraRef = useRef(null);
 
   // ── Toggle Zone A camera ──────────────────────────────────────
   const toggleCamera = async (turnOn) => {
@@ -38,6 +41,10 @@ export default function LiveMonitor() {
       addToast(turnOn ? t.liveMonitor.failedStart : t.liveMonitor.failedStop, 'danger');
     }
   };
+  // Keep refs current for the unmount-only effect (assigned in an effect, not
+  // during render, per react-hooks/refs).
+  useEffect(() => { allLogsRef.current = allLogs; });
+  useEffect(() => { toggleCameraRef.current = toggleCamera; });
 
   // ── Sync Zone A state from server ────────────────────────────
   useEffect(() => {
@@ -70,7 +77,7 @@ export default function LiveMonitor() {
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      if (isCameraOnRef.current) toggleCamera(false);
+      if (isCameraOnRef.current) toggleCameraRef.current?.(false);
     };
   }, []);
 
@@ -96,9 +103,11 @@ export default function LiveMonitor() {
 
   // ── Toast on new detection (dedup + cooldown) ────────────────
   const lastToastTimeRef = React.useRef({}); // risk -> timestamp
+  const allLogsLength = allLogs.length;
   useEffect(() => {
-    if (allLogs.length > prevLogCountRef.current && prevLogCountRef.current > 0) {
-      const newLog = allLogs[0];
+    const currentLogs = allLogsRef.current;
+    if (allLogsLength > prevLogCountRef.current && prevLogCountRef.current > 0) {
+      const newLog = currentLogs[0];
       const toastType = newLog.risk === 'danger' ? 'danger' : newLog.risk === 'warning' ? 'warning' : 'info';
       const now = Date.now();
       const cooldown = toastType === 'danger' ? 8000 : 12000; // danger: 8s, warning/info: 12s
@@ -114,8 +123,8 @@ export default function LiveMonitor() {
         setLastUpdated(new Date());
       }
     }
-    prevLogCountRef.current = allLogs.length;
-  }, [allLogs.length]);
+    prevLogCountRef.current = allLogsLength;
+  }, [allLogsLength, addToast]);
 
 
   const logs = allLogs.slice(0, 50);

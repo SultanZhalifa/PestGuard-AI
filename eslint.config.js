@@ -42,4 +42,11 @@ export default defineConfig([
       globals: { ...globals.node },
     },
   },
+  // Vitest test files use global describe/it/expect (test.globals = true).
+  {
+    files: ['**/*.{test,spec}.{js,jsx}', 'src/test/**'],
+    languageOptions: {
+      globals: { ...globals.vitest },
+    },
+  },
 ])

@@ -6,11 +6,11 @@ const RISK_COLOR = (count, max) => {
   const pct = count / Math.max(max, 1);
   if (pct > 0.6) return '#b91c1c';
   if (pct > 0.3) return '#b45309';
-  return '#047857';
+  return '#292524';
 };
 
 // Color constants used by rank labels
-const HEX = { danger: '#b91c1c', warning: '#b45309', success: '#047857' };
+const HEX = { danger: '#b91c1c', warning: '#b45309', success: '#292524' };
 
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -88,7 +88,7 @@ export default function PeakHoursChart() {
       {/* Top 3 Peak Hours */}
       <div className="grid-3col" style={{ marginBottom: '1.5rem' }}>
         {data.peak_hours?.length > 0 ? data.peak_hours.map((p, i) => {
-          const colors = ['#b91c1c', '#b45309', '#047857'];
+          const colors = ['#b91c1c', '#b45309', '#292524'];
           const bgs = ['rgba(239,68,68,0.08)', 'rgba(245,158,11,0.08)', 'rgba(34,197,94,0.08)'];
           const borders = ['rgba(239,68,68,0.2)', 'rgba(245,158,11,0.2)', 'rgba(34,197,94,0.2)'];
           const ranks = ['01', '02', '03'];
@@ -133,7 +133,7 @@ export default function PeakHoursChart() {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginTop: '0.75rem', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-        {[['#b91c1c', 'Risiko Tinggi'], ['#b45309', 'Sedang'], ['#047857', 'Rendah']].map(([color, label]) => (
+        {[['#b91c1c', 'Risiko Tinggi'], ['#b45309', 'Sedang'], ['#292524', 'Rendah']].map(([color, label]) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             <div style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: color }} />
             {label}
@@ -150,7 +150,7 @@ export default function PeakHoursChart() {
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             {data.zone_peaks.map((z) => {
-              const rColor = z.risk_score > 60 ? '#b91c1c' : z.risk_score > 30 ? '#b45309' : '#047857';
+              const rColor = z.risk_score > 60 ? '#b91c1c' : z.risk_score > 30 ? '#b45309' : '#292524';
               return (
                 <div key={z.zone} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-primary)', minWidth: 60 }}>{z.zone}</span>

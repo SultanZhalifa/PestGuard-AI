@@ -119,10 +119,10 @@ function ROISection() {
   ];
 
   const results = [
-    { label: 'Penghematan / Bulan', value: fmt(monthlySavings),           color: '#047857', sub: 'vs biaya manual' },
-    { label: 'Penghematan / Tahun', value: fmt(annualSavings),            color: '#0f766e', sub: 'proyeksi tahunan' },
+    { label: 'Penghematan / Bulan', value: fmt(monthlySavings),           color: '#292524', sub: 'vs biaya manual' },
+    { label: 'Penghematan / Tahun', value: fmt(annualSavings),            color: '#57534e', sub: 'proyeksi tahunan' },
     { label: 'Break-Even Period',   value: `${paybackMonths.toFixed(1)} bulan`, color: '#b45309', sub: 'payback period' },
-    { label: 'ROI 3 Tahun',        value: `${roi3Year.toFixed(0)}%`,      color: '#7c3aed', sub: 'return on investment' },
+    { label: 'ROI 3 Tahun',        value: `${roi3Year.toFixed(0)}%`,      color: '#44403c', sub: 'return on investment' },
   ];
 
   return (
@@ -197,9 +197,9 @@ function ROISection() {
                   step={5}
                   value={reductionRate}
                   onChange={(e) => setReductionRate(Number(e.target.value))}
-                  style={{ flex: 1, accentColor: '#047857' }}
+                  style={{ flex: 1, accentColor: '#292524' }}
                 />
-                <span className="roi-slider-value" style={{ color: '#047857' }}>
+                <span className="roi-slider-value" style={{ color: '#292524' }}>
                   {reductionRate}%
                 </span>
               </div>
@@ -224,15 +224,15 @@ function ROISection() {
       </div>
 
       {/* Business Case Summary */}
-      <div className="card" style={{ padding: '1.25rem', background: 'rgba(5,150,105,0.06)', border: '1px solid rgba(5,150,105,0.2)' }}>
+      <div className="card" style={{ padding: '1.25rem', background: 'rgba(41, 37, 36,0.06)', border: '1px solid rgba(41, 37, 36,0.2)' }}>
         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-          <strong style={{ color: '#047857' }}>Kesimpulan Business Case:</strong>{' '}
+          <strong style={{ color: '#292524' }}>Kesimpulan Business Case:</strong>{' '}
           Dengan implementasi PestGuard AI, PT. Kawan Lama dapat menghemat{' '}
           <strong style={{ color: 'var(--text-primary)' }}>{fmt(annualSavings)}</strong> per tahun per gudang.
           Investasi awal{' '}
           <strong style={{ color: 'var(--text-primary)' }}>{fmt(implementationCost)}</strong> akan kembali dalam{' '}
           <strong style={{ color: '#b45309' }}>{paybackMonths.toFixed(1)} bulan</strong> dengan ROI 3 tahun sebesar{' '}
-          <strong style={{ color: '#7c3aed' }}>{roi3Year.toFixed(0)}%</strong>.
+          <strong style={{ color: '#44403c' }}>{roi3Year.toFixed(0)}%</strong>.
         </p>
       </div>
     </div>
@@ -453,11 +453,11 @@ export default function SOPMitigasi() {
             style={{
               padding: '0.5rem 1rem',
               borderRadius: '8px',
-              backgroundColor: 'rgba(5,150,105,0.08)',
-              border: '1px solid rgba(5,150,105,0.2)',
+              backgroundColor: 'rgba(41, 37, 36,0.08)',
+              border: '1px solid rgba(41, 37, 36,0.2)',
               fontSize: '0.78rem',
               fontWeight: '700',
-              color: '#047857',
+              color: '#292524',
               flexShrink: 0,
             }}
           >

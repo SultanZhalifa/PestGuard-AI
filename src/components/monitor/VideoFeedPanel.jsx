@@ -111,24 +111,24 @@ export default function VideoFeedPanel({ isCameraOn, status, onToggle, t }) {
               borderRadius: 0,
               background: 'linear-gradient(90deg, #070a13 25%, #111827 50%, #070a13 75%)',
               backgroundSize: '200% 100%',
-              color: '#94a3b8',
+              color: '#a8a29e',
             }}
           >
             <span className="spinner-sm" style={{ borderLeftColor: '#f8fafc' }} />
-            <span style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.15em', color: '#94a3b8' }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.15em', color: '#a8a29e' }}>
               INITIALIZING LIVE CAMERA FEED...
             </span>
           </div>
         )}
 
-        <div className="video-placeholder" style={{ display: isCameraOn ? 'none' : 'flex', color: '#94a3b8', gap: '0.875rem' }}>
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6 }}>
+        <div className="video-placeholder" style={{ display: isCameraOn ? 'none' : 'flex', color: '#a8a29e', gap: '0.875rem' }}>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#a8a29e" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6 }}>
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
             <circle cx="12" cy="13" r="4"/>
           </svg>
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontWeight: '700', color: '#f8fafc', marginBottom: '0.35rem', fontSize: '0.95rem', letterSpacing: '0.02em' }}>{t.liveMonitor.surveillanceInactive}</p>
-            <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: 0 }}>{t.liveMonitor.clickToStart}</p>
+            <p style={{ fontSize: '0.8rem', color: '#a8a29e', margin: 0 }}>{t.liveMonitor.clickToStart}</p>
           </div>
         </div>
       </div>

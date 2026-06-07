@@ -7,12 +7,13 @@
 /* ─── Inference Latency Gauge ─── */
 function LatencyGauge({ ms }) {
   const numMs = parseInt(ms) || 0;
-  // Color thresholds: green <50ms, yellow <120ms, red >=120ms
+  // Monochrome health gauge: darker = better. Only true overload keeps a
+  // muted warning tint (system health, not pest-risk signalling).
   const color = numMs === 0
     ? 'var(--text-secondary)'
-    : numMs < 50 ? '#047857'
-    : numMs < 120 ? '#b45309'
-    : '#b91c1c';
+    : numMs < 50 ? '#1c1917'
+    : numMs < 120 ? '#78716c'
+    : 'var(--fn-warning)';
 
   const label = numMs === 0
     ? 'Idle'
