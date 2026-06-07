@@ -81,7 +81,8 @@ const DEMO_STATUS = {
 };
 
 // ─── Analytics (trend / distribution / zone activity) ───
-function buildAnalytics(range = 'weekly') {
+// Pre-generate trend data ONCE at module load so it stays consistent across tab clicks.
+function _buildTrend(range) {
   const buckets = range === 'daily' ? 24 : range === 'monthly' ? 30 : 7;
   const labelFor = (i) => {
     if (range === 'daily') return `${pad(i)}:00`;
@@ -96,35 +97,43 @@ function buildAnalytics(range = 'weekly') {
     return dayNames[d.getDay() === 0 ? 6 : d.getDay() - 1];
   };
 
-  const trend = Array.from({ length: buckets }, (_, i) => {
-    // Generate realistic random distribution of counts
+  return Array.from({ length: buckets }, (_, i) => {
     const s = Math.random() < 0.3 ? Math.floor(Math.random() * 2) : 0;
     const c = Math.random() < 0.5 ? Math.floor(Math.random() * 4) : 0;
     const g = Math.floor(Math.random() * 6);
-    return {
-      name: labelFor(i),
-      Snake: s,
-      Cat: c,
-      Gecko: g,
-    };
+    return { name: labelFor(i), Snake: s, Cat: c, Gecko: g };
   });
+}
 
+// Cache all three ranges at module load — data is stable across tab switches
+const _TREND_CACHE = {
+  daily: _buildTrend('daily'),
+  weekly: _buildTrend('weekly'),
+  monthly: _buildTrend('monthly'),
+};
+
+const _DISTRIBUTION = [
+  { name: 'Snake', value: 9, risk: 'danger', color: 'var(--alert-danger)' },
+  { name: 'Cat', value: 21, risk: 'warning', color: 'var(--alert-warning)' },
+  { name: 'Gecko', value: 18, risk: 'info', color: 'var(--alert-success)' },
+  { name: 'Lizard', value: 16, risk: 'info', color: 'var(--alert-success)' },
+];
+
+const _ZONE_ACTIVITY = ZONES.map((z, i) => ({ zone: z, detections: [18, 12, 9, 25][i] }));
+
+function buildAnalytics(range = 'weekly') {
   return {
-    trend,
-    distribution: [
-      { name: 'Snake', value: 9, risk: 'danger', color: 'var(--alert-danger)' },
-      { name: 'Cat', value: 21, risk: 'warning', color: 'var(--alert-warning)' },
-      { name: 'Gecko', value: 18, risk: 'info', color: 'var(--alert-success)' },
-      { name: 'Lizard', value: 16, risk: 'info', color: 'var(--alert-success)' },
-    ],
-    zone_activity: ZONES.map((z, i) => ({ zone: z, detections: [18, 12, 9, 25][i] })),
+    trend: _TREND_CACHE[range] || _TREND_CACHE.weekly,
+    distribution: _DISTRIBUTION,
+    zone_activity: _ZONE_ACTIVITY,
   };
 }
 
-function buildZoneStats(zoneId) {
-  const cam = DEMO_CAMERAS.find(c => c.id === zoneId);
-  const total = cam ? cam.detection_count : 0;
-  return {
+// Pre-cache zone stats so values stay stable across calls
+const _ZONE_STATS_CACHE = {};
+DEMO_CAMERAS.forEach(cam => {
+  const total = cam.detection_count;
+  _ZONE_STATS_CACHE[cam.id] = {
     total_today: Math.floor(total / 3),
     total_all: total,
     avg_confidence: (85 + Math.random() * 8).toFixed(1),
@@ -135,6 +144,10 @@ function buildZoneStats(zoneId) {
       { type: 'lizard', count: Math.floor(total * 0.20) },
     ].filter(b => b.count > 0),
   };
+});
+
+function buildZoneStats(zoneId) {
+  return _ZONE_STATS_CACHE[zoneId] || { total_today: 0, total_all: 0, avg_confidence: '0', breakdown: [] };
 }
 
 // Model info (mirrors the real /api/model-info, with our actual metrics)
