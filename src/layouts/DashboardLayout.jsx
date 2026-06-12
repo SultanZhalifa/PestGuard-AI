@@ -2,23 +2,13 @@ import { useState, useEffect, useRef, memo } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useWarehouse } from '../context/WarehouseContext';
 import CommandPalette from '../components/common/CommandPalette';
+import AnimalIcon from '../components/common/AnimalIcon';
 import { useT } from '../hooks/useT';
 
 const ROLE_BADGE_COLORS = {
   admin:    { bg: 'rgba(28, 25, 23, 0.14)', fg: '#1c1917', label: 'Admin' },
   manager:  { bg: 'rgba(68, 64, 60, 0.10)', fg: '#44403c', label: 'Manager' },
   operator: { bg: 'rgba(120, 113, 108, 0.10)', fg: '#78716c', label: 'Operator' },
-};
-
-const PAGE_META = {
-  '/':               { title: 'Live Monitor',       subtitle: 'Real-time warehouse surveillance' },
-  '/logs':           { title: 'Detection Logs',      subtitle: 'Comprehensive history of AI-detected events' },
-  '/ask-ai':         { title: 'Ask AI',              subtitle: 'Warehouse assistant powered by Gemini 2.0 Flash' },
-  '/sop-mitigasi':   { title: 'SOP & ROI',           subtitle: 'Standard operating procedures and ROI calculator' },
-  '/analysis':       { title: 'Risk Analysis',       subtitle: 'Executive risk report and detection analytics' },
-  '/ai-performance': { title: 'AI Model Performance', subtitle: 'Custom-trained YOLO11 model metrics' },
-  '/users':          { title: 'User Management',     subtitle: 'Manage warehouse staff accounts, roles, and access' },
-  '/settings':       { title: 'Settings',            subtitle: 'System preferences and global configurations' },
 };
 
 const NavClock = memo(function NavClock() {
@@ -84,7 +74,9 @@ export default function DashboardLayout() {
   useEffect(() => {
     setIsSidebarOpen(false);
     document.querySelector('.main-content')?.scrollTo({ top: 0, behavior: 'instant' });
-  }, [location.pathname]);
+    const meta = t.pageMeta[location.pathname];
+    document.title = meta ? `${meta.title} — PestGuard AI` : 'PestGuard AI — Bio-Hazard & Pest Detection';
+  }, [location.pathname, t]);
 
   const toggleSidebarCollapse = () => {
     setIsSidebarCollapsed(prev => {
@@ -146,7 +138,7 @@ export default function DashboardLayout() {
   };
 
   const badge = ROLE_BADGE_COLORS[user?.role] || { bg: 'var(--bg-tertiary)', fg: 'var(--text-secondary)', label: user?.role || '—' };
-  const pageMeta = PAGE_META[location.pathname] || { title: 'Bio-Hazard Detection', subtitle: 'PT. Kawan Lama Surveillance' };
+  const pageMeta = t.pageMeta[location.pathname] || { title: t.header.title, subtitle: t.header.subtitle };
 
   const isMac = typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform);
 
@@ -176,7 +168,9 @@ export default function DashboardLayout() {
             display: 'flex', alignItems: 'center', gap: '1rem', pointerEvents: 'auto'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: alert.risk === 'danger' ? 'var(--alert-danger)' : 'var(--alert-warning)' }}>
-              {alert.risk === 'danger' ? (
+              {['snake', 'cat', 'gecko', 'lizard'].includes(String(alert.type || '').toLowerCase()) ? (
+                <AnimalIcon type={alert.type} size={28} color="currentColor" />
+              ) : alert.risk === 'danger' ? (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
               ) : (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>

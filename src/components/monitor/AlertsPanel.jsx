@@ -208,7 +208,7 @@ export default function AlertsPanel({ logs, t }) {
           const riskBg    = RISK_BGS[log.risk]    || 'rgba(41, 37, 36,0.08)';
           const riskLabel =
             log.risk === 'danger'  ? 'HAZARD' :
-            log.risk === 'warning' ? 'WARNING' : 'INFO';
+            log.risk === 'warning' ? 'WARNING' : 'MONITOR';
 
           return (
             <div

@@ -30,7 +30,7 @@ export const RISK_BGS = {
 export const RISK_LABELS = {
   danger:  'HAZARD',
   warning: 'WARNING',
-  info:    'INFO',
+  info:    'MONITOR',
 };
 
 /**

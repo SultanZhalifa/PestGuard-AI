@@ -5,6 +5,7 @@ import WarehouseZoneMap from '../components/warehouse/WarehouseZoneMap';
 import { useT } from '../hooks/useT';
 import ReportGenerator from '../components/warehouse/ReportGenerator';
 import PeakHoursChart from '../components/analytics/PeakHoursChart';
+import AnimalIcon from '../components/common/AnimalIcon';
 import api from '../lib/apiClient';
 
 export default function RiskAnalysis() {
@@ -143,7 +144,11 @@ export default function RiskAnalysis() {
                   <tr key={i} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background-color 0.2s' }}
                     onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--bg-primary)'}
                     onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                    <td style={{ padding: '0.75rem 1rem', fontWeight: '600', color: 'var(--text-primary)' }}>{row.type}</td>
+                    <td style={{ padding: '0.75rem 1rem', fontWeight: '600', color: 'var(--text-primary)' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <AnimalIcon type={row.type.split('/')[0]} size={16} color={row.scoreColor} />{row.type}
+                      </span>
+                    </td>
                     <td style={{ padding: '0.75rem 1rem', color: 'var(--text-secondary)' }}>{row.cat}</td>
                     <td style={{ padding: '0.75rem 1rem', color: 'var(--text-secondary)' }}>{row.severity}</td>
                     <td style={{ padding: '0.75rem 1rem', color: 'var(--text-secondary)' }}>{row.likelihood}</td>

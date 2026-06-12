@@ -435,7 +435,7 @@ add_text(s, "SmartGuard AI — Keeping warehouses safe, automatically.",
 add_rect(s, 4.5, 3.35, 4.33, 0.045, fill=C_ACCENT)
 
 links = [
-    "GitHub   :  github.com/SultanZhalifa/smartwarehouse-ai",
+    "GitHub   :  github.com/SultanZhalifa/PestGuard-AI",
     "Group     :  5  (Risly · Sultan · Fathir · Misha)",
     "Course   :  AI Open Innovation Challenge 2026",
 ]
@@ -449,7 +449,7 @@ add_text(s, "Team Andalusia  ·  AI Open Innovation Challenge  ·  2026",
 # ─────────────────────────────────────────
 # Save
 # ─────────────────────────────────────────
-out = r"c:\Tugas + Hackathon\smartwarehouse-ai\docs\SmartGuard AI - Presentation.pptx"
+out = r"c:\Tugas + Hackathon\PestGuard-AI\docs\SmartGuard AI - Presentation.pptx"
 prs.save(out)
 print(f"Saved: {out}")
 print(f"Slides: {len(prs.slides)}")
