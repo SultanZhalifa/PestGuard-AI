@@ -104,12 +104,8 @@ export default function Login() {
       {/* ─── Form Panel ─── */}
       <div className={`login-form-panel${shakeForm ? ' login-shake' : ''}`}>
         <div className="login-form-container">
-
-          {/* Brand: logo + name + tagline + co-brand */}
+          {/* Brand: name + tagline + co-brand (logo removed per user request) */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.875rem', marginBottom: '2.25rem' }}>
-            <div className="login-logo-badge">
-              <img src="/Paw.svg" alt="PestGuard AI" className="login-logo-img" />
-            </div>
             <div style={{ textAlign: 'center' }}>
               <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>{t.login.brand}</span>
             </div>
@@ -117,12 +113,13 @@ export default function Login() {
               <span className="login-tagline-dot" /> Detect <span className="login-tagline-dot" /> Alert <span className="login-tagline-dot" /> Protect
             </div>
 
-            {/* Co-brand: built for the case provider (not an ownership claim) */}
+            {/* Co-brand: built for the case provider */}
             <div className="login-cobrand">
               <span className="login-cobrand-label">Built for</span>
               <img src="/kawanlama.svg" alt="PT. Kawan Lama Group" className="login-cobrand-img" />
             </div>
           </div>
+
 
           {/* Demo-mode banner — only on the public deployment (no backend) */}
           {IS_DEMO && mode === 'login' && (

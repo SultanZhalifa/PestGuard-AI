@@ -15,7 +15,7 @@ const ANIMAL_SRC = {
  *  - size:  px (default 18)
  *  - color: CSS color; defaults to the class risk color
  */
-export default function AnimalIcon({ type, size = 18, color }) {
+export default function AnimalIcon({ type, size = 22, color }) {
   const key = String(type || '').toLowerCase();
   const src = ANIMAL_SRC[key];
   if (!src) return null;
