@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SOP_PROTOCOLS, ROI_DEFAULTS } from '../constants/detectionConfig';
+import AnimalIcon from '../components/common/AnimalIcon';
 
 /* ─── SVG Step Icons ─── */
 const STEP_ICONS = {
@@ -262,8 +263,12 @@ function SOPSection() {
               color: selected === key ? val.color : 'var(--text-secondary)',
               cursor: 'pointer',
               transition: 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
             }}
           >
+            <AnimalIcon type={key} size={16} color={selected === key ? val.color : 'var(--text-secondary)'} />
             {key}
           </button>
         ))}

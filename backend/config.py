@@ -26,7 +26,7 @@ _DEFAULT_SECRET_KEY = "pestguard-dev-key-change-in-production"
 SECRET_KEY = os.getenv("SECRET_KEY", _DEFAULT_SECRET_KEY)
 CORS_ORIGINS = [o.strip() for o in os.getenv(
     "CORS_ORIGINS",
-    "http://localhost:5173,http://localhost:3000,https://smartwarehouse-ai.vercel.app"
+    "http://localhost:5173,http://localhost:3000,https://pestguard-ai.vercel.app"
 ).split(",")]
 
 # Warn loudly if running with the built-in dev secret against a non-local origin

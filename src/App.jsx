@@ -4,6 +4,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import RequireRole from './components/common/RequireRole';
 import { WarehouseProvider } from './context/WarehouseContext';
 import { ToastProvider } from './components/common/ToastNotification';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 const LiveMonitor    = lazy(() => import('./pages/LiveMonitor'));
 const DetectionLogs  = lazy(() => import('./pages/DetectionLogs'));
@@ -18,13 +19,15 @@ const AskAI          = lazy(() => import('./pages/AskAI'));
 const SOPMitigasi    = lazy(() => import('./pages/SOPMitigasi'));
 
 const PageLoader = () => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--bg-primary, #0f1117)', color: 'var(--text-muted, #6b7280)', fontSize: 14 }}>
-    Loading...
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--bg-primary, #faf9f7)' }}>
+    <div className="page-loader-spinner" aria-label="Loading" />
+    <span style={{ color: 'var(--text-secondary, #78716c)', fontSize: 13, fontWeight: 600, letterSpacing: '0.04em' }}>PESTGUARD AI</span>
   </div>
 );
 
 function App() {
   return (
+    <ErrorBoundary>
     <ToastProvider>
       <WarehouseProvider>
         <Router>
@@ -82,6 +85,7 @@ function App() {
         </Router>
       </WarehouseProvider>
     </ToastProvider>
+    </ErrorBoundary>
   );
 }
 

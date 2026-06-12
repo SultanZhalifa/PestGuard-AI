@@ -1,28 +1,4 @@
-
-const AnimalIcon = ({ type }) => {
-  const t = type?.toLowerCase();
-  if (t === 'snake') return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--alert-danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 19c0-3 2-5 5-5h4c3 0 5-2 5-5V7"/><path d="M18 4l2 3-2 3"/>
-      <circle cx="6" cy="19" r="1" fill="var(--alert-danger)"/>
-    </svg>
-  );
-  if (t === 'cat') return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--alert-warning)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22c4.97 0 9-3.58 9-8V5l-4 2-5-3-5 3-4-2v9c0 4.42 4.03 8 9 8z"/>
-      <circle cx="9.5" cy="11" r="1" fill="var(--alert-warning)"/>
-      <circle cx="14.5" cy="11" r="1" fill="var(--alert-warning)"/>
-      <path d="M10 16c.5.5 1.5 1 2 1s1.5-.5 2-1"/>
-    </svg>
-  );
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#292524" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 8c-2 0-3 1-3 3v2c0 1-1 2-3 2H9"/>
-      <path d="M6 15c-1.5 0-3 .5-3 2s1.5 2 3 2"/>
-      <circle cx="19" cy="5" r="2"/><path d="M9 15l-3 4"/><path d="M9 15l3 4"/>
-    </svg>
-  );
-};
+import AnimalIcon from '../common/AnimalIcon';
 
 /**
  * LogsTable — the data grid with header row + body rows

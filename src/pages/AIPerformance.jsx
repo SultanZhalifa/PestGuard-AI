@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
 import { useT } from '../hooks/useT';
 import api from '../lib/apiClient';
+import AnimalIcon from '../components/common/AnimalIcon';
 
 /* ─── Inline SVG Icon Components ─── */
 const Icons = {
@@ -29,16 +30,10 @@ const Icons = {
   maximize: (color) => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color || 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
   ),
-  // Animal icons
-  snake: (color) => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color || 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19c0-3 2-5 5-5h4c3 0 5-2 5-5V7"/><path d="M18 4l2 3-2 3"/><circle cx="6" cy="19" r="1" fill={color || 'currentColor'}/></svg>
-  ),
-  cat: (color) => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color || 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c4.97 0 9-3.58 9-8V5l-4 2-5-3-5 3-4-2v9c0 4.42 4.03 8 9 8z"/><circle cx="9.5" cy="11" r="1" fill={color || 'currentColor'}/><circle cx="14.5" cy="11" r="1" fill={color || 'currentColor'}/><path d="M10 16c.5.5 1.5 1 2 1s1.5-.5 2-1"/></svg>
-  ),
-  lizard: (color) => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color || 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 8c-2 0-3 1-3 3v2c0 1-1 2-3 2H9"/><path d="M6 15c-1.5 0-3 .5-3 2s1.5 2 3 2"/><circle cx="19" cy="5" r="2"/><path d="M9 15l-3 4"/><path d="M9 15l3 4"/></svg>
-  ),
+  // Animal icons — custom silhouette assets in /public/animals
+  snake: (color) => <AnimalIcon type="snake" size={20} color={color} />,
+  cat: (color) => <AnimalIcon type="cat" size={20} color={color} />,
+  lizard: (color) => <AnimalIcon type="gecko" size={20} color={color} />,
 };
 
 /* ─── Count-Up Animation Hook ─── */

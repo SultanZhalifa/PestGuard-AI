@@ -20,6 +20,16 @@ export const id = {
   search: {
     hints: ['Cari cepat', 'Temukan apapun', 'Loncat ke...', 'Coba "Log"', 'Coba "Pengguna"'],
   },
+  pageMeta: {
+    '/':               { title: 'Monitor Langsung',     subtitle: 'Pengawasan gudang real-time' },
+    '/logs':           { title: 'Log Deteksi',          subtitle: 'Riwayat lengkap kejadian terdeteksi AI' },
+    '/ask-ai':         { title: 'Ask AI',               subtitle: 'Asisten gudang didukung Gemini 2.0 Flash' },
+    '/sop-mitigasi':   { title: 'SOP & ROI',            subtitle: 'Prosedur operasional standar dan kalkulator ROI' },
+    '/analysis':       { title: 'Analisis Risiko',      subtitle: 'Laporan risiko eksekutif dan analitik deteksi' },
+    '/ai-performance': { title: 'Performa Model AI',    subtitle: 'Metrik model YOLO11 terlatih khusus' },
+    '/users':          { title: 'Manajemen Pengguna',   subtitle: 'Kelola akun staf gudang, peran, dan akses' },
+    '/settings':       { title: 'Pengaturan',           subtitle: 'Preferensi sistem dan konfigurasi global' },
+  },
   login: {
     brand: 'PestGuard AI',
     brandSub: 'PT. Kawan Lama Group',

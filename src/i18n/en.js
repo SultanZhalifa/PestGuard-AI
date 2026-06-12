@@ -20,6 +20,16 @@ export const en = {
   search: {
     hints: ['Quick search', 'Find anything', 'Jump to...', 'Try "Logs"', 'Try "Users"'],
   },
+  pageMeta: {
+    '/':               { title: 'Live Monitor',         subtitle: 'Real-time warehouse surveillance' },
+    '/logs':           { title: 'Detection Logs',       subtitle: 'Comprehensive history of AI-detected events' },
+    '/ask-ai':         { title: 'Ask AI',               subtitle: 'Warehouse assistant powered by Gemini 2.0 Flash' },
+    '/sop-mitigasi':   { title: 'SOP & ROI',            subtitle: 'Standard operating procedures and ROI calculator' },
+    '/analysis':       { title: 'Risk Analysis',        subtitle: 'Executive risk report and detection analytics' },
+    '/ai-performance': { title: 'AI Model Performance', subtitle: 'Custom-trained YOLO11 model metrics' },
+    '/users':          { title: 'User Management',      subtitle: 'Manage warehouse staff accounts, roles, and access' },
+    '/settings':       { title: 'Settings',             subtitle: 'System preferences and global configurations' },
+  },
   login: {
     brand: 'PestGuard AI',
     brandSub: 'PT. Kawan Lama Group',
