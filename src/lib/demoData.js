@@ -224,13 +224,15 @@ export function getDemoResponse(path, method = 'GET', body = null) {
     return { status: 'success', message: 'Password updated successfully (demo mode).' };
   }
 
-  // ─── Core data ───
-  if (p === '/logs') return DEMO_LOGS;
-  if (p === '/settings') return DEMO_SETTINGS;
-  if (p === '/status') return DEMO_STATUS;
-  if (p === '/cameras') return DEMO_CAMERAS;
-  if (p === '/model-info') return DEMO_MODEL_INFO;
-  if (p === '/health') return { status: 'healthy', version: '2.0.0', model_loaded: true, demo: true };
+  // ─── Core data (GET only — writes fall through to the generic ack below) ───
+  if (method === 'GET') {
+    if (p === '/logs') return DEMO_LOGS;
+    if (p === '/settings') return DEMO_SETTINGS;
+    if (p === '/status') return DEMO_STATUS;
+    if (p === '/cameras') return DEMO_CAMERAS;
+    if (p === '/model-info') return DEMO_MODEL_INFO;
+    if (p === '/health') return { status: 'healthy', version: '2.0.0', model_loaded: true, demo: true };
+  }
 
   // ─── Analytics ───
   if (p === '/analytics') {

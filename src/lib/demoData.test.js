@@ -57,6 +57,13 @@ describe('demoData — core endpoints', () => {
     expect(res.status).toBe('success');
   });
 
+  it('acks settings saves instead of echoing the settings object', () => {
+    // Regression: POST /settings used to match the GET route and return the
+    // settings object, so callers checking res.status saw undefined.
+    const res = getDemoResponse('/settings', 'POST', { threshold: 60 });
+    expect(res.status).toBe('success');
+  });
+
   it('returns undefined for unknown GET routes', () => {
     expect(getDemoResponse('/does-not-exist')).toBeUndefined();
   });
