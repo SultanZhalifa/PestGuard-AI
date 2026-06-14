@@ -26,7 +26,7 @@ from config import (
     check_rate_limit, record_attempt,
     verify_token, require_role,
 )
-from database import get_db
+from database import get_db, record_audit
 
 router = APIRouter(prefix="/api", tags=["Authentication"])
 
@@ -247,6 +247,8 @@ def login(request: LoginRequest, req: Request):
         "must_change_password": bool(must_change),
         "expires": time.time() + 86400,  # 24h
     }
+    record_audit("login", actor=request.username.lower(), role=role,
+                 detail=f"Successful login (role={role})")
     return {
         "token": token,
         "user": {

@@ -50,7 +50,7 @@ A real-time, AI-powered surveillance system that **detects bio-hazard and pest i
 3. **Tiered risk classification** with automated response protocol:
    - **DANGER (Snake)** → Zone lockdown + emergency announcement + animal control dispatch
    - **WARNING (Cat)** → Sanitization team dispatch + inventory inspection
-   - **MONITORING (Gecko/Lizard)** → Entry-point investigation + scheduled trap deployment
+   - **MONITOR (Gecko/Lizard)** → Entry-point investigation + scheduled trap deployment
 4. **Role-Based Access Control** (Admin / Manager / Operator) — backend-enforced, audit-logged.
 5. **Auto-snapshot evidence chain** for every detection — saved to disk with retention policy (7 days or 1,000 file sliding window) and DB-linked for forensic review.
 
@@ -75,12 +75,12 @@ A real-time, AI-powered surveillance system that **detects bio-hazard and pest i
 |-------|-----------|------------|----------|---------------|--------------------------|
 | **Snake** | DANGER | Low | Catastrophic | Zone lockdown alert, audio announcement, supervisor + animal control notified via WebSocket | Evacuate zone, do NOT attempt manual removal. Wait for animal control. Document with auto-snapshot for incident report. |
 | **Cat** | WARNING | Medium | High | Sanitization team paged, affected SKUs flagged for inspection | Inspect entry points, audit affected aisle, sanitize floor + low racks, quarantine inventory if fur/waste contamination visible. |
-| **Gecko** | MONITORING | High | Low | Logged with time + zone, daily summary to facility manager | Identify entry point at next maintenance window, deploy traps if frequency >3/day, schedule inspection. |
-| **Lizard** | MONITORING | Medium | Low | Same as Gecko | Same as Gecko. |
+| **Gecko** | MONITOR | High | Low | Logged with time + zone, daily summary to facility manager | Identify entry point at next maintenance window, deploy traps if frequency >3/day, schedule inspection. |
+| **Lizard** | MONITOR | Medium | Low | Same as Gecko | Same as Gecko. |
 
 **Detection cooldown** = 30 seconds per class per zone — prevents 1 animal from generating 100 alerts.
 
-**Confidence threshold** = configurable per deployment (default 25%); tuned to balance recall (don't miss real detections) vs precision (don't flag a tarp as a snake).
+**Confidence threshold** = configurable per deployment (default 50%, tunable down to 25% for high-recall zones); tuned to balance recall (don't miss real detections) vs precision (don't flag a tarp as a snake).
 
 ---
 
@@ -108,14 +108,18 @@ A real-time, AI-powered surveillance system that **detects bio-hazard and pest i
 | Reduced compliance/audit cost (BPOM-ready evidence chain) | Rp 8,000,000 |
 | **Total Annual Savings** | **Rp 74,000,000** |
 
-### Payback Period
+### Payback Period — Conservative Scenario (the number we underwrite)
 
 - **Year 1**: Rp 78,000,000 cost vs Rp 74,000,000 savings = **payback in 12.6 months**
 - **Year 2+**: Rp 12,000,000 cost vs Rp 74,000,000 savings = **6.2× ROI** annually
 - **5-year NPV** (10% discount): **~Rp 234,000,000 net positive per DC**
 - **Across Kawan Lama's 18 DCs** (assuming proportional rollout): **~Rp 4.2 miliar annual net savings at scale**
 
-> *Note: Conservative model. Excludes downside protection from a major contamination incident — single avoided event of the magnitude seen in the Dollar Tree case (~USD 41.7M) would represent decades of ROI in a single year.*
+### Aggressive Scenario (upside as coverage matures)
+
+If PestGuard AI offsets the **full** manual pest-control contract and dedicated patrol spend (industry range **Rp 15–30 juta/month**), annual savings reach **Rp 144–324 juta per warehouse**, compressing break-even to **4–6 months**. We present both deliberately: the conservative model is what Kawan Lama can underwrite and audit today; the aggressive model is the realistic upside once detection coverage and operational trust are established. The in-app ROI calculator lets stakeholders toggle between these two assumption sets.
+
+> *Note: Both models exclude catastrophic-tail protection. A single avoided contamination event of the magnitude seen in the Dollar Tree case (~USD 41.7M) would represent decades of ROI in a single year.*
 
 ---
 
@@ -192,7 +196,7 @@ Inference: 1.9 ms preprocess + inference + postprocess per frame.
 
 ---
 
-**Repo:** https://github.com/SultanZhalifa/smart-warehouse-dashboard
-**Live demo deployment:** Available on request.
+**Repo:** https://github.com/SultanZhalifa/PestGuard-AI
+**Live demo deployment:** https://pestguard-ai.vercel.app/
 
 *This document is generated for the Final Event of AI Open Innovation Challenge 2026.*

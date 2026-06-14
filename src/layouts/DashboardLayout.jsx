@@ -64,7 +64,7 @@ export default function DashboardLayout() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem('pestguard_sidebar_collapsed') === 'true'; } catch { return false; }
   });
-  const { alerts, logout, authToken, user, hasRole } = useWarehouse();
+  const { alerts, logout, authToken, user, hasRole, wsConnected } = useWarehouse();
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
@@ -356,6 +356,27 @@ export default function DashboardLayout() {
                 </div>
               </div>
             )}
+
+            {/* Real-time connection status */}
+            <div
+              className="conn-indicator"
+              title={wsConnected ? t.connection.liveTitle : t.connection.offlineTitle}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.4rem',
+                padding: '0.5rem 0.7rem', borderRadius: '8px',
+                backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)',
+              }}
+            >
+              <span style={{
+                width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
+                backgroundColor: wsConnected ? 'var(--alert-success, #15803d)' : 'var(--text-secondary)',
+                boxShadow: wsConnected ? '0 0 0 3px rgba(21,128,61,0.15)' : 'none',
+                animation: wsConnected ? 'pulse 1.8s ease-in-out infinite' : 'none',
+              }} />
+              <span className="conn-label" style={{ fontSize: '0.75rem', fontWeight: 700, color: wsConnected ? 'var(--alert-success, #15803d)' : 'var(--text-secondary)' }}>
+                {wsConnected ? t.connection.live : t.connection.offline}
+              </span>
+            </div>
 
             <NavClock />
 

@@ -75,6 +75,19 @@ def init_db():
             attempts INTEGER NOT NULL DEFAULT 0
         )''')
 
+        # Audit log — security & compliance trail (login, settings, user CRUD, log clears)
+        cursor.execute('''CREATE TABLE IF NOT EXISTS audit_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ts REAL NOT NULL,
+            actor TEXT,
+            role TEXT,
+            action TEXT NOT NULL,
+            detail TEXT
+        )''')
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_audit_ts ON audit_log(ts DESC)"
+        )
+
         # ── Migrations ──
         cursor.execute("PRAGMA table_info(users)")
         columns = [col[1] for col in cursor.fetchall()]
@@ -151,6 +164,39 @@ def init_db():
             ]
             for k, v in defaults:
                 cursor.execute("INSERT INTO settings (key, value) VALUES (?, ?)", (k, v))
+
+
+def record_audit(action: str, actor: str = None, role: str = None, detail: str = None):
+    """Append an entry to the audit log. Never raises — auditing must not break the request.
+
+    action: short verb-noun key, e.g. 'login', 'settings.update', 'user.create', 'logs.clear'.
+    actor:  username performing the action (or None for anonymous/system).
+    detail: free-text context (truncated to 500 chars).
+    """
+    import time
+    try:
+        with get_db() as conn:
+            conn.execute(
+                "INSERT INTO audit_log (ts, actor, role, action, detail) VALUES (?, ?, ?, ?, ?)",
+                (time.time(), actor, role, action, (detail or "")[:500])
+            )
+    except Exception as e:  # pragma: no cover - defensive
+        logging.warning("[AUDIT] failed to record '%s': %s", action, e)
+
+
+def fetch_audit(limit: int = 100):
+    """Return the most recent audit entries (newest first) as a list of dicts."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT id, ts, actor, role, action, detail FROM audit_log ORDER BY ts DESC LIMIT ?",
+            (int(limit),)
+        )
+        rows = cursor.fetchall()
+    return [
+        {"id": r[0], "ts": r[1], "actor": r[2], "role": r[3], "action": r[4], "detail": r[5]}
+        for r in rows
+    ]
 
 
 def load_settings_cache():

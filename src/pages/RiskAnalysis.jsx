@@ -6,6 +6,7 @@ import { useT } from '../hooks/useT';
 import ReportGenerator from '../components/warehouse/ReportGenerator';
 import PeakHoursChart from '../components/analytics/PeakHoursChart';
 import AnimalIcon from '../components/common/AnimalIcon';
+import SustainabilityPanel from '../components/common/SustainabilityPanel';
 import api from '../lib/apiClient';
 
 export default function RiskAnalysis() {
@@ -112,13 +113,12 @@ export default function RiskAnalysis() {
 
         {/* Executive Summary Text */}
         <div style={{ backgroundColor: 'var(--bg-primary)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.6' }}>
-          <p>
-            This <strong>Bio-Hazard & Pest Detection</strong> report provides a comprehensive risk mitigation analysis for PT. Kawan Lama's large-scale warehouse operations. By leveraging an automated AI surveillance system (YOLO Object Detection), we monitor the integrity of goods and ensure the safety of workers from wild animal disturbances that escape manual monitoring. 
-          </p>
-          <p style={{ marginTop: '0.75rem' }}>
-            The system categorizes detections into <strong>High Risk (Safety/Bio-Hazards)</strong> such as Snakes, and <strong>Medium Risk (Contamination)</strong> such as Cats and Geckos. The analytics below reflect real-time intelligence gathered across all warehouse zones, seamlessly triggering the Rapid Response Protocols defined at the end of this report.
-          </p>
+          <p>{t.riskAnalysis.execSummary1}</p>
+          <p style={{ marginTop: '0.75rem' }}>{t.riskAnalysis.execSummary2}</p>
         </div>
+
+        {/* Sustainability / SDG alignment */}
+        <SustainabilityPanel />
 
         {/* Risk Matrix Table */}
         <div className="card" style={{ padding: '2rem' }}>

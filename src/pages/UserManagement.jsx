@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useWarehouse } from '../context/WarehouseContext';
 import { useT } from '../hooks/useT';
 import api from '../lib/apiClient';
+import AuditLog from '../components/common/AuditLog';
 
 const ROLE_OPTIONS = [
   { value: 'admin',    label: 'Admin' },
@@ -330,6 +331,9 @@ export default function UserManagement() {
           }}
         />
       )}
+
+      {/* Security audit trail (admin) */}
+      <AuditLog />
     </div>
   );
 }

@@ -163,6 +163,7 @@ export default function DetectionLogs() {
           logs={filteredLogs}
           loading={!logsLoaded}
           onSnapshotClick={setSnapshotModal}
+          isFiltered={searchTerm !== '' || activeFilter !== 'all'}
           t={t}
         />
 

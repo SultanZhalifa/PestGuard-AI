@@ -47,6 +47,8 @@ PestGuard AI menyelesaikan masalah ini dengan sistem deteksi real-time berbasis 
 
 ## System Architecture
 
+![PestGuard AI Architecture](public/architecture.svg)
+
 ```
 +-------------------------------------------------------------+
 |                       PESTGUARD AI                          |

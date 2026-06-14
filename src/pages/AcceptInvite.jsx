@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../lib/apiClient';
+import PasswordStrength from '../components/common/PasswordStrength';
 
 export default function AcceptInvite() {
   const navigate = useNavigate();
@@ -133,6 +134,7 @@ export default function AcceptInvite() {
                   )}
                 </button>
               </div>
+              <PasswordStrength password={password} />
             </div>
 
             <div className="login-field">

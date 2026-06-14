@@ -14,7 +14,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import Response, FileResponse
 
 from config import verify_token, require_role, active_sessions
-from database import get_db
+from database import get_db, record_audit
 
 router = APIRouter(prefix="/api", tags=["Detection Logs"])
 
@@ -168,6 +168,8 @@ def clear_logs(session: dict = Depends(require_role("admin"))):
     with get_db() as conn:
         conn.cursor().execute("DELETE FROM logs")
 
+    record_audit("logs.clear", actor=session.get("username"), role=session.get("role"),
+                 detail="Cleared all detection logs")
     return {"status": "success", "message": "All detection logs cleared."}
 
 

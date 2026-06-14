@@ -273,3 +273,37 @@ class TestSystemEndpoints:
         """Requesting unknown artifact names is rejected."""
         response = client.get("/api/training-artifacts/malicious_file")
         assert response.status_code == 404
+
+    def test_model_info_per_class(self, client):
+        """model-info exposes per-class metrics when a model is loaded."""
+        response = client.get("/api/model-info")
+        assert response.status_code == 200
+        data = response.json()
+        if data["status"] == "loaded":
+            assert "per_class_metrics" in data
+            classes = {c["name"] for c in data["per_class_metrics"]}
+            assert {"Snake", "Cat", "Gecko", "Lizard"}.issubset(classes)
+            snake = next(c for c in data["per_class_metrics"] if c["name"] == "Snake")
+            assert 0 <= snake["recall"] <= 100
+
+
+# ─── Audit Log Tests ───
+class TestAuditLog:
+    def test_login_is_audited(self, client, auth_headers):
+        """A successful login should appear in the admin audit log."""
+        response = client.get("/api/audit-log", headers=auth_headers)
+        assert response.status_code == 200
+        entries = response.json()["entries"]
+        assert isinstance(entries, list)
+        assert any(e["action"] == "login" for e in entries)
+
+    def test_settings_update_is_audited(self, client, auth_headers):
+        client.post("/api/settings", json={"threshold": 55}, headers=auth_headers)
+        response = client.get("/api/audit-log", headers=auth_headers)
+        actions = [e["action"] for e in response.json()["entries"]]
+        assert "settings.update" in actions
+
+    def test_audit_log_requires_admin(self, client):
+        """Audit log must reject unauthenticated access."""
+        response = client.get("/api/audit-log")
+        assert response.status_code == 401

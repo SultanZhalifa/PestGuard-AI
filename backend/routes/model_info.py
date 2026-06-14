@@ -19,6 +19,16 @@ router = APIRouter(prefix="/api", tags=["System"])
 
 TRAINING_DIR = Path("runs/detect/warehouse_pest")
 
+# Per-class validation metrics from the final training run (val split).
+# Sourced from the model's validation report; the highest-severity class (Snake)
+# is intentionally reported with its true (lower) recall rather than averaged away.
+PER_CLASS_METRICS = [
+    {"name": "Snake",  "risk": "danger",  "train_images": 8477,  "precision": 82.6, "recall": 76.5, "mAP50": 83.4, "mAP50_95": 57.5},
+    {"name": "Cat",    "risk": "warning", "train_images": 10001, "precision": 91.6, "recall": 89.3, "mAP50": 94.3, "mAP50_95": 76.7},
+    {"name": "Gecko",  "risk": "info",    "train_images": 1435,  "precision": 99.5, "recall": 99.8, "mAP50": 99.3, "mAP50_95": 93.1},
+    {"name": "Lizard", "risk": "info",    "train_images": 2409,  "precision": 97.5, "recall": 99.3, "mAP50": 99.2, "mAP50_95": 78.2},
+]
+
 
 def _parse_training_metrics():
     """Parse results.csv from YOLO training to extract final epoch metrics."""
@@ -159,6 +169,7 @@ def get_model_info():
             "info": "Gecko/Lizard — Monitoring (entry point inspection)",
         },
         "training": training,
+        "per_class_metrics": PER_CLASS_METRICS,
         "artifacts": artifacts,
     }
 

@@ -21,6 +21,7 @@ export function WarehouseProvider({ children }) {
   const [alerts, setAlerts] = useState([]);
   const [logs, setLogs] = useState([]);
   const [logsLoaded, setLogsLoaded] = useState(false);
+  const [wsConnected, setWsConnected] = useState(IS_DEMO);  // demo: simulate a live connection
   const [darkMode, setDarkMode] = useState(false);
   const [language, setLanguage] = useState(() => localStorage.getItem('sw_language') || 'en');
   const [authToken, setAuthToken] = useState(localStorage.getItem('sw_token'));
@@ -99,7 +100,7 @@ export function WarehouseProvider({ children }) {
 
   // Setup WebSocket when authenticated (skipped in demo mode — no server)
   useEffect(() => {
-    if (!authToken || IS_DEMO) return;
+    if (!authToken || IS_DEMO) return;  // demo connection state handled by initial value
 
     const wsUrl = api.wsUrl('/ws/alerts');
 
@@ -111,7 +112,7 @@ export function WarehouseProvider({ children }) {
     const connect = () => {
       ws = new WebSocket(wsUrl);
 
-      ws.onopen = () => { reconnectAttempts = 0; };
+      ws.onopen = () => { reconnectAttempts = 0; setWsConnected(true); };
 
       ws.onmessage = (event) => {
         try {
@@ -134,6 +135,7 @@ export function WarehouseProvider({ children }) {
       };
 
       ws.onclose = () => {
+        setWsConnected(false);
         const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), maxReconnectDelay);
         reconnectAttempts++;
         reconnectTimer = setTimeout(connect, delay);
@@ -147,6 +149,7 @@ export function WarehouseProvider({ children }) {
     return () => {
       clearTimeout(reconnectTimer);
       if (ws) ws.close();
+      setWsConnected(false);
     };
   }, [authToken]);
 
@@ -184,7 +187,7 @@ export function WarehouseProvider({ children }) {
 
   return (
     <WarehouseContext.Provider value={{
-      alerts, logs, setLogs, logsLoaded,
+      alerts, logs, setLogs, logsLoaded, wsConnected,
       darkMode, toggleDarkMode,
       language, changeLanguage,
       authToken, user, login, logout, updateUser, hasRole,

@@ -183,6 +183,12 @@ const DEMO_MODEL_INFO = {
       val_cls_loss: Math.max(0.51, 2.0 - i * 0.03),
     })),
   },
+  per_class_metrics: [
+    { name: 'Snake',  risk: 'danger',  train_images: 8477,  precision: 82.6, recall: 76.5, mAP50: 83.4, mAP50_95: 57.5 },
+    { name: 'Cat',    risk: 'warning', train_images: 10001, precision: 91.6, recall: 89.3, mAP50: 94.3, mAP50_95: 76.7 },
+    { name: 'Gecko',  risk: 'info',    train_images: 1435,  precision: 99.5, recall: 99.8, mAP50: 99.3, mAP50_95: 93.1 },
+    { name: 'Lizard', risk: 'info',    train_images: 2409,  precision: 97.5, recall: 99.3, mAP50: 99.2, mAP50_95: 78.2 },
+  ],
   artifacts: [],
 };
 
@@ -232,6 +238,16 @@ export function getDemoResponse(path, method = 'GET', body = null) {
     if (p === '/cameras') return DEMO_CAMERAS;
     if (p === '/model-info') return DEMO_MODEL_INFO;
     if (p === '/health') return { status: 'healthy', version: '2.0.0', model_loaded: true, demo: true };
+    if (p === '/audit-log') {
+      const now = Date.now() / 1000;
+      return { entries: [
+        { id: 5, ts: now - 120,   actor: 'admin',   role: 'admin',   action: 'settings.update', detail: 'Updated: threshold' },
+        { id: 4, ts: now - 900,   actor: 'admin',   role: 'admin',   action: 'login',           detail: 'Successful login (role=admin)' },
+        { id: 3, ts: now - 3600,  actor: 'admin',   role: 'admin',   action: 'user.create',     detail: "Created user 'operator2' (role=operator)" },
+        { id: 2, ts: now - 7200,  actor: 'manager', role: 'manager', action: 'login',           detail: 'Successful login (role=manager)' },
+        { id: 1, ts: now - 86400, actor: 'admin',   role: 'admin',   action: 'logs.clear',      detail: 'Cleared all detection logs' },
+      ] };
+    }
   }
 
   // ─── Analytics ───

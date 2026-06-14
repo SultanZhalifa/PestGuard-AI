@@ -4,7 +4,7 @@ import AnimalIcon from '../common/AnimalIcon';
  * LogsTable — the data grid with header row + body rows
  * Props: logs, loading, onSnapshotClick, t
  */
-export default function LogsTable({ logs, loading, onSnapshotClick, t }) {
+export default function LogsTable({ logs, loading, onSnapshotClick, isFiltered = false, t }) {
   const COLS = [
     t.detectionLogs.animalType,
     t.detectionLogs.riskLevel,
@@ -95,7 +95,12 @@ export default function LogsTable({ logs, loading, onSnapshotClick, t }) {
                         <circle cx="60" cy="55" r="12" stroke="var(--text-secondary)" strokeWidth="1.5" opacity="0.4" />
                         <line x1="69" y1="64" x2="80" y2="75" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
                       </svg>
-                      <p style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>No detections found</p>
+                      <p style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>
+                        {isFiltered ? t.detectionLogs.emptyFiltered : t.detectionLogs.emptyTitle}
+                      </p>
+                      <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: '-0.5rem 0 0', maxWidth: 320 }}>
+                        {isFiltered ? t.detectionLogs.emptyFilteredSub : t.detectionLogs.emptyTitleSub}
+                      </p>
                     </div>
                   </td>
                 </tr>

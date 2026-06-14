@@ -308,7 +308,14 @@ export default function ZoneDetailModal({ zone, onClose, onToggle, isPending }) 
                     title={`Fit: ${fitMode} → ${fitMode === 'contain' ? 'cover' : fitMode === 'cover' ? 'fill' : 'contain'}`}
                     active={fitMode !== 'contain'}
                   >
-                    {fitMode === 'contain' ? '⊡' : fitMode === 'cover' ? '⊠' : '⬚'}
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="5" width="18" height="14" rx="2"/>
+                      {fitMode === 'contain'
+                        ? <rect x="7" y="9" width="10" height="6" rx="1"/>
+                        : fitMode === 'cover'
+                          ? <rect x="3" y="5" width="18" height="14" rx="2" fill="currentColor" opacity="0.25" stroke="none"/>
+                          : <line x1="3" y1="12" x2="21" y2="12"/>}
+                    </svg>
                   </ControlBtn>
                   <ControlBtn
                     onClick={toggleFullscreen}

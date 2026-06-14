@@ -76,7 +76,7 @@ At scale, PT. Kawan Lama Group operates multiple distribution warehouses across 
 
 According to the Indonesian National Agency of Drug and Food Control (BPOM), product contamination from biological sources remains one of the leading causes of product recalls in the food and consumer goods sector. Pest intrusion in storage facilities is a documented contributor to these incidents.
 
-Manual pest control services for a single large warehouse in Indonesia typically cost between Rp 15 million and Rp 30 million per month, a figure acknowledged by facilities management industry benchmarks. Despite this expenditure, manual inspection cannot guarantee real-time detection, particularly in multi-zone facilities operating across three shifts.
+Manual pest control services for a single large warehouse in Indonesia typically cost between Rp 15 million and Rp 30 million per month based on commercial facilities-management service quotations for high-traffic distribution centers. Despite this expenditure, manual inspection cannot guarantee real-time detection, particularly in multi-zone facilities operating across three shifts. The regulatory pressure is also concrete: BPOM Regulation No. 22 of 2025 (effective 28 July 2025) now legally requires Indonesian businesses to initiate voluntary recalls and self-report contamination, making an auditable detection trail a compliance asset, not just an operational one.
 
 Research on YOLO-based object detection in industrial environments consistently demonstrates detection accuracy exceeding 85% mAP for common animal classes when trained on domain-specific datasets. Our own custom-trained YOLO11 model confirms this in practice, reaching 94.0% mAP@50 on a held-out validation set. This demonstrates that computer vision is not only a technically mature and operationally viable approach to solving this problem at the warehouse scale, but one we have already validated with measurable results.
 
@@ -119,7 +119,7 @@ For management, the platform provides historical detection data organized by zon
 
 For compliance and quality control, the automatic snapshot logging of every detection creates an audit trail that can be used to demonstrate due diligence during regulatory inspections or in response to contamination claims.
 
-Financially, the reduction in manual pest control rounds and faster response times translate to measurable cost savings. Estimated savings per warehouse are between Rp 144 million and Rp 324 million annually, with a break-even period of four to six months.
+Financially, the reduction in manual pest control rounds and faster response times translate to measurable cost savings. We model this as a planning range rather than a single optimistic figure. Under a **conservative** bottom-up model (partial patrol-shift replacement, a 30% offset of the traditional pest-control contract, and one avoided minor contamination incident per year), net savings are approximately **Rp 74 million per distribution center annually**, giving a Year-1 payback of about **12.6 months** and a 6.2x recurring annual ROI thereafter. Under an **aggressive** model — where PestGuard AI offsets the full manual pest-control and dedicated patrol spend (industry range Rp 15–30 million/month) — annual savings reach **Rp 144–324 million per warehouse** with a **four-to-six-month** break-even. The conservative figure is the one we ask Kawan Lama to underwrite; the aggressive figure represents the upside as coverage and trust mature. Neither model prices in the catastrophic-tail protection of avoiding a single major recall event.
 
 The multi-zone architecture also means the same system can monitor all areas of a warehouse simultaneously, a capability that no manual inspection process can match.
 
@@ -160,6 +160,21 @@ General-purpose AI detection tools exist but are not trained on the specific pes
 
 PestGuard AI occupies the gap between these approaches. It provides the continuous automated monitoring that generic CCTV systems lack, the classification specificity that general AI tools cannot deliver out of the box, and the operational tooling (SOP, ROI, analytics, AI chat) that pure detection tools do not include. It is designed to integrate into the existing security workflow rather than replace it entirely.
 
+| Capability | PestGuard AI | Manual Pest-Control Contract | Generic CCTV + Motion | Stock Object-Detection |
+|---|---|---|---|---|
+| Continuous 24/7 monitoring | Yes, always-on | No, periodic visits | Yes, always-on | Yes, always-on |
+| Identifies which animal | Yes, 4 classes + risk tier | Only post-incident | No, motion only | Partial, generic classes |
+| Low-light warehouse accuracy | Yes, CLAHE preprocessing | n/a | Poor at night | Not tuned |
+| Searchable data trail / audit | Yes, DB + snapshots | No, paper logs | Raw footage only | None |
+| Tiered auto-response + SOP | Yes, built-in | Manual only | None | None |
+| Cost profile | Low recurring | High, Rp 15-30jt/month | Hardware only | Heavy customization |
+| Deploy time | docker compose up | n/a | Weeks | Months of tuning |
+
+
+### Sustainability & SDG Alignment
+
+PestGuard AI is built for the challenge's Sustainable Supply Chain track and maps directly to three UN Sustainable Development Goals. **SDG 8 (Decent Work):** it eliminates dehumanizing 3 AM patrol shifts — AI handles surveillance while humans handle response and judgment during daytime hours. **SDG 12 (Responsible Consumption & Production):** evidence-based, targeted pest response replaces broad-spectrum rodenticide spraying, reducing chemical use and runoff, and the data trail prevents contamination-driven inventory waste. **SDG 3 (Good Health & Well-being):** it protects warehouse staff from snake encounters (a genuine occupational hazard in tropical Indonesian facilities) and reduces zoonotic disease vectors such as Leptospirosis and Salmonellosis. These map onto PT. Kawan Lama Group's own published sustainability pillars of Environment, Health, and Social.
+
 
 ---
 
@@ -167,7 +182,7 @@ PestGuard AI occupies the gap between these approaches. It provides the continuo
 
 ### Main Solution Technologies
 
-The system is built on the following core technologies: YOLO11 (Ultralytics) for real-time object detection, Python 3.12 with FastAPI for the backend REST API and WebSocket server, React 19 with Vite for the frontend dashboard, SQLite in WAL mode for concurrent-safe data storage, Google Gemini 2.0 Flash for the AI assistant, Telegram Bot API for mobile notifications, Web Audio API for browser-based alarm sounds, and Docker for containerized deployment. The frontend is deployed on Vercel with lazy-loaded page chunks for fast initial load times, and the backend is deployed on Railway with a Docker container for a stable public endpoint.
+A full system architecture diagram is available in the repository at `public/architecture.svg` and is rendered live inside the dashboard's Settings page. The system is built on the following core technologies: YOLO11 (Ultralytics) for real-time object detection, Python 3.12 with FastAPI for the backend REST API and WebSocket server, React 19 with Vite for the frontend dashboard, SQLite in WAL mode for concurrent-safe data storage, Google Gemini 2.0 Flash for the AI assistant, Telegram Bot API for mobile notifications, Web Audio API for browser-based alarm sounds, and Docker for containerized deployment. The frontend is deployed on Vercel with lazy-loaded page chunks for fast initial load times, and the backend is deployed on Railway with a Docker container for a stable public endpoint.
 
 
 ### Technology Selection and Implementation
@@ -177,7 +192,19 @@ YOLO11-Nano was selected over heavier architectures because warehouse deployment
 
 ### Solution Algorithm
 
-The detection pipeline uses YOLO11-Nano, an anchor-free single-stage object detection architecture, fine-tuned for 50 epochs on our warehouse pest dataset. On the held-out validation set it achieves **94.0% mAP@50, 92.8% precision, and 91.2% recall** — metrics that are reproducible from the `results.csv` and confusion matrix included in the repository and exposed live through the `/api/model-info` endpoint. Each input frame is preprocessed with CLAHE before inference. The model outputs bounding box coordinates, class probabilities, and confidence scores. Post-processing applies a confidence threshold (default 0.5) and NMS (Non-Maximum Suppression) to eliminate duplicate detections of the same object.
+The detection pipeline uses YOLO11-Nano, an anchor-free single-stage object detection architecture, fine-tuned for 50 epochs on our warehouse pest dataset. On the held-out validation set it achieves **94.0% mAP@50, 92.8% precision, and 91.2% recall** — metrics that are reproducible from the `results.csv` and confusion matrix included in the repository and exposed live through the `/api/model-info` endpoint and the AI Performance dashboard page. Each input frame is preprocessed with CLAHE before inference. The model outputs bounding box coordinates, class probabilities, and confidence scores. Post-processing applies a confidence threshold (default 0.5) and NMS (Non-Maximum Suppression) to eliminate duplicate detections of the same object.
+
+Per-class performance (validation set) is transparent rather than averaged away:
+
+| Class | Train Images | Precision | Recall | mAP@50 | mAP@50-95 |
+|---|---|---|---|---|---|
+| Snake | 8,477 | 82.6% | 76.5% | 83.4% | 57.5% |
+| Cat | 10,001 | 91.6% | 89.3% | 94.3% | 76.7% |
+| Gecko | 1,435 | 99.5% | 99.8% | 99.3% | 93.1% |
+| Lizard | 2,409 | 97.5% | 99.3% | 99.2% | 78.2% |
+| **Overall** | **16,047** | **92.8%** | **91.2%** | **94.0%** | **76.4%** |
+
+The Snake class — the highest-severity class — has the lowest recall (76.5%) due to dataset imbalance and the difficulty of detecting partially occluded snakes. We treat this as the priority for the next training cycle (see Limitations & Assumptions): the conservative confidence threshold and three-channel alerting are deliberately tuned so that the cost of a missed snake is mitigated operationally while the model is improved.
 
 The AI chat uses Retrieval-Augmented Generation. When a user submits a query, the backend retrieves real-time context (active zones, recent detections, system status) from the database and injects it into the prompt before calling the Gemini API. This grounds the model's response in current warehouse data rather than general knowledge.
 
@@ -198,6 +225,17 @@ Detection events are broadcast to all WebSocket clients in under one second usin
 Authentication uses bcrypt password hashing and session tokens with configurable expiry. Role-based access control (Admin, Manager, Operator) limits what each user can view and modify. The API validates all inputs at the boundary and uses parameterized queries throughout to prevent injection attacks. Camera feeds are processed locally on the backend server and are not transmitted to third-party services. Only the Gemini API receives text-based prompt data, not raw video.
 
 For scalability, the multi-zone architecture already supports simultaneous monitoring of multiple cameras. Additional zones can be added through the dashboard without code changes. The Docker Compose configuration makes horizontal deployment straightforward. The SQLite database is suitable for single-facility deployment; a production-scale rollout across many warehouses would migrate to PostgreSQL using the same ORM layer. The React frontend uses lazy loading so that only the pages currently in use are loaded, keeping performance consistent as the feature set grows.
+
+
+### Limitations & Assumptions
+
+We state our limitations explicitly because an honest scope is what makes a pilot deployable:
+
+1. **Class scope.** The model detects four classes (Snake, Cat, Gecko, Lizard). Adding a class (e.g., rats, birds) requires collecting labelled images and a ~50-epoch retraining cycle — the architecture does not change, only the weights.
+2. **Snake recall.** At 76.5% recall the snake class is the weakest; mitigation is operational (low threshold + multi-channel alerts) until the next training cycle closes the dataset-imbalance gap (currently 8,477 snake vs 10,001 cat images).
+3. **Hardware assumption.** ROI and throughput figures assume one RTX-class edge GPU server serving 4–12 cameras per distribution center. CPU-only deployment works but at reduced frame rate.
+4. **Environmental generalization.** The model is trained on warehouse-like footage; deployment in a visually very different facility (extreme lighting, unusual racking) benefits from a short site-specific retraining on local footage.
+5. **Production hardening roadmap.** The current build is a pilot-ready prototype. Items planned before full production rollout: model versioning/rollback, per-endpoint rate-limit tuning under sustained load, and PostgreSQL migration for multi-DC scale.
 
 
 ---
@@ -253,11 +291,14 @@ The business model is a Software-as-a-Service (SaaS) platform licensed to wareho
 
 **Live Demo:** https://pestguard-ai.vercel.app/
 
+**Demo Video:** <INSERT YOUTUBE LINK BEFORE SUBMISSION>
+
 **References:**
 
-1. Badan Pengawas Obat dan Makanan (BPOM). Product contamination statistics and recall reports, 2023-2024.
-2. Khanam, R., & Hussain, M. (2024). YOLOv11: An Overview of the Key Architectural Enhancements. arXiv:2410.17725.
-3. Ultralytics. YOLO11 Documentation. https://docs.ultralytics.com
-4. Zuiderveld, K. (1994). Contrast Limited Adaptive Histogram Equalization. Graphics Gems IV, Academic Press.
-5. Google DeepMind. Gemini 2.0 Flash Technical Report, 2025.
-6. Roboflow. Open Dataset Repository. https://roboflow.com
+1. Badan Pengawas Obat dan Makanan (BPOM). Peraturan BPOM No. 22 Tahun 2025 tentang Penarikan dan Pemusnahan Pangan Olahan (effective 28 July 2025).
+2. Food Safety News (2024). Dollar Tree subsidiary Greenbrier International fined USD 41.7 million over rodent-infested distribution center — largest criminal food-safety penalty on record.
+3. Khanam, R., & Hussain, M. (2024). YOLOv11: An Overview of the Key Architectural Enhancements. arXiv:2410.17725.
+4. Ultralytics. YOLO11 Documentation. https://docs.ultralytics.com
+5. Zuiderveld, K. (1994). Contrast Limited Adaptive Histogram Equalization. Graphics Gems IV, Academic Press.
+6. Google DeepMind. Gemini 2.0 Flash Technical Report, 2025.
+7. Roboflow. Open Dataset Repository (snake, cat, gecko, lizard public collections). https://roboflow.com/universe

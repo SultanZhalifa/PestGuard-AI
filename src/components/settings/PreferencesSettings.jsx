@@ -57,7 +57,7 @@ export default function PreferencesSettings({ notifications, darkMode, language,
                   cursor: 'pointer', transition: 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease',
                 }}
               >
-                {lang === 'en' ? '🇬🇧 EN' : '🇮🇩 ID'}
+                {lang === 'en' ? 'EN' : 'ID'}
               </button>
             ))}
           </div>
