@@ -14,7 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from config import require_role, active_sessions
-from database import get_db
+from database import get_db, record_audit
 from routes.auth import _hash_password
 
 router = APIRouter(prefix="/api", tags=["User Management"])
@@ -109,6 +109,8 @@ def create_user(request: CreateUserRequest, session: dict = Depends(require_role
         )
         new_id = cursor.lastrowid
 
+    record_audit("user.create", actor=session.get("username"), role=session.get("role"),
+                 detail=f"Created user '{request.username.lower()}' (role={request.role})")
     return {
         "status": "success",
         "message": "User created successfully.",
@@ -174,6 +176,8 @@ def update_user(user_id: int, request: UpdateUserRequest,
     if request.role is not None:
         _revoke_user_sessions(user_id)
 
+    record_audit("user.update", actor=session.get("username"), role=session.get("role"),
+                 detail=f"Updated user id={user_id} ({', '.join(u.split(' =')[0] for u in updates)})")
     return {"status": "success", "message": "User updated successfully."}
 
 
@@ -194,6 +198,8 @@ def delete_user(user_id: int, session: dict = Depends(require_role("admin"))):
         cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
 
     _revoke_user_sessions(user_id)
+    record_audit("user.delete", actor=session.get("username"), role=session.get("role"),
+                 detail=f"Deleted user id={user_id}")
     return {"status": "success", "message": "User deleted successfully."}
 
 

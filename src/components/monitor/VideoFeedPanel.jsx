@@ -74,6 +74,29 @@ export default function VideoFeedPanel({ isCameraOn, status, onToggle, t }) {
           minHeight: '340px',
         }}
       >
+        {/* Simulator badge — frames the live feed as the brief's "Simulator" deliverable */}
+        {isCameraOn && imageLoaded && (
+          <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', zIndex: 3, display: 'flex', flexDirection: 'column', gap: '0.35rem', alignItems: 'flex-start', pointerEvents: 'none' }}>
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+              padding: '0.25rem 0.6rem', borderRadius: '6px',
+              backgroundColor: 'rgba(10,10,10,0.65)', backdropFilter: 'blur(4px)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              fontSize: '0.62rem', fontWeight: '800', letterSpacing: '0.12em', color: '#fff',
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#ef4444', display: 'inline-block', animation: 'pulse 1.5s ease-in-out infinite' }} />
+              {t.liveMonitor.simulatorBadge}
+            </span>
+            <span style={{
+              padding: '0.2rem 0.55rem', borderRadius: '6px',
+              backgroundColor: 'rgba(10,10,10,0.55)', backdropFilter: 'blur(4px)',
+              fontSize: '0.6rem', fontWeight: '600', color: 'rgba(255,255,255,0.85)',
+            }}>
+              {t.liveMonitor.simulatorCaption}
+            </span>
+          </div>
+        )}
+
         {isCameraOn && (
           <img
             src={api.streamUrl('/video_feed')}

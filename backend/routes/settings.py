@@ -10,7 +10,7 @@ from typing import Dict
 from fastapi import APIRouter, Depends
 
 from config import verify_token, require_role, APP_SETTINGS, DEFAULT_THRESHOLD
-from database import get_db, load_settings_cache  # load_settings_cache used after writes
+from database import get_db, load_settings_cache, record_audit  # load_settings_cache used after writes
 
 router = APIRouter(prefix="/api", tags=["Settings"])
 
@@ -39,6 +39,9 @@ def update_settings(settings: Dict, session: dict = Depends(require_role("admin"
             )
 
     load_settings_cache()
+    changed = ", ".join(k for k in settings if k in ALLOWED_SETTINGS_KEYS)
+    record_audit("settings.update", actor=session.get("username"), role=session.get("role"),
+                 detail=f"Updated: {changed}")
     return {"status": "success", "message": "Settings saved successfully."}
 
 
@@ -61,4 +64,6 @@ def reset_settings(session: dict = Depends(require_role("admin"))):
             )
 
     load_settings_cache()
+    record_audit("settings.reset", actor=session.get("username"), role=session.get("role"),
+                 detail="All settings restored to defaults")
     return {"status": "success", "message": "All settings restored to defaults."}

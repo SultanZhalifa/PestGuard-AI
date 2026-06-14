@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
 import { useT } from '../hooks/useT';
 import api from '../lib/apiClient';
 import AnimalIcon from '../components/common/AnimalIcon';
+import { RISK_COLORS } from '../constants/detectionConfig';
 
 /* ─── Inline SVG Icon Components ─── */
 const Icons = {
@@ -97,7 +98,9 @@ export default function AIPerformance() {
   const [error, setError] = useState(false);
   const [activeArtifact, setActiveArtifact] = useState(null);
 
-  useEffect(() => {
+  const loadModelInfo = useCallback(() => {
+    setLoading(true);
+    setError(false);
     api.getJson('/model-info')
       .then(data => {
         setModelInfo(data);
@@ -108,6 +111,9 @@ export default function AIPerformance() {
         setLoading(false);
       });
   }, []);
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { loadModelInfo(); }, [loadModelInfo]);
 
   if (loading) {
     return (
@@ -129,6 +135,15 @@ export default function AIPerformance() {
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', maxWidth: 400 }}>
           {t.aiPerformance.noModelDesc}
         </p>
+        <button onClick={loadModelInfo} style={{
+          marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.45rem',
+          padding: '0.55rem 1.1rem', borderRadius: '10px', cursor: 'pointer',
+          border: '1px solid var(--border-color)', background: 'var(--accent-primary)', color: '#fff',
+          fontSize: '0.85rem', fontWeight: 700,
+        }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          {t.common.retry}
+        </button>
       </div>
     );
   }
@@ -184,6 +199,55 @@ export default function AIPerformance() {
           {metricCards.map((m, i) => (
             <MetricCard key={i} {...m} />
           ))}
+        </div>
+      )}
+
+      {/* Per-Class Performance */}
+      {modelInfo.per_class_metrics?.length > 0 && (
+        <div className="card" style={{ padding: '1.5rem 2rem' }}>
+          <div style={{ marginBottom: '1.25rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>{t.aiPerformance.perClassTitle}</h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>{t.aiPerformance.perClassSubtitle}</p>
+          </div>
+          <div className="table-wrap" style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 520 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  {[t.aiPerformance.colClass, t.aiPerformance.precision, t.aiPerformance.recall, t.aiPerformance.mAP50, t.aiPerformance.mAP5095, t.aiPerformance.colImages].map((h, i) => (
+                    <th key={i} style={{ textAlign: i === 0 ? 'left' : 'right', padding: '0.6rem 0.75rem', fontSize: '0.68rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {modelInfo.per_class_metrics.map((c) => {
+                  const color = RISK_COLORS[c.risk] || 'var(--text-primary)';
+                  return (
+                    <tr key={c.name} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                      <td style={{ padding: '0.7rem 0.75rem' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                          <AnimalIcon type={c.name} size={18} color={color} />{c.name}
+                        </span>
+                      </td>
+                      {['precision', 'recall', 'mAP50', 'mAP50_95'].map((k) => (
+                        <td key={k} style={{ padding: '0.7rem 0.75rem', textAlign: 'right', minWidth: 90 }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
+                            <span style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>{c[k].toFixed(1)}%</span>
+                            <div style={{ width: '100%', maxWidth: 70, height: 4, borderRadius: 2, backgroundColor: 'var(--bg-tertiary)', overflow: 'hidden' }}>
+                              <div style={{ height: '100%', width: `${c[k]}%`, backgroundColor: color, borderRadius: 2 }} />
+                            </div>
+                          </div>
+                        </td>
+                      ))}
+                      <td style={{ padding: '0.7rem 0.75rem', textAlign: 'right', fontSize: '0.82rem', color: 'var(--text-secondary)', fontVariantNumeric: 'tabular-nums' }}>{c.train_images.toLocaleString()}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '1rem 0 0', lineHeight: 1.6, paddingLeft: '0.75rem', borderLeft: `3px solid ${RISK_COLORS.danger}` }}>
+            {t.aiPerformance.perClassNote}
+          </p>
         </div>
       )}
 
@@ -419,7 +483,7 @@ export default function AIPerformance() {
               <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '0.5rem 0.875rem', borderRadius: '8px', marginBottom: '0.4rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: '#292524', fontSize: '0.9rem' }}>✓</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#292524" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>
                   <span style={{ fontSize: '0.83rem', color: 'var(--text-primary)', fontWeight: '600' }}>{a.tech}</span>
                 </div>
                 <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{a.detail}</span>

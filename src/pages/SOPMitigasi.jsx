@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SOP_PROTOCOLS, ROI_DEFAULTS } from '../constants/detectionConfig';
+import { SOP_PROTOCOLS, ROI_PRESETS } from '../constants/detectionConfig';
 import AnimalIcon from '../components/common/AnimalIcon';
 
 /* ─── SVG Step Icons ─── */
@@ -84,13 +84,32 @@ const STEP_ICONS = {
 
 /* ─── ROI Calculator ─── */
 function ROISection() {
-  const [pestControl,       setPestControl]       = useState(ROI_DEFAULTS.pestControl);
-  const [staffCost,         setStaffCost]         = useState(ROI_DEFAULTS.staffCost);
-  const [incidentLoss,      setIncidentLoss]      = useState(ROI_DEFAULTS.incidentLoss);
-  const [incidentsPerMonth, setIncidentsPerMonth] = useState(ROI_DEFAULTS.incidentsPerMonth);
-  const [systemCost,        setSystemCost]        = useState(ROI_DEFAULTS.systemCost);
-  const [implementationCost,setImplementationCost]= useState(ROI_DEFAULTS.implementationCost);
-  const [reductionRate,     setReductionRate]     = useState(ROI_DEFAULTS.reductionRate);
+  const [scenario,          setScenario]          = useState('conservative');
+  const [pestControl,       setPestControl]       = useState(ROI_PRESETS.conservative.pestControl);
+  const [staffCost,         setStaffCost]         = useState(ROI_PRESETS.conservative.staffCost);
+  const [incidentLoss,      setIncidentLoss]      = useState(ROI_PRESETS.conservative.incidentLoss);
+  const [incidentsPerMonth, setIncidentsPerMonth] = useState(ROI_PRESETS.conservative.incidentsPerMonth);
+  const [systemCost,        setSystemCost]        = useState(ROI_PRESETS.conservative.systemCost);
+  const [implementationCost,setImplementationCost]= useState(ROI_PRESETS.conservative.implementationCost);
+  const [reductionRate,     setReductionRate]     = useState(ROI_PRESETS.conservative.reductionRate);
+
+  const applyScenario = (key) => {
+    const p = ROI_PRESETS[key];
+    if (!p) return;
+    setScenario(key);
+    setPestControl(p.pestControl);
+    setStaffCost(p.staffCost);
+    setIncidentLoss(p.incidentLoss);
+    setIncidentsPerMonth(p.incidentsPerMonth);
+    setSystemCost(p.systemCost);
+    setImplementationCost(p.implementationCost);
+    setReductionRate(p.reductionRate);
+  };
+
+  const SCENARIOS = [
+    { key: 'conservative', label: 'Konservatif', desc: 'Penggantian patrol parsial + offset kontrak 30%', color: '#57534e' },
+    { key: 'aggressive',   label: 'Agresif',     desc: 'Menggantikan penuh biaya pest control manual',  color: '#292524' },
+  ];
 
   const manualMonthly   = pestControl + staffCost + (incidentLoss * incidentsPerMonth);
   const reducedIncidents= incidentsPerMonth * (1 - reductionRate / 100);
@@ -128,6 +147,37 @@ function ROISection() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* Scenario toggle */}
+      <div className="card" style={{ padding: '1rem 1.25rem' }}>
+        <p style={{ margin: '0 0 0.75rem', fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          Skenario Proyeksi
+        </p>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          {SCENARIOS.map((s) => {
+            const active = scenario === s.key;
+            return (
+              <button
+                key={s.key}
+                onClick={() => applyScenario(s.key)}
+                style={{
+                  flex: '1 1 220px', textAlign: 'left', cursor: 'pointer',
+                  padding: '0.75rem 1rem', borderRadius: '10px',
+                  border: `2px solid ${active ? s.color : 'var(--border-color)'}`,
+                  backgroundColor: active ? `${s.color}10` : 'transparent',
+                  transition: 'background-color 0.2s ease, border-color 0.2s ease',
+                }}
+              >
+                <span style={{ display: 'block', fontSize: '0.9rem', fontWeight: '800', color: active ? s.color : 'var(--text-primary)' }}>{s.label}</span>
+                <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>{s.desc}</span>
+              </button>
+            );
+          })}
+        </div>
+        <p style={{ margin: '0.75rem 0 0', fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+          Geser slider untuk menyesuaikan. Skenario konservatif adalah angka yang kami ajukan untuk diaudit; agresif adalah potensi maksimal.
+        </p>
+      </div>
+
       <div className="roi-grid">
         {/* Input: Manual Costs */}
         <div className="card" style={{ padding: '1.5rem' }}>

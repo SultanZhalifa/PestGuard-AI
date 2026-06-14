@@ -141,8 +141,9 @@ export default function StatCards({ status, activeZones, totalLogs, aiData, last
                 <LatencyGauge ms={parseInt(aiData.speed) || 0} />
                 <div style={{ marginTop: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <span className="ai-badge">{aiData.model}</span>
-                  <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
-                    CLAHE ✓
+                  <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    CLAHE
                   </span>
                 </div>
               </div>

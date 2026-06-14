@@ -150,13 +150,34 @@ export const SOP_PROTOCOLS = {
   },
 };
 
-/** Default ROI calculator values (in IDR) */
-export const ROI_DEFAULTS = {
-  pestControl:        15_000_000,
-  staffCost:           8_000_000,
-  incidentLoss:        5_000_000,
-  incidentsPerMonth:   3,
-  systemCost:          3_000_000,
-  implementationCost: 25_000_000,
-  reductionRate:       70,
+/**
+ * ROI calculator presets (in IDR), per distribution center.
+ * Two scenarios are offered so stakeholders see a downside-protected planning range:
+ *  - conservative: partial patrol replacement + 30% pest-contract offset.
+ *    Produces ~Rp 76 jt/yr savings, ~12.4 month payback (matches Executive Summary).
+ *  - aggressive: offsets the full manual pest-control contract (Rp 15-30 jt/mo).
+ *    Produces ~Rp 214 jt/yr savings, ~4.4 month payback (matches proposal upside).
+ */
+export const ROI_PRESETS = {
+  conservative: {
+    pestControl:         1_500_000,
+    staffCost:           3_000_000,
+    incidentLoss:        4_000_000,
+    incidentsPerMonth:   1,
+    systemCost:          1_000_000,
+    implementationCost: 78_000_000,
+    reductionRate:       70,
+  },
+  aggressive: {
+    pestControl:        15_000_000,
+    staffCost:           3_000_000,
+    incidentLoss:        4_000_000,
+    incidentsPerMonth:   1,
+    systemCost:          3_000_000,
+    implementationCost: 78_000_000,
+    reductionRate:       70,
+  },
 };
+
+/** Backward-compatible default (conservative scenario). */
+export const ROI_DEFAULTS = ROI_PRESETS.conservative;

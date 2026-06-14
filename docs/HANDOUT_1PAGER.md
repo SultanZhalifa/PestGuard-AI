@@ -36,9 +36,9 @@ Real-time multi-zone AI surveillance with custom-trained YOLO11.
 | Deployment | `docker compose up` (single command) |
 
 **3-tier risk classification:**
-- 🐍 **Snake** → DANGER → Zone lockdown + animal control
-- 🐈 **Cat** → WARNING → Sanitization + inventory inspection
-- 🦎 **Gecko/Lizard** → MONITORING → Daily summary + entry-point inspection
+- **Snake** — DANGER — Zone lockdown + animal control
+- **Cat** — WARNING — Sanitization + inventory inspection
+- **Gecko/Lizard** — MONITOR — Daily summary + entry-point inspection
 
 **BPOM-ready evidence chain:** Auto-snapshot per detection, retention 7 days / 1,000 file rolling, DB-linked.
 
@@ -60,9 +60,10 @@ Real-time multi-zone AI surveillance with custom-trained YOLO11.
 
 ### SUSTAINABILITY ALIGNMENT
 
-Direct contribution to 2 of Kawan Lama's 5 sustainability pillars:
-- **🌱 Environment** — Targeted pest response → reduced broad-spectrum chemicals
-- **💚 Health** — Worker protection from snake encounters + zoonotic disease prevention
+Direct contribution to Kawan Lama's sustainability pillars and UN SDGs:
+- **Environment (SDG 12)** — Targeted pest response reduces broad-spectrum chemicals
+- **Health (SDG 3)** — Worker protection from snake encounters + zoonotic disease prevention
+- **Social (SDG 8)** — Eliminates 3 AM patrol shifts; AI surveils, humans respond
 
 ---
 
@@ -82,8 +83,9 @@ If not → you keep the data. We keep the experience. No commitment.
 **Misha Andalusia** — Frontend Lead
 **Fathir Barhouti Awlya** — Backend & AI Lead
 
-📧 sultanzhalifunnasmusyaffa@gmail.com
-🔗 github.com/SultanZhalifa/smart-warehouse-dashboard
+Email: sultanzhalifunnasmusyaffa@gmail.com
+GitHub: github.com/SultanZhalifa/PestGuard-AI
+Live demo: pestguard-ai.vercel.app
 
 ---
 

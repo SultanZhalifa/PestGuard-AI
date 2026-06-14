@@ -1,5 +1,38 @@
 import React, { useState, useRef, useEffect } from 'react';
 import api from '../lib/apiClient';
+import { useT } from '../hooks/useT';
+
+/* ─── Copy-to-clipboard button for AI responses ─── */
+function CopyButton({ text }) {
+  const t = useT();
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch { /* clipboard unavailable */ }
+  };
+  return (
+    <button
+      onClick={copy}
+      title={copied ? t.common.copied : t.common.copy}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer',
+        background: 'transparent', border: 'none', padding: '0.1rem 0.2rem',
+        color: copied ? 'var(--alert-success, #15803d)' : 'var(--text-secondary)',
+        fontSize: '0.65rem', fontWeight: 600, opacity: 0.75,
+      }}
+    >
+      {copied ? (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      ) : (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      )}
+      {copied ? t.common.copied : t.common.copy}
+    </button>
+  );
+}
 
 /* ─── SVG Icon Library (inline, no deps) ─── */
 const Icon = {
@@ -221,8 +254,11 @@ export default function AskAI() {
               ) : (
                 msg.text
               )}
-              <div style={{ fontSize: '0.65rem', marginTop: '0.5rem', opacity: 0.5, textAlign: msg.role === 'user' ? 'right' : 'left' }}>
-                {msg.timestamp?.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: msg.role === 'user' ? 'flex-end' : 'space-between', gap: '0.5rem', marginTop: '0.5rem' }}>
+                <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>
+                  {msg.timestamp?.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+                {msg.role === 'ai' && !msg.animate && <CopyButton text={msg.text} />}
               </div>
             </div>
 
