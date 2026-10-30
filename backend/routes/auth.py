@@ -11,7 +11,6 @@ import time
 import hashlib
 import logging
 import secrets
-import random
 import string
 import re
 
@@ -421,7 +420,7 @@ def forgot_password(request: ForgotPasswordRequest, req: Request):
     if not user:
         return generic_response  # Don't reveal that email doesn't exist
 
-    code = "".join(random.choices(string.digits, k=6))
+    code = "".join(secrets.choice(string.digits) for _ in range(6))
     _db_save_reset_code(request.email, code, time.time() + 600)
 
     # OTP shown on server console only — never sent over the network

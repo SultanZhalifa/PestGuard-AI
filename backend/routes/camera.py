@@ -419,7 +419,8 @@ def toggle_zone(zone_id: str, req: ZoneToggleRequest, auth: bool = Depends(verif
         try:
             worker.start()
         except RuntimeError as e:
-            raise HTTPException(status_code=500, detail=str(e))
+            # The source couldn't be opened (no webcam, bad URL): a client-side problem, not a crash.
+            raise HTTPException(status_code=422, detail=str(e))
         return {"status": "success", "message": f"{zone_name} started.", "zone_id": zone_id}
 
     # Stop

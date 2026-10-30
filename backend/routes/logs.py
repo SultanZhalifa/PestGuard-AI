@@ -5,6 +5,7 @@ CRUD operations for detection logs, CSV export,
 and public-facing latest detections endpoint.
 """
 
+import csv
 import os
 import io
 import time
@@ -131,6 +132,13 @@ def get_latest_detections_public():
     return [{"type": r[0], "time": r[1], "risk": r[2]} for r in rows]
 
 
+def _csv_safe(value):
+    """Security: stop spreadsheet apps from running a cell as a formula."""
+    if isinstance(value, str) and value[:1] in ("=", "+", "-", "@", "\t", "\r"):
+        return "'" + value
+    return value
+
+
 # ─── Export Logs as CSV ───
 @router.get("/export/logs")
 def export_logs_csv(token: Optional[str] = None):
@@ -149,8 +157,9 @@ def export_logs_csv(token: Optional[str] = None):
 
     output = io.StringIO()
     output.write("ID,Animal Type,Location,Date,Time,Confidence,Risk Level\n")
+    writer = csv.writer(output)
     for r in rows:
-        output.write(f'{r[0]},{r[1]},"{r[2]}",{r[3]},{r[4]},{r[5]},{r[6]}\n')
+        writer.writerow([_csv_safe(v) for v in r])
 
     today = time.strftime("%Y-%m-%d")
     return Response(
