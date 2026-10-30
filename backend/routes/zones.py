@@ -5,14 +5,17 @@ Multi-zone camera management with real-time
 status tracking via database persistence.
 """
 
+import ipaddress
 import os
+import socket
 from pathlib import Path
+from urllib.parse import urlsplit
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from config import verify_token, BASE_DIR
+from config import verify_token, require_role, BASE_DIR
 from database import get_db
 
 router = APIRouter(prefix="/api", tags=["Camera"])
@@ -154,6 +157,49 @@ def _classify_source(source: str) -> str:
     return "video"
 
 
+STREAM_SCHEMES = ("rtsp", "rtsps", "http", "https")
+
+
+def _validate_source(raw: str) -> str:
+    """Security: only allow a webcam index, a stream URL, or a file in demo_videos/.
+
+    The source is handed to cv2.VideoCapture, which opens local files and any
+    URL, so a blocklist of strings isn't enough. LAN addresses stay allowed
+    because warehouse CCTV lives on the local network; loopback, link-local
+    (cloud metadata), unspecified and multicast addresses are rejected after
+    DNS resolution.
+    """
+    src = raw.strip()
+    if not src:
+        return ""
+    if src.isdigit():
+        if int(src) > 9:
+            raise HTTPException(status_code=400, detail="Webcam index must be 0-9.")
+        return src
+
+    parts = urlsplit(src)
+    if parts.scheme:
+        if parts.scheme.lower() not in STREAM_SCHEMES or not parts.hostname:
+            raise HTTPException(status_code=400, detail="Use an rtsp://, http:// or https:// stream URL.")
+        try:
+            infos = socket.getaddrinfo(parts.hostname, None)
+        except (socket.gaierror, UnicodeError):
+            raise HTTPException(status_code=400, detail="Camera host could not be resolved.")
+        for info in infos:
+            ip = ipaddress.ip_address(info[4][0].split("%")[0])
+            if ip.is_loopback or ip.is_link_local or ip.is_unspecified or ip.is_multicast or ip.is_reserved:
+                raise HTTPException(status_code=400, detail="Internal network addresses are not allowed.")
+        return src
+
+    path = Path(src)
+    if not path.is_absolute():
+        path = DEMO_VIDEOS_DIR / path
+    path = path.resolve()
+    if not path.is_relative_to(DEMO_VIDEOS_DIR.resolve()):
+        raise HTTPException(status_code=400, detail="Video files must be inside backend/demo_videos/.")
+    return str(path)
+
+
 class ZoneUpdateRequest(BaseModel):
     source: Optional[str] = None
     status: Optional[str] = None
@@ -162,7 +208,8 @@ class ZoneUpdateRequest(BaseModel):
 
 # ─── Update Camera Zone ───
 @router.post("/cameras/{zone_id}")
-def update_camera_zone(zone_id: str, data: ZoneUpdateRequest, auth: bool = Depends(verify_token)):
+def update_camera_zone(zone_id: str, data: ZoneUpdateRequest,
+                       session: dict = Depends(require_role("admin", "manager"))):
     with get_db() as conn:
         cursor = conn.cursor()
 
@@ -171,21 +218,7 @@ def update_camera_zone(zone_id: str, data: ZoneUpdateRequest, auth: bool = Depen
             raise HTTPException(status_code=404, detail="Zone not found")
 
         if data.source is not None:
-            # Security: validate camera source to prevent SSRF and path traversal
-            src = data.source.strip()
-            if src and not src.isdigit():
-                # Block dangerous protocols
-                if src.lower().startswith(("file://", "ftp://", "gopher://")):
-                    raise HTTPException(status_code=400, detail="Invalid source protocol.")
-                # Block path traversal
-                if ".." in src:
-                    raise HTTPException(status_code=400, detail="Invalid source path.")
-                # Block obvious internal network targets
-                if any(internal in src.lower() for internal in [
-                    "169.254.", "127.0.0.1", "localhost", "0.0.0.0",
-                    "metadata.google", "metadata.aws",
-                ]):
-                    raise HTTPException(status_code=400, detail="Internal network addresses are not allowed.")
+            src = _validate_source(data.source)
             cursor.execute(
                 "UPDATE camera_zones SET source=? WHERE id=?",
                 (src, zone_id)
@@ -206,7 +239,7 @@ def update_camera_zone(zone_id: str, data: ZoneUpdateRequest, auth: bool = Depen
 
 # ─── Test Camera Source Connectivity ───
 @router.post("/cameras/{zone_id}/test")
-def test_camera_source(zone_id: str, auth: bool = Depends(verify_token)):
+def test_camera_source(zone_id: str, session: dict = Depends(require_role("admin", "manager"))):
     """Quick stream validation: open capture, read 1 frame, report result."""
     try:
         import cv2
