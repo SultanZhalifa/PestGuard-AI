@@ -137,14 +137,42 @@ class TestCamera:
         assert response.status_code == 401
 
     def test_camera_toggle_on(self, client, auth_headers):
-        response = client.post("/api/camera/toggle", json={"state": True}, headers=auth_headers)
+        # Zone B plays a bundled demo video, so this works on machines without a webcam (CI).
+        response = client.post("/api/cameras/zone-b/toggle", json={"state": True}, headers=auth_headers)
         assert response.status_code == 200
         assert "started" in response.json()["message"].lower()
+        client.post("/api/cameras/zone-b/toggle", json={"state": False}, headers=auth_headers)
+
+    def test_camera_toggle_without_device_is_not_a_server_error(self, client, auth_headers):
+        response = client.post("/api/camera/toggle", json={"state": True}, headers=auth_headers)
+        assert response.status_code in (200, 422)
 
     def test_camera_toggle_off(self, client, auth_headers):
         response = client.post("/api/camera/toggle", json={"state": False}, headers=auth_headers)
         assert response.status_code == 200
         assert "stopped" in response.json()["message"].lower()
+
+    @pytest.mark.parametrize("source", [
+        "http://127.0.0.1:8000/api/settings",
+        "http://169.254.169.254/latest/meta-data/",
+        "http://[::1]/",
+        "file:///etc/passwd",
+        "/etc/passwd",
+        "../config.py",
+    ])
+    def test_camera_source_rejects_internal_and_local_files(self, client, auth_headers, source):
+        response = client.post("/api/cameras/zone-b", json={"source": source}, headers=auth_headers)
+        assert response.status_code == 400
+
+    def test_camera_source_accepts_lan_stream(self, client, auth_headers):
+        response = client.post("/api/cameras/zone-d", json={"source": "rtsp://192.168.1.20/stream1"}, headers=auth_headers)
+        assert response.status_code == 200
+
+    def test_camera_source_requires_admin_or_manager(self, client):
+        login = client.post("/api/login", json={"username": "operator", "password": "operator123"})
+        headers = {"Authorization": f"Bearer {login.json()['token']}"}
+        response = client.post("/api/cameras/zone-d", json={"source": "0"}, headers=headers)
+        assert response.status_code == 403
 
 
 # ─── Invite System Tests ───
